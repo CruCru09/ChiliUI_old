@@ -33,7 +33,7 @@ LuaUI/Widgets/
 
 - The top-level control must be assigned to a parent: `parent = Chili.Screen0`; controls without a parent are orphans and will never be drawn or respond to mouse events.
 
-The complete transplantation instructions can be found in [PORTING.md](chili_old/PORTING.md)
+The complete transplantation instructions can be found in [PORTING.md](docs/PORTING.md)
 
 ## Modify the document / Add pages (Markdown pipeline)
 
