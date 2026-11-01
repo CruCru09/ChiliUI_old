@@ -11,3 +11,14 @@ chili_old/_docbuild/_cjk*.txt
 # Windows
 Thumbs.db
 desktop.ini
+
+# LF format
+* text=auto
+
+# LF format
+*.html text eol=lf
+*.lua text eol=lf
+*.json text eol=lf
+*.cjs text eol=lf
+*.md text eol=lf
+*.bat text eol=crlf  # .bat 批处理文件在 Windows 下必须是 CRLF

@@ -9,5 +9,5 @@
   "repoUrl": "https://github.com/gajop/chiliui",
   "repoUrl_comment": "GitHub repository URL shown as the round button in the top bar (empty = hidden). This default points at the upstream Chili UI project; change it to your own fork/repository when you publish one.",
   "defaultTheme": "light",
-  "outputDir": "./html"
+  "outputDir": "../docs"
 }
