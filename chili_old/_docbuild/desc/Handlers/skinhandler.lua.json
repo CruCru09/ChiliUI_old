@@ -1,0 +1,32 @@
+{
+  "file": "Handlers/skinhandler.lua",
+  "module": {
+    "funcs": {
+      "SkinHandler.IsValidSkin": {
+        "desc": "判断指定名字的皮肤是否已成功加载",
+        "params": {
+          "skinname": "皮肤名（大小写不敏感）"
+        },
+        "returns": "boolean"
+      },
+      "SkinHandler.GetSkinInfo": {
+        "desc": "返回皮肤 info 表的浅拷贝；函数内用的是全局 skinname（通常为 nil），实际多返回空表",
+        "returns": "info 表副本，找不到为空表"
+      },
+      "SkinHandler.GetAvailableSkins": {
+        "desc": "按加载顺序返回所有已知皮肤的名字数组",
+        "returns": "皮肤名数组"
+      },
+      "SkinHandler.LoadSkin": {
+        "desc": "把 control.skinName 皮肤与 default 皮肤中该类、父类及 general 的属性合并进 control",
+        "params": {
+          "control": "待套用皮肤属性的控件",
+          "class": "控件类（沿 inherited 链逐级合并）"
+        }
+      }
+    },
+    "summary": "皮肤管理：扫描 skin 目录读取 skin.lua、处理 depend 继承与贴图路径，并按 类 / 父类 / general 的优先级把默认字段合并进控件。"
+  },
+  "fileDesc": "皮肤管理：扫描 skin 目录加载 skin.lua 配置、处理 depend 继承与图片路径翻译，并按类/父类/general 合并默认属性到控件。",
+  "_orphans": {}
+}

@@ -1,0 +1,70 @@
+{
+  "file": "Controls/progressbar.lua",
+  "classes": {
+    "Progressbar": {
+      "summary": "进度条控件：在 min..max 区间内按 value 绘制填充块与居中 caption，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 \"progressbar\"",
+        "defaultWidth": "默认宽度（像素 90），未显式设置 width 时使用",
+        "defaultHeight": "默认高度（像素 20），未显式设置 height 时使用",
+        "min": "进度区间最小值，默认 0",
+        "max": "进度区间最大值，默认 100",
+        "value": "当前进度值，默认 100，始终被夹紧在 min..max",
+        "orientation": "方向：\"horizontal\"（默认）或 \"vertical\"",
+        "reverse": "为 true 时从另一端反向填充，默认 false",
+        "caption": "中央显示文字，默认空字符串",
+        "noFont": "为 true 时不绘制 caption",
+        "color": "前景填充色 {r,g,b,a}，默认 {0,0,1,1} 蓝色",
+        "backgroundColor": "背景（未完成部分）填充色，默认 {1,1,1,1} 白色",
+        "OnChange": "值变化监听表，调用参数 (newValue, oldValue)"
+      },
+      "funcs": {
+        "Progressbar:New": {
+          "desc": "创建实例后按 min/max 初始化并夹紧 value。",
+          "params": {
+            "obj": "构造表（可含 width/height 等字段）"
+          },
+          "returns": "新建的 Progressbar 实例"
+        },
+        "Progressbar:_Clamp": {
+          "desc": "把数值夹到 [min,max]；min>max 时按反向区间夹紧。(内部)",
+          "params": {
+            "v": "待夹紧的数值"
+          },
+          "returns": "夹紧后的值"
+        },
+        "Progressbar:SetColor": {
+          "desc": "解析颜色参数并合并进 color，颜色变化时重绘。",
+          "params": {
+            "...": "交给 _ParseColorArgs 解析的颜色参数"
+          }
+        },
+        "Progressbar:SetMinMax": {
+          "desc": "设置 min/max（tonumber 转换，非法值回退 0/1）并重新夹紧 value。",
+          "params": {
+            "min": "最小值",
+            "max": "最大值"
+          }
+        },
+        "Progressbar:SetValue": {
+          "desc": "夹紧并设置 value，变化时可选更新 caption、触发 OnChange 并重绘。",
+          "params": {
+            "v": "新值",
+            "setcaption": "为真时同步把 caption 设为新值"
+          }
+        },
+        "Progressbar:SetCaption": {
+          "desc": "设置中央文本，内容变化时重绘。",
+          "params": {
+            "str": "新文本"
+          }
+        },
+        "Progressbar:DrawControl": {
+          "desc": "按 orientation/reverse 绘制背景与前景填充块，并在中心绘制 caption。"
+        }
+      }
+    }
+  },
+  "fileDesc": "单值进度条控件：在 min..max 区间内按 value 绘制水平或垂直填充块并居中显示 caption。",
+  "_orphans": {}
+}

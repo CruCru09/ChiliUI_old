@@ -1,0 +1,45 @@
+{
+  "file": "Controls/window.lua",
+  "classes": {
+    "Window": {
+      "summary": "Window control: a top-level container that can be dragged, resized and brought to front on click; its look is drawn by skins. Inherits from Control.",
+      "props": {
+        "classname": "Control class name, fixed to 'window'",
+        "resizable": "When true the window may be resized by dragging its edge; default true",
+        "draggable": "When true the window may be moved by dragging it; default true",
+        "bringToFrontOnClick": "When true a mouse press brings the window to front; default true",
+        "noFont": "When true no font is used; default true",
+        "minWidth": "Minimum width while resizing, in pixels (50)",
+        "minHeight": "Minimum height while resizing, in pixels (50)",
+        "defaultWidth": "Default width in pixels (400)",
+        "defaultHeight": "Default height in pixels (300)"
+      },
+      "funcs": {
+        "Window:UpdateClientArea": {
+          "desc": "Registers or updates the blur rectangle for the window; the whole implementation is currently commented out and never runs."
+        },
+        "Window:New": {
+          "desc": "Creates the instance: with a caption and no explicit noFont a font is allowed, then BringToFront raises the window.",
+          "params": {
+            "obj": "Construction table"
+          },
+          "returns": "The new Window instance"
+        },
+        "Window:DrawControl": {
+          "desc": "Empty implementation; the window background, title bar and border are drawn by skins."
+        },
+        "Window:MouseDown": {
+          "desc": "When bringToFrontOnClick is true it calls BringToFront first, then lets the parent handle the press.",
+          "params": {
+            "...": "Mouse arguments, forwarded to the parent"
+          }
+        },
+        "Window:TweakDraw": {
+          "desc": "In layout-tweak mode, draws a translucent green overlay and a tiled texture, using the resizable variant for resizable windows."
+        }
+      }
+    }
+  },
+  "fileDesc": "Window control: a draggable/resizable/click-to-front top-level container whose title bar and border are drawn by skins; TweakDraw is used for layout debugging.",
+  "_orphans": {}
+}

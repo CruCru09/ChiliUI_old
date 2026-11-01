@@ -1,0 +1,50 @@
+{
+  "_comment": "To-do / Development Roadmap. Convert the original todo.txt file into JSON format to facilitate manual additions and deletions; the documentation will not read this file. status: open | doing | done",
+  "items": [
+    {
+      "area": "layout",
+      "status": "open",
+      "text": "fix fixedRatio 1 pixel jumping"
+    },
+    {
+      "area": "listeners",
+      "status": "open",
+      "text": "check all listeners if they use chili objects (doing so might break the garbage collection); if so replace them with weaklinks (debug.getupvalue & debug.setupvalue)"
+    },
+    {
+      "area": "control",
+      "status": "open",
+      "text": "self:Resize(), OnResize"
+    },
+    {
+      "area": "controls",
+      "status": "open",
+      "text": "combobox improvements"
+    },
+    {
+      "area": "render",
+      "status": "open",
+      "text": "RenderToTexture"
+    },
+    {
+      "area": "hittest",
+      "status": "open",
+      "text": "masks for HitTest (depending on linked textures -> alpha channel)"
+    },
+    {
+      "area": "skins",
+      "status": "open",
+      "text": "more different window controls -> background textures"
+    },
+    {
+      "area": "transform",
+      "status": "open",
+      "text": "use matrices for clientspace transformations"
+    },
+    {
+      "area": "theme",
+      "status": "open",
+      "text": "theme & layout handler"
+    }
+  ]
+}

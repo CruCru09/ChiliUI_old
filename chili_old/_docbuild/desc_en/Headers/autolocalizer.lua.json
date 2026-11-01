@@ -1,0 +1,35 @@
+{
+  "file": "Headers/autolocalizer.lua",
+  "module": {
+    "summary": "Load-time auto-localization: overrides VFS.Include/VFS.LoadFile to rewrite global namespace accesses (Spring/Script/gl/math etc.) into locals (gated by the AutoLocalizeLua config, on by default).",
+    "funcs": {
+      "VFS.Include": {
+        "desc": "Overrides VFS.Include: loads the file, applies the localization rewrite, loadstrings it, runs it in enviroment (the caller's env when omitted) and returns the chunk result; returns nil when the file cannot be read.",
+        "params": {
+          "filename": "file path",
+          "enviroment": "optional environment",
+          "mode": "optional VFS mode"
+        },
+        "returns": "the chunk's return value"
+      },
+      "VFS.LoadFile": {
+        "desc": "Overrides VFS.LoadFile: reads the file and, when the name contains '.lua', returns the auto-localized source string; otherwise returns the raw content.",
+        "params": {
+          "filename": "file path",
+          "mode": "optional VFS mode"
+        },
+        "returns": "source string"
+      },
+      "LoadFileSafe": {
+        "desc": "Calls the originally saved VFS.LoadFile directly (bypassing the override) to avoid recursion.",
+        "params": {
+          "filename": "file path",
+          "mode": "optional VFS mode"
+        },
+        "returns": "file content"
+      }
+    }
+  },
+  "fileDesc": "Overrides VFS.Include/VFS.LoadFile to auto-localize global namespace accesses at load time for speed.",
+  "_orphans": {}
+}

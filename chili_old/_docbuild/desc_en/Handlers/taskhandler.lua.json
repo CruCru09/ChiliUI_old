@@ -1,0 +1,38 @@
+{
+  "file": "Handlers/taskhandler.lua",
+  "module": {
+    "funcs": {
+      "TaskHandler.RequestGlobalDispose": {
+        "desc": "Registers an object in the global dispose listener table (weak), so RemoveObject later calls its OnGlobalDispose.",
+        "params": {
+          "obj": "Listener object; it must implement OnGlobalDispose."
+        }
+      },
+      "TaskHandler.RequestUpdate": {
+        "desc": "Queues an object for the next frame's Update, de-duplicated via obj.__inUpdateQueue.",
+        "params": {
+          "obj": "Object to update."
+        }
+      },
+      "TaskHandler.RemoveObject": {
+        "desc": "Notifies the global dispose listeners and removes the object from the Update queue (swap-with-last removal).",
+        "params": {
+          "obj": "Object being destroyed."
+        },
+        "returns": "true when removed, false/nil when it was not queued."
+      },
+      "TaskHandler.RequestInstantUpdate": {
+        "desc": "Queues an object for InstantUpdate, which Update drains in a same-frame loop.",
+        "params": {
+          "obj": "Object to update immediately."
+        }
+      },
+      "TaskHandler.Update": {
+        "desc": "Calls Update on the objects collected during the previous frame, then loops until the InstantUpdate queue is empty (each call via SafeCall)."
+      }
+    },
+    "summary": "Update scheduler: collect objects requesting Update / InstantUpdate, dispatch them from TaskHandler.Update every frame, and broadcast disposal (OnGlobalDispose)."
+  },
+  "fileDesc": "Update scheduling: collects objects requesting Update or InstantUpdate, invokes them in batch from TaskHandler.Update every frame, and broadcasts object destruction events.",
+  "_orphans": {}
+}

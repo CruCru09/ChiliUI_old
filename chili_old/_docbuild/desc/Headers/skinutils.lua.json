@@ -1,0 +1,182 @@
+{
+  "file": "Headers/skinutils.lua",
+  "module": {
+    "funcs": {
+      "_DrawTextureAspect": {
+        "desc": "在给定框内按纹理宽高比居中缩放绘制（坐标取整，内部）",
+        "params": {
+          "x,y,w,h": "目标矩形",
+          "tw,th": "纹理原始像素宽高"
+        }
+      },
+      "_DrawTiledTexture": {
+        "desc": "九宫格式绘制可拉伸纹理：四角保持原尺寸，边与中心按纹理坐标拉伸，空间不足时缩小角尺寸",
+        "params": {
+          "x,y,w,h": "目标矩形",
+          "skLeft,skTop,skRight,skBottom": "四角切片尺寸",
+          "texw,texh": "纹理像素宽高",
+          "texIndex": "纹理单元索引，默认 0"
+        }
+      },
+      "_DrawTiledBorder": {
+        "desc": "九宫格式绘制纹理边框，与 _DrawTiledTexture 的区别是中心区域不填充",
+        "params": {
+          "x,y,w,h": "目标矩形",
+          "skLeft,skTop,skRight,skBottom": "四角切片尺寸",
+          "texw,texh": "纹理像素宽高",
+          "texIndex": "纹理单元索引，默认 0"
+        }
+      },
+      "DrawWindow": {
+        "desc": "绘制窗口：按 color 平铺 TileImage 背景，并用居中字体打印 caption",
+        "params": {
+          "obj": "window 控件"
+        }
+      },
+      "DrawButton": {
+        "desc": "绘制按钮 BK/FG 两层瓦片，按 pressed/hovered 换色，并居中或按 align 打印 caption",
+        "params": {
+          "obj": "button 控件"
+        }
+      },
+      "DrawComboBox": {
+        "desc": "先调 DrawButton 画本体，再在右侧 padding 宽度内按比例绘制下拉箭头",
+        "params": {
+          "self": "combobox 控件（同时扮演按钮）"
+        }
+      },
+      "DrawEditBox": {
+        "desc": "绘制编辑框背景与边框、文本（hint/密码掩码/超宽裁剪）、闪烁光标与选区高亮",
+        "params": {
+          "obj": "editbox 控件"
+        }
+      },
+      "DrawPanel": {
+        "desc": "用 TileImageBK（backgroundColor）与 TileImageFG（borderColor）两层平铺瓦片绘制面板背景",
+        "params": {
+          "obj": "panel 控件"
+        }
+      },
+      "DrawItemBkGnd": {
+        "desc": "按 state 选颜色，平铺绘制列表项的 BK/FG 背景图",
+        "params": {
+          "obj": "item 控件",
+          "x,y,w,h": "绘制矩形",
+          "state": "item 状态，'selected' 时用选中色"
+        }
+      },
+      "DrawScrollPanelBorder": {
+        "desc": "用 _DrawTiledBorder 绘制滚动面板边框，尺寸按可见滚动条扣减",
+        "params": {
+          "self": "scrollpanel 控件"
+        }
+      },
+      "DrawScrollPanel": {
+        "desc": "绘制滚动面板背景瓦片，以及垂直/水平滚动条轨道与按 scrollPos 计算的滑块",
+        "params": {
+          "obj": "scrollpanel 控件"
+        }
+      },
+      "DrawCheckbox": {
+        "desc": "绘制复选框方框（可换圆角图并支持 boxalign）与选中标记，并打印 caption",
+        "params": {
+          "obj": "checkbox 控件"
+        }
+      },
+      "DrawProgressbar": {
+        "desc": "按 value/min/max 算百分比绘制背景与填充条（支持 fillPadding、垂直方向与 caption）",
+        "params": {
+          "obj": "progressbar 控件"
+        }
+      },
+      "DrawTrackbar": {
+        "desc": "绘制滑条轨道、按步进间隔循环绘制刻度点，以及按 _GetPercent() 定位的滑块",
+        "params": {
+          "self": "trackbar 控件"
+        }
+      },
+      "DrawTreeviewNode": {
+        "desc": "当节点是 treeview 的选中项时，平铺绘制 ImageNodeSelected 选中背景",
+        "params": {
+          "self": "treeview 节点（node）"
+        }
+      },
+      "DrawTreeviewNodeTree": {
+        "desc": "绘制节点的层级连接线（_DrawLineV+_DrawLineH），有子节点时再画展开/折叠图标",
+        "params": {
+          "self": "treeview 节点（node）"
+        }
+      },
+      "DrawLine": {
+        "desc": "按 style 是否以 v 开头选择垂直/水平方向，绘制宽 4 像素的瓦片线",
+        "params": {
+          "self": "line 控件"
+        }
+      },
+      "DrawTabBarItem": {
+        "desc": "按 pressed/hovered/selected 选色绘制标签背景与边框，并用 DrawInBox 居中绘制 caption",
+        "params": {
+          "obj": "tabbar 的子项"
+        }
+      },
+      "DrawDragGrip": {
+        "desc": "用 TRIANGLES 绘制窗口左上角的灰色/深色拖动抓手三角箭头",
+        "params": {
+          "obj": "可拖动窗口"
+        }
+      },
+      "DrawResizeGrip": {
+        "desc": "当 obj.resizable 为真时，用 LINES 在 boxes.resize 内绘制三条斜线缩放手柄",
+        "params": {
+          "obj": "可缩放窗口"
+        }
+      },
+      "_ProcessRelative": {
+        "desc": "把相对坐标码换算成像素：'NN%' 取总长百分比（限定 0-100），负数从末端计算",
+        "params": {
+          "code": "相对坐标码：百分比字符串或数值",
+          "total": "参考总长度"
+        },
+        "returns": "取整后的像素值"
+      },
+      "GetRelativeObjBox": {
+        "desc": "把 {x,y,w,h} 相对框按 obj.width/height 逐项用 _ProcessRelative 解析成绝对像素框",
+        "params": {
+          "obj": "参照控件",
+          "boxrelative": "相对框 {左, 上, 右, 下}"
+        },
+        "returns": "绝对像素框 {左, 上, 右, 下}"
+      },
+      "NCHitTestWithPadding": {
+        "desc": "非客户区命中测试：扣除 hitpadding 后判断是否落在 resize/drag 框或可拖/不可穿透区域，命中返回 obj",
+        "params": {
+          "obj": "窗口控件",
+          "mx": "鼠标 x",
+          "my": "鼠标 y"
+        },
+        "returns": "命中返回 obj，否则 false/nil（内部使用）"
+      },
+      "WindowNCMouseDown": {
+        "desc": "非客户区按下：落在 resize 框内调 StartResizing，落在 drag 框内调 StartDragging",
+        "params": {
+          "obj": "窗口控件",
+          "x": "鼠标 x",
+          "y": "鼠标 y"
+        },
+        "returns": "处理了则返回 obj"
+      },
+      "WindowNCMouseDownPostChildren": {
+        "desc": "子控件未消费按下事件时：可拖动且无抓手则 StartDragging，否则 noClickThrough 时返回 obj",
+        "params": {
+          "obj": "窗口控件",
+          "x": "鼠标 x",
+          "y": "鼠标 y"
+        },
+        "returns": "处理了则返回 obj"
+      }
+    },
+    "summary": "皮肤绘制工具集：各控件的 GL 绘制函数、九宫格平铺与边框绘制、非客户区命中测试，以及相对坐标换算（right/bottom/百分比）的辅助函数。"
+  },
+  "fileDesc": "皮肤绘制工具集：各控件的 GL 绘制函数、九宫格平铺/边框绘制、非客户区命中测试与相对坐标换算辅助。",
+  "_orphans": {}
+}

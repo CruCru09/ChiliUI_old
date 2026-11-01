@@ -1,0 +1,184 @@
+{
+  "file": "Controls/editbox.lua",
+  "classes": {
+    "EditBox": {
+      "summary": "文本编辑框基类：支持光标、选区、复制粘贴、IME 输入与按文本着色",
+      "props": {
+        "classname": "类名标识，固定为 \"editbox\"",
+        "defaultWidth": "默认宽度（像素），默认 70",
+        "defaultHeight": "默认高度（像素），默认 20",
+        "padding": "内边距 {左, 上, 右, 下}，单位像素，默认 {3,3,3,3}",
+        "cursorColor": "光标颜色 {r,g,b,a}，默认 {0,0,1,0.7}",
+        "selectionColor": "选区高亮颜色 {r,g,b,a}，默认 {0,1,1,0.3}",
+        "align": "文本水平对齐，默认 \"left\"",
+        "valign": "文本垂直对齐，默认 \"linecenter\"",
+        "hintFont": "占位提示文字所用的 Font 属性表，默认在 Control.font 上把 color 覆盖为 {1,1,1,0.7}",
+        "text": "纯文本内容（源码注明不要直接使用），读写请走 SetText/GetText，排版由 lines/physicalLines 维护",
+        "hint": "无文本且未聚焦时显示的提示文字，默认 \"\"",
+        "cursor": "逻辑光标位置（UTF-8 字节下标，从 1 起），默认 1",
+        "offset": "水平滚动偏移（首个可见字符下标），默认 1",
+        "lineSpacing": "额外行间距（像素），累加到 lineHeight 上，默认 0",
+        "selStart": "选区起点（逻辑字符位置），nil 表示无选区",
+        "selEnd": "选区终点（逻辑字符位置），nil 表示无选区",
+        "editable": "是否允许编辑，默认 true",
+        "selectable": "是否允许选中/参与命中测试，默认 true；为 false 时 HitTest 返回 false",
+        "multiline": "是否多行模式，默认 false；为 true 时区分逻辑行与物理（换行后）行",
+        "subTooltips": "是否启用行内分段 tooltip（MouseMove 时按光标位置读取 line.tooltips），默认 false",
+        "useIME": "是否启用 IME 文本输入，默认 true（源码注释：当前引擎实现有问题，所有输入框都置 true）",
+        "passwordInput": "是否密码模式（显示为 '*'，且光标命中按等长星号计算），默认 false",
+        "lines": "逻辑行数组，元素为 {text, tooltips, OnTextClick, pls}，pls 记录对应的物理行下标",
+        "physicalLines": "物理（换行后）行数组，元素含 text/th/td/lh/tw/y/lineID/colorPrefix/logLineX/extraSpace",
+        "cursorX": "光标的逻辑列位置，默认 1",
+        "cursorY": "光标所在的逻辑行号，默认 1",
+        "inedibleInput": "不可吞掉的按键码集合（键为 Spring.GetKeyCode 值），含回车、esc、F1~F12 等",
+        "noFont": "是否禁用自动创建默认 font 与 hintFont，默认 false"
+      },
+      "funcs": {
+        "EditBox:New": {
+          "desc": "构造 EditBox：按需创建 hintFont，以 SetText 初始化文本与物理行，再 RequestUpdate",
+          "params": {
+            "obj": "属性表，可覆盖默认字段"
+          }
+        },
+        "EditBox:Dispose": {
+          "desc": "解除 hintFont 的 parent（noHint 为 false 时）并执行 Control.Dispose 清理"
+        },
+        "EditBox:HitTest": {
+          "desc": "命中测试：selectable 为真时返回 self，否则返回 false",
+          "params": {
+            "x": "全局 x",
+            "y": "全局 y"
+          }
+        },
+        "EditBox:SetText": {
+          "desc": "重置光标/选区/行缓存，按换行拆分后逐行 AddLine，再 UpdateLayout 与 Invalidate",
+          "params": {
+            "newtext": "要设置的文本"
+          }
+        },
+        "EditBox:_LineLog2Phys": {
+          "desc": "把逻辑行内的字符位置换算成物理行坐标 (px, py)；非多行模式原样返回（内部）",
+          "params": {
+            "logicalLine": "逻辑行对象",
+            "pos": "行内位置"
+          },
+          "returns": "px, py"
+        },
+        "EditBox:_SetSelection": {
+          "desc": "设置选区并换算物理坐标；参数传 nil 的字段保留旧值（内部）",
+          "params": {
+            "selStart": "起点",
+            "selStartY": "起点逻辑行号",
+            "selEnd": "终点",
+            "selEndY": "终点逻辑行号"
+          }
+        },
+        "EditBox:GetPhysicalLinePosition": {
+          "desc": "返回倒数第 distanceFromBottom 个逻辑行首的物理行 y 坐标，越界或找不到返回 0",
+          "params": {
+            "distanceFromBottom": "距底部的逻辑行数"
+          },
+          "returns": "y 坐标（像素）"
+        },
+        "EditBox:_GeneratePhysicalLines": {
+          "desc": "对逻辑行 WrapText 拆出物理行，解析颜色前缀并累积 y，autoHeight 时 Resize（内部）",
+          "params": {
+            "logicalLineID": "逻辑行下标"
+          }
+        },
+        "EditBox:AddLine": {
+          "desc": "追加逻辑行（过长自动换行），记录 tooltips/OnTextClick 并请求重绘",
+          "params": {
+            "text": "行文本",
+            "tooltips": "行内 tooltip 区间表",
+            "OnTextClick": "行内点击区间表"
+          }
+        },
+        "EditBox:GetText": {
+          "desc": "返回当前文本：非多行直接返回 text，多行时把各逻辑行文本用换行拼起来",
+          "returns": "文本字符串"
+        },
+        "EditBox:UpdateLayout": {
+          "desc": "重建全部物理行并重新换算选区；autoHeight 或 autosize 时重算尺寸并 Resize 控件"
+        },
+        "EditBox:Update": {
+          "desc": "每帧更新：继承 Update；聚焦且可编辑时持续 RequestUpdate 并按 0.1 秒节流 Invalidate"
+        },
+        "EditBox:FocusUpdate": {
+          "desc": "焦点变化时启停 SDL 文本输入并设置候选框位置，再执行继承 FocusUpdate"
+        },
+        "EditBox:_GetCursorByMousePos": {
+          "desc": "根据鼠标坐标与物理行反算光标位置，只返回计算结果不修改状态（内部）",
+          "params": {
+            "x": "全局 x",
+            "y": "全局 y"
+          },
+          "returns": "{offset, cursor, cursorY, physicalCursor, physicalCursorY, outOfBounds}"
+        },
+        "EditBox:_SetCursorByMousePos": {
+          "desc": "调用 _GetCursorByMousePos 并把结果写回 offset/cursor/cursorY 等字段（内部）",
+          "params": {
+            "x": "全局 x",
+            "y": "全局 y"
+          }
+        },
+        "EditBox:MouseDown": {
+          "desc": "命中行内 OnTextClick 区间则调用回调；否则 shift 扩展选区或清除选区并移动光标",
+          "params": {
+            "x": "全局 x",
+            "y": "全局 y"
+          }
+        },
+        "EditBox:MouseMove": {
+          "desc": "移动处理：subTooltips 为真时按光标位置设置行内 tooltip；左键拖拽时扩展选区并 Invalidate",
+          "params": {
+            "button": "按键编号，1 表示左键拖拽"
+          }
+        },
+        "EditBox:MouseUp": {
+          "desc": "调用继承的 MouseUp 并 Invalidate 重绘，返回 self"
+        },
+        "EditBox:Select": {
+          "desc": "在第 1 行上选中 startIndex 到 endIndex 的区间并 Invalidate 重绘",
+          "params": {
+            "startIndex": "起点",
+            "endIndex": "终点"
+          }
+        },
+        "EditBox:ClearSelected": {
+          "desc": "用 Utf8BackspaceAt 逐字符删除当前选区内容，清空选区标记并 Invalidate"
+        },
+        "EditBox:UpdateLine": {
+          "desc": "替换指定逻辑行文本并重建全部物理行；行不存在且 lineID 为 1 时改为 AddLine（注释称仅测过非多行）",
+          "params": {
+            "lineID": "逻辑行下标",
+            "text": "新行文本"
+          }
+        },
+        "EditBox:GetSelectionText": {
+          "desc": "返回选区内的纯文本（先剥离 \\255 颜色前缀与 \\b），无选区时返回 nil",
+          "returns": "选区文本或 nil"
+        },
+        "EditBox:KeyPress": {
+          "desc": "处理退格/删除/方向键/Home/End 与 Ctrl+C/X/V/A、shift 选区和 IME，返回是否吞输入"
+        },
+        "EditBox:TextInput": {
+          "desc": "在光标处插入字符（有选区先删除），更新文本光标并 UpdateLayout+Invalidate",
+          "params": {
+            "utf8char": "输入的 UTF-8 字符串"
+          }
+        },
+        "EditBox:TextEditing": {
+          "desc": "IME 预编辑处理：把输入法组合中的文本存入 textEditing；不可编辑时返回 false",
+          "params": {
+            "utf8": "组合中文本",
+            "start": "起点",
+            "length": "长度"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 EditBox 类：完整的文本编辑控件实现，含逻辑/物理行排版、光标与选区、鼠标键盘操作、剪贴板与 IME 输入。",
+  "_orphans": {}
+}

@@ -1,0 +1,32 @@
+{
+  "file": "Handlers/skinhandler.lua",
+  "module": {
+    "funcs": {
+      "SkinHandler.IsValidSkin": {
+        "desc": "Returns whether a skin with the given name was loaded successfully.",
+        "params": {
+          "skinname": "Skin name (case-insensitive)."
+        },
+        "returns": "boolean"
+      },
+      "SkinHandler.GetSkinInfo": {
+        "desc": "Returns a shallow copy of the skin info table; it reads a global skinname (usually nil), so in practice it returns an empty table.",
+        "returns": "Copy of the info table, empty when not found."
+      },
+      "SkinHandler.GetAvailableSkins": {
+        "desc": "Returns the names of all known skins in load order.",
+        "returns": "Array of skin names."
+      },
+      "SkinHandler.LoadSkin": {
+        "desc": "Merges the per-class, ancestor-class and general properties of the control.skinName skin and the default skin into control.",
+        "params": {
+          "control": "Control to apply the skin properties to.",
+          "class": "Control class (merged level by level along the inherited chain)."
+        }
+      }
+    },
+    "summary": "Skin manager: scan skin folders for skin.lua, resolve depend chains and texture paths, and merge class / parent / general defaults into controls by priority."
+  },
+  "fileDesc": "Skin management: loads skin.lua configs from the skin directories, resolves depend inheritance and translates image paths, then merges per-class/ancestor/general defaults into controls.",
+  "_orphans": {}
+}

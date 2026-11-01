@@ -1,0 +1,48 @@
+{
+  "file": "Controls/colorbars.lua",
+  "classes": {
+    "Colorbars": {
+      "summary": "颜色分量条控件：用 4 条横向条调 RGBA，右侧预览颜色，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 \"colorbars\"",
+        "color": "当前颜色 {r,g,b,a}，各分量 0-1，默认白色 {1,1,1,1}",
+        "defaultWidth": "默认宽度（像素 100）",
+        "defaultHeight": "默认高度（像素 20）",
+        "OnChange": "颜色改变监听表，调用参数为新颜色表"
+      },
+      "funcs": {
+        "Colorbars:SetColor": {
+          "desc": "触发 OnChange 并把传入颜色写入 value 后重绘（不直接修改 color 字段）。",
+          "params": {
+            "c": "颜色表 {r,g,b,a}，各分量 0-1"
+          }
+        },
+        "Colorbars:DrawControl": {
+          "desc": "绘制 R/G/B/A 四条分量长条、右侧当前颜色预览块与边框。"
+        },
+        "Colorbars:HitTest": {
+          "desc": "始终返回自身，整个控件可响应点击。"
+        },
+        "Colorbars:MouseDown": {
+          "desc": "按点击位置判断落在哪条分量条，改写对应 color 分量后调用 SetColor。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y"
+          }
+        },
+        "Colorbars:MouseMove": {
+          "desc": "左键按住拖动时复用 MouseDown，实现连续调色。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y",
+            "dx": "X 位移（未使用）",
+            "dy": "Y 位移（未使用）",
+            "button": "为 1 时表示左键拖动"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "颜色条控件：以 4 条横向长条分别调节 RGBA 分量，右侧色块预览当前颜色。",
+  "_orphans": {}
+}

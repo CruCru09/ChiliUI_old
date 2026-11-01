@@ -1,0 +1,81 @@
+{
+  "file": "Controls/imagelistview.lua",
+  "classes": {
+    "ImageListView": {
+      "summary": "Image list view, a LayoutPanel subclass that scans a VFS directory and shows images as \"icon + filename\" items with directory navigation and selection.",
+      "props": {
+        "classname": "Class name string, \"imagelistview\", used to identify the control type.",
+        "autosize": "Fixed to true: the view resizes its own height to the flow layout result.",
+        "autoArrangeH": "Switch for automatic distribution of horizontal leftover space. Default false.",
+        "autoArrangeV": "Switch for automatic distribution of vertical leftover space. Default false.",
+        "centerItems": "Fixed to false: children are not centered inside their cells.",
+        "iconX": "Icon item width in pixels. Default 64; the item control is iconX+10 wide.",
+        "iconY": "Icon item height in pixels. Default 64; the item control is iconY+20 tall.",
+        "itemMargin": "Outer margin per child {left, top, right, bottom}. Default {1, 1, 1, 1}.",
+        "selectable": "Fixed to true: items can be selected with the mouse.",
+        "multiSelect": "Fixed to true: shift/ctrl multi-selection is allowed.",
+        "items": "Item name list of the current directory: the first entry is always '..', followed by subdirectories and then image files.",
+        "dir": "Directory path currently scanned (a VFS path). Defaults to an empty string; the constructor immediately calls SetDir with it.",
+        "OnDirChange": "Event table fired when the directory changes; callback receives the new directory path as directory."
+      },
+      "funcs": {
+        "ImageListView:New": {
+          "desc": "After the parent constructor it immediately runs SetDir(obj.dir) to scan and display the initial directory.",
+          "params": {
+            "obj": "initialization property table"
+          }
+        },
+        "ImageListView:_AddFile": {
+          "desc": "Creates a child LayoutPanel with rows=2/columns=1 (containing a passive Image and a centered Label) for one item and calls AddChild (internal).",
+          "params": {
+            "name": "display name of the item",
+            "imagefile": "icon file path"
+          }
+        },
+        "ImageListView:ScanDir": {
+          "desc": "Lists the current directory with VFS.DirList/VFS.SubDirs, keeps image extensions via image_exts, and rebuilds the items list and all child controls (first entry '..'); the work is wrapped in DisableRealign/EnableRealign."
+        },
+        "ImageListView:SetDir": {
+          "desc": "Calls DeselectAll, set dir from the argument then ScanDir, then fires OnDirChange; with a parent it calls RequestRealign, otherwise UpdateLayout + Invalidate.",
+          "params": {
+            "directory": "VFS directory to enter"
+          }
+        },
+        "ImageListView:GotoFile": {
+          "desc": "Splits the file path into directory and filename, switches directory, scans, then selects the file; when the parent is a scrollpanel it also centers the scroll position on the item.",
+          "params": {
+            "filepath": "full path of the target file"
+          }
+        },
+        "ImageListView:Select": {
+          "desc": "With a number it calls SelectItem by index; with a string it matches the filename against items and falls back to the first item when nothing matches.",
+          "params": {
+            "item": "item index or filename"
+          }
+        },
+        "ImageListView:DrawItemBkGnd": {
+          "desc": "Draws the item background with DrawItemBackground in the \"selected\" or \"normal\" state depending on whether the item is selected, expanding by itemPadding.",
+          "params": {
+            "index": "item index"
+          }
+        },
+        "ImageListView:HitTest": {
+          "desc": "Forwards to the parent HitTest to find a child first, then hit-tests items through _cells; returns self when an item is hit.",
+          "params": {
+            "x": "mouse x",
+            "y": "mouse y"
+          }
+        },
+        "ImageListView:MouseDblClick": {
+          "desc": "Double-clicking the first item goes to the parent directory, double-clicking a subdirectory enters it, and double-clicking an image file fires OnDblClickItem(items[idx], idx).",
+          "params": {
+            "x": "mouse x",
+            "y": "mouse y"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines ImageListView, which scans a VFS directory and shows images as icon-plus-filename items with directory navigation, file lookup and selection.",
+  "_orphans": {}
+}

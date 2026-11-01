@@ -1,0 +1,90 @@
+{
+  "file": "Controls/font.lua",
+  "classes": {
+    "Font": {
+      "summary": "字体资源对象：封装引擎字体句柄，提供文本度量、自动换行、对齐换算与绘制",
+      "props": {
+        "classname": "类名标识，固定为 'font'（用于主题/样式匹配）",
+        "font": "字体文件名，默认 \"FreeSansBold.otf\"，交给 FontHandler.LoadFont 加载",
+        "size": "字号（像素），默认 12；加载时乘以 WG.uiScale 并向下取整",
+        "outlineWidth": "描边宽度，默认 2；加载时乘 uiScale 后取整为偶数",
+        "outlineWeight": "描边粗细/模糊权重，默认 3，直接传给 FontHandler.LoadFont",
+        "shadow": "是否绘制文字阴影，默认 false；outline 为 false 时才追加 's' 绘制标记",
+        "outline": "是否绘制文字描边，默认 false；为 true 时绘制追加 'o' 标记（优先于 shadow）",
+        "color": "文字颜色 {r,g,b,a}，分量 0~1，默认 {1,1,1,1}",
+        "outlineColor": "描边颜色 {r,g,b,a}，默认 {0,0,0,1}",
+        "autoOutlineColor": "是否启用引擎的自动描边配色，默认 true"
+      },
+      "funcs": {
+        "Font:New": {
+          "desc": "构造 Font 实例：先调用继承的 New，再调用 _LoadFont 加载引擎字体，返回新对象",
+          "params": {
+            "obj": "属性表，可覆盖默认字段"
+          }
+        },
+        "Font:Dispose": {
+          "desc": "先卸载引擎字体句柄（FontHandler.UnloadFont），再执行继承的 Dispose"
+        },
+        "Font:_LoadFont": {
+          "desc": "按 uiScale 缩放字号与描边后重载字体，并卸载旧句柄（内部）"
+        },
+        "Font:GetLineHeight": {
+          "desc": "返回行高：_font.lineheight 乘以 size（缺省用 self.size）",
+          "params": {
+            "size": "缩放系数，缺省用 self.size"
+          },
+          "returns": "行高（像素）"
+        },
+        "Font:GetAscenderHeight": {
+          "desc": "返回升部高度：(lineheight + descender) 乘 size，即不受 g/p 等下伸字母影响的高度",
+          "params": {
+            "size": "缩放系数，缺省用 self.size"
+          },
+          "returns": "升部高度（像素）"
+        },
+        "Font:GetTextWidth": {
+          "desc": "测量文本排版宽度并乘以 size 缩放",
+          "params": {
+            "text": "待测量文本",
+            "size": "缩放系数，缺省用 self.size"
+          },
+          "returns": "宽度（像素）"
+        },
+        "Font:GetTextHeight": {
+          "desc": "测量文本高度，返回高度、下伸部高度与行数三项",
+          "params": {
+            "text": "待测量文本",
+            "size": "缩放系数，缺省用 self.size"
+          },
+          "returns": "h*size, descender*size, numlines"
+        },
+        "Font:WrapText": {
+          "desc": "按 width/height 自动换行；尺寸过小时原样返回（规避旧引擎 bug）",
+          "params": {
+            "text": "原文",
+            "width": "可用宽度",
+            "height": "可用高度",
+            "size": "缩放系数"
+          },
+          "returns": "换行后的文本"
+        },
+        "Font:AdjustPosToAlignment": {
+          "desc": "把左上角原点按 align/valign 换算成实际绘制锚点，并返回对齐标记字符串",
+          "params": {
+            "align": "'left'/'center'/'right'",
+            "valign": "'center'/'top'/'bottom'/'linecenter'，其余按 ascender 处理"
+          },
+          "returns": "x, y, extra（如 'vc'）"
+        },
+        "Font:Draw": {
+          "desc": "在 (x,y) 处用当前字体、颜色、描边/阴影设置绘制单行文本（内部翻转 Y 轴矩阵）"
+        },
+        "Font:DrawInBox": {
+          "desc": "在矩形框内按 align/valign 对齐绘制文本；y 额外 +1 避免 'R' 等字符顶部被裁切"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 Font 类：管理引擎字体句柄的加载与卸载，并提供文本度量、自动换行、对齐换算和绘制（含 Print/PrintInBox 别名）。",
+  "_orphans": {}
+}

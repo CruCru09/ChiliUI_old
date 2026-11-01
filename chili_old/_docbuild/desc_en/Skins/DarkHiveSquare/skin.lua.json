@@ -1,0 +1,4 @@
+{
+  "file": "Skins/DarkHiveSquare/skin.lua",
+  "fileDesc": "Square-cornered DarkHive variant: overrides only button / button_disabled / panel blocks, the rest comes from DarkHive."
+}

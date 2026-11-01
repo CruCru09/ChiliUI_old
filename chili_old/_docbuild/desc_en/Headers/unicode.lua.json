@@ -1,0 +1,49 @@
+{
+  "file": "Headers/unicode.lua",
+  "module": {
+    "summary": "UTF-8 helpers: code point to UTF-8, moving across character boundaries, and backspace/delete by character.",
+    "funcs": {
+      "UnicodeToUtf8": {
+        "desc": "Encodes a Unicode code point into a 1-4 byte UTF-8 string; returns nil for ch==0 or values beyond the UTF-16 range.",
+        "params": {
+          "ch": "code point"
+        },
+        "returns": "UTF-8 byte string or nil"
+      },
+      "Utf8PrevChar": {
+        "desc": "Returns the byte position where the UTF-8 character before startPos begins (never below 1).",
+        "params": {
+          "s": "string",
+          "startPos": "current byte position"
+        },
+        "returns": "start position of the previous character"
+      },
+      "Utf8NextChar": {
+        "desc": "Returns the byte position after the character at pos, advancing by that character's UTF-8 byte length.",
+        "params": {
+          "s": "string",
+          "pos": "current byte position"
+        },
+        "returns": "next position"
+      },
+      "Utf8BackspaceAt": {
+        "desc": "Deletes the UTF-8 character before pos (no change when pos<=1) and returns the new string plus the new cursor position.",
+        "params": {
+          "s": "string",
+          "pos": "cursor byte position"
+        },
+        "returns": "new string, new position"
+      },
+      "Utf8DeleteAt": {
+        "desc": "Deletes the whole UTF-8 character at pos and returns the new string.",
+        "params": {
+          "s": "string",
+          "pos": "byte position of the character"
+        },
+        "returns": "new string"
+      }
+    }
+  },
+  "fileDesc": "UTF-8 encoding/decoding and per-character editing helpers.",
+  "_orphans": {}
+}

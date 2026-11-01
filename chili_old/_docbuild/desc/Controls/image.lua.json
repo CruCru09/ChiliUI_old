@@ -1,0 +1,44 @@
+{
+  "file": "Controls/image.lua",
+  "classes": {
+    "Image": {
+      "summary": "图片按钮：绘制纹理并支持 OnClick 点击，沿用 Button 的按下状态",
+      "props": {
+        "classname": "类名标识，固定为 \"image\"",
+        "defaultWidth": "默认宽度（像素），默认 64",
+        "defaultHeight": "默认高度（像素），默认 64",
+        "padding": "内边距 {左, 上, 右, 下}，单位像素，默认 {0,0,0,0}",
+        "color": "纹理着色 {r,g,b,a}，默认 {1,1,1,1}，绘制前经 gl.Color 相乘",
+        "file": "前台纹理文件名，nil 表示不绘制；与 file2 同时存在时后绘制",
+        "file2": "背景/底层纹理文件名，nil 表示不绘制；先于 file 绘制",
+        "flip": "file 纹理是否上下翻转（flipy），默认 true",
+        "flip2": "file2 纹理是否上下翻转，默认 true",
+        "keepAspect": "是否保持纹理原宽高比（等比缩放并居中），默认 true；false 时拉伸铺满控件矩形",
+        "noFont": "是否禁用自动创建默认 font 对象，默认 true（图片一般不需要文字）",
+        "OnClick": "点击回调表（数组），非空时控件才被视为可交互（IsActive 判定）"
+      },
+      "funcs": {
+        "Image:DrawControl": {
+          "desc": "按 color 着色绘制 file2、file；keepAspect 时等比居中，否则拉伸铺满并解绑纹理 0"
+        },
+        "Image:IsActive": {
+          "desc": "是否可交互：OnClick[1] 存在时返回 true，否则返回 nil"
+        },
+        "Image:HitTest": {
+          "desc": "命中测试：IsActive 为真时返回 self，否则返回 nil（源实现未使用传入参数）"
+        },
+        "Image:MouseDown": {
+          "desc": "先交给 Control.MouseDown 处理事件，未被处理且 IsActive 时返回 self"
+        },
+        "Image:MouseUp": {
+          "desc": "先交给 Control.MouseUp 处理事件，未被处理且 IsActive 时返回 self"
+        },
+        "Image:MouseClick": {
+          "desc": "先交给 Control.MouseClick，未处理且 IsActive 时返回 self 以触发 OnClick"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 Image 类（继承 Button）：绘制 file/file2 纹理，支持保持宽高比、上下翻转与 OnClick 点击。",
+  "_orphans": {}
+}

@@ -1,0 +1,38 @@
+{
+  "file": "Handlers/taskhandler.lua",
+  "module": {
+    "funcs": {
+      "TaskHandler.RequestGlobalDispose": {
+        "desc": "把对象登记进全局 Dispose 监听表（弱表），日后 RemoveObject 时回调其 OnGlobalDispose",
+        "params": {
+          "obj": "监听对象，需实现 OnGlobalDispose"
+        }
+      },
+      "TaskHandler.RequestUpdate": {
+        "desc": "把对象加入下一帧 Update 队列，用 obj.__inUpdateQueue 去重",
+        "params": {
+          "obj": "待更新对象"
+        }
+      },
+      "TaskHandler.RemoveObject": {
+        "desc": "通知全局 Dispose 监听者并把对象移出 Update 队列（数组尾部补位删除）",
+        "params": {
+          "obj": "被销毁对象"
+        },
+        "returns": "移出成功返回 true，不在队列返回 false/nil"
+      },
+      "TaskHandler.RequestInstantUpdate": {
+        "desc": "把对象加入 InstantUpdate 队列，由 Update 在同帧内反复循环直到队列排空",
+        "params": {
+          "obj": "待立即更新对象"
+        }
+      },
+      "TaskHandler.Update": {
+        "desc": "先对上一帧收集的对象调用 Update，再循环清空 InstantUpdate 队列（每项 SafeCall）"
+      }
+    },
+    "summary": "更新调度：收集请求 Update / InstantUpdate 的对象，由 TaskHandler.Update 每帧批量回调并广播对象销毁（OnGlobalDispose）事件。"
+  },
+  "fileDesc": "更新任务调度：收集请求 Update 与 InstantUpdate 的对象，由 TaskHandler.Update 每帧批量回调，并广播对象销毁事件。",
+  "_orphans": {}
+}

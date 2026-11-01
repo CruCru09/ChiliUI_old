@@ -1,0 +1,70 @@
+{
+  "file": "Controls/progressbar.lua",
+  "classes": {
+    "Progressbar": {
+      "summary": "Progress bar control: fills a block between min and max according to value and draws a centered caption. Inherits from Control.",
+      "props": {
+        "classname": "Control class name, fixed to \"progressbar\"",
+        "defaultWidth": "Default width in pixels (90); used when width is not set explicitly",
+        "defaultHeight": "Default height in pixels (20); used when height is not set explicitly",
+        "min": "Lower bound of the progress range; default 0",
+        "max": "Upper bound of the progress range; default 100",
+        "value": "Current progress value; default 100, always clamped to min..max",
+        "orientation": "Orientation: \"horizontal\" (default) or \"vertical\"",
+        "reverse": "When true, fills from the opposite end; default false",
+        "caption": "Text shown in the center; default empty string",
+        "noFont": "When true the caption is not drawn",
+        "color": "Foreground fill color {r,g,b,a}; default {0,0,1,1} blue",
+        "backgroundColor": "Background (unfilled part) color; default {1,1,1,1} white",
+        "OnChange": "Event table invoked when the value changes, with arguments (newValue, oldValue)"
+      },
+      "funcs": {
+        "Progressbar:New": {
+          "desc": "Creates the instance, initializes it from min/max and clamps value.",
+          "params": {
+            "obj": "Construction table (may contain width/height and other fields)"
+          },
+          "returns": "The new Progressbar instance"
+        },
+        "Progressbar:_Clamp": {
+          "desc": "Clamps a value to [min,max]; when min>max the reversed interval is used. (internal)",
+          "params": {
+            "v": "Value to clamp"
+          },
+          "returns": "Clamped value"
+        },
+        "Progressbar:SetColor": {
+          "desc": "Parses the color arguments, merges them into color and invalidates when the color changed.",
+          "params": {
+            "...": "Color arguments parsed by _ParseColorArgs"
+          }
+        },
+        "Progressbar:SetMinMax": {
+          "desc": "Sets min/max (converted with tonumber, invalid values fall back to 0/1) and re-clamps value.",
+          "params": {
+            "min": "Minimum value",
+            "max": "Maximum value"
+          }
+        },
+        "Progressbar:SetValue": {
+          "desc": "Clamps and stores value; when it changes, optionally updates the caption, fires OnChange and invalidates.",
+          "params": {
+            "v": "New value",
+            "setcaption": "When true, also sets the caption to the new value"
+          }
+        },
+        "Progressbar:SetCaption": {
+          "desc": "Sets the centered text and invalidates when it changed.",
+          "params": {
+            "str": "New text"
+          }
+        },
+        "Progressbar:DrawControl": {
+          "desc": "Draws the background and foreground fill blocks according to orientation/reverse and prints the caption in the center."
+        }
+      }
+    }
+  },
+  "fileDesc": "Single-value progress bar control: fills a horizontal or vertical block between min and max according to value and shows a centered caption.",
+  "_orphans": {}
+}

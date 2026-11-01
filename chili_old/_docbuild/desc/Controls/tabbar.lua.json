@@ -1,0 +1,46 @@
+{
+  "file": "Controls/tabbar.lua",
+  "classes": {
+    "TabBar": {
+      "summary": "标签栏控件：按 tabs 生成 TabBarItem 并管理选中状态，继承 LayoutPanel。",
+      "props": {
+        "classname": "控件类名，固定为 \"tabbar\"",
+        "orientation": "排列方向，默认 \"horizontal\"（水平排列标签）",
+        "resizeItems": "为 true 时标签尺寸随栏大小拉伸，默认 false",
+        "centerItems": "为 true 时标签整体居中排列，默认 false",
+        "padding": "标签栏内边距 {左, 上, 右, 下}",
+        "itemPadding": "每个标签的内边距 {左, 上, 右, 下}",
+        "itemMargin": "每个标签的外边距 {左, 上, 右, 下}",
+        "minItemWidth": "标签最小宽度（像素 70）",
+        "minItemHeight": "标签最小高度（像素 20）",
+        "tabs": "标签文本表，New 时每个元素生成一个 TabBarItem",
+        "selected": "初始选中的标签文本，nil 时选中第一个",
+        "OnChange": "切换选中标签时的监听表，参数为标签文本"
+      },
+      "funcs": {
+        "TabBar:New": {
+          "desc": "为 tabs 每项生成 TabBarItem，无标签时补一个 \"tab\"，最后选中 selected。",
+          "params": {
+            "obj": "构造表"
+          },
+          "returns": "新建的 TabBar 实例"
+        },
+        "TabBar:SetOrientation": {
+          "desc": "设置排列方向，直接转调 LayoutPanel（父类）的实现。",
+          "params": {
+            "orientation": "排列方向，如 \"horizontal\"/\"vertical\""
+          }
+        },
+        "TabBar:Select": {
+          "desc": "按 caption 选中标签：更新 selected_obj 与 state.selected、触发 OnChange。",
+          "params": {
+            "tabname": "要选中的标签文本（caption）"
+          },
+          "returns": "找到并选中返回 true；未找到时可能默认选首个并返回 false"
+        }
+      }
+    }
+  },
+  "fileDesc": "标签栏控件：按 tabs 生成 TabBarItem 子控件并处理选中切换与 OnChange 通知。",
+  "_orphans": {}
+}

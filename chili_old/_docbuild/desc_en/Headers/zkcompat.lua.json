@@ -1,0 +1,9 @@
+{
+  "file": "Headers/zkcompat.lua",
+  "module": {
+    "summary": "Compatibility shim (added by this project): stock Spring/Recoil has no Zero-K LuaRules/Utilities layer, so this file fills in the missing Spring.Utilities.CopyTable, Spring.ScaledGetMouseState, Spring.GetViewSizes and Spring.Orig at the very start of the framework load; existing functions of the same name are never overwritten, so the directory also stays ZK-compatible.",
+    "funcs": {}
+  },
+  "fileDesc": "Added compatibility layer: supplies Spring.Utilities.CopyTable / Spring.ScaledGetMouseState / Spring.GetViewSizes / Spring.Orig for non-ZK engines so chili loads in any Recoil game.",
+  "_orphans": {}
+}

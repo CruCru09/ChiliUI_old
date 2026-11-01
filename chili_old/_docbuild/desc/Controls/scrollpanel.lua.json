@@ -1,0 +1,169 @@
+{
+  "file": "Controls/scrollpanel.lua",
+  "classes": {
+    "ScrollPanel": {
+      "summary": "可滚动容器控件：内容超出客户区时显示滚动条并支持平滑滚动，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 \"scrollpanel\"，皮肤据此匹配样式",
+        "padding": "内边距 {左, 上, 右, 下}（像素）；滚动条显示时会在右/下侧自动追加 scrollbarSize",
+        "backgroundColor": "背景色 {r,g,b,a}，默认全透明 {0,0,0,0}",
+        "scrollbarSize": "滚动条粗细（像素），默认 12",
+        "scrollPosX": "水平滚动偏移（像素），0 为最左端，由 SetScrollPos / 滚轮 / 拖动滚动条维护",
+        "scrollPosY": "垂直滚动偏移（像素），0 为最顶端，超出内容区高度时被夹紧",
+        "verticalScrollbar": "是否允许垂直滚动条，默认 true；实际是否显示由内容区高度决定",
+        "horizontalScrollbar": "是否允许水平滚动条，默认 true；实际是否显示由内容区宽度决定",
+        "verticalSmartScroll": "为 true 时若滚动条原本贴底，布局变化后自动保持贴底，默认 false",
+        "smoothScroll": "是否对 SetScrollPos 启用平滑滚动动画，默认 true",
+        "smoothScrollTime": "平滑滚动动画时长（秒），默认 0.7",
+        "ignoreMouseWheel": "为 true 时滚轮事件不滚动本控件而交给父控件，默认 false"
+      },
+      "funcs": {
+        "ScrollPanel:SetScrollPos": {
+          "desc": "设置滚动偏移（像素），可把内容坐标居中到视口，可选跳过平滑动画；改变后 Invalidate。",
+          "params": {
+            "x": "水平滚动位置（像素），nil 表示不改",
+            "y": "垂直滚动位置（像素），nil 表示不改",
+            "inview": "为真时把 x/y 当作需居中到视口的内容坐标",
+            "forceNotSmooth": "为真时直接跳转，不播放平滑动画"
+          }
+        },
+        "ScrollPanel:Update": {
+          "desc": "推进平滑滚动插值（三次 smoothstep 缓动），完成后清除动画并调用父类 Update。",
+          "params": {
+            "...": "透传给父类 Update 的参数"
+          }
+        },
+        "ScrollPanel:LocalToClient": {
+          "desc": "本地坐标 → 客户端内容坐标：减去 clientArea 左上角并加上滚动偏移。",
+          "params": {
+            "x": "本地 X（像素）",
+            "y": "本地 Y（像素）"
+          },
+          "returns": "客户端坐标 cx, cy"
+        },
+        "ScrollPanel:ClientToLocal": {
+          "desc": "客户端内容坐标 → 本地坐标：加上 clientArea 左上角并减去滚动偏移。",
+          "params": {
+            "x": "客户端 X",
+            "y": "客户端 Y"
+          },
+          "returns": "本地坐标 x, y"
+        },
+        "ScrollPanel:ParentToClient": {
+          "desc": "父控件坐标 → 客户端内容坐标，额外减去自身 x/y。",
+          "params": {
+            "x": "父控件 X",
+            "y": "父控件 Y"
+          },
+          "returns": "客户端坐标 cx, cy"
+        },
+        "ScrollPanel:ClientToParent": {
+          "desc": "客户端内容坐标 → 父控件坐标，额外加上自身 x/y。",
+          "params": {
+            "x": "客户端 X",
+            "y": "客户端 Y"
+          },
+          "returns": "父控件坐标 px, py"
+        },
+        "ScrollPanel:GetCurrentExtents": {
+          "desc": "返回自身与子控件叠加的边界；当前实现使用未定义的全局变量，疑似失效遗留代码。",
+          "returns": "minLeft, minTop, maxRight, maxBottom"
+        },
+        "ScrollPanel:_DetermineContentArea": {
+          "desc": "由子控件范围算出 contentArea，按需增删滚动条占用的 padding 并刷新 clientArea。(内部)"
+        },
+        "ScrollPanel:UpdateLayout": {
+          "desc": "排版子控件并更新内容区，滚动条显隐变化时二次排版，最后夹紧滚动偏移。",
+          "returns": "true"
+        },
+        "ScrollPanel:IsRectInView": {
+          "desc": "判断矩形是否在可视区内，再递归询问父控件；无父控件返回 false。",
+          "params": {
+            "x": "矩形 X",
+            "y": "矩形 Y",
+            "w": "矩形宽",
+            "h": "矩形高"
+          },
+          "returns": "boolean"
+        },
+        "ScrollPanel:DrawControl": {
+          "desc": "空实现，实际背景/滚动条绘制由皮肤/主题覆盖。"
+        },
+        "ScrollPanel:_DrawInClientArea": {
+          "desc": "在客户端区域内绘制：可选 scissor 裁剪并平移到滚动偏移后调用 fnc(...)。(内部)",
+          "params": {
+            "fnc": "要执行的绘制回调",
+            "...": "透传给 fnc 的参数"
+          }
+        },
+        "ScrollPanel:IsAboveHScrollbars": {
+          "desc": "坐标是否落在水平滚动条条带上（需已启用 _hscrollbar）。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y"
+          },
+          "returns": "boolean"
+        },
+        "ScrollPanel:IsAboveVScrollbars": {
+          "desc": "坐标是否落在垂直滚动条条带上（需已启用 _vscrollbar）。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y"
+          },
+          "returns": "boolean"
+        },
+        "ScrollPanel:HitTest": {
+          "desc": "命中测试：在滚动条条带上返回自身，否则交给父类 HitTest。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y"
+          }
+        },
+        "ScrollPanel:MouseDown": {
+          "desc": "按在滚动条上时跳转到对应滚动位置并进入拖动状态，否则交给父类。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y",
+            "...": "透传给父类"
+          }
+        },
+        "ScrollPanel:MouseMove": {
+          "desc": "拖动中更新滚动偏移；否则刷新滚动条悬停高亮并在变化时重绘。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y",
+            "dx": "X 位移",
+            "dy": "Y 位移",
+            "...": "透传给父类"
+          }
+        },
+        "ScrollPanel:MouseUp": {
+          "desc": "结束滚动条拖动并更新最终滚动位置，否则交给父类。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y",
+            "...": "透传给父类"
+          }
+        },
+        "ScrollPanel:MouseWheel": {
+          "desc": "有垂直滚动条时按 value*30 滚动内容并夹紧，否则把滚轮事件交给父类。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y",
+            "up": "滚轮方向",
+            "value": "滚轮值，决定滚动量",
+            "...": "透传给父类"
+          }
+        },
+        "ScrollPanel:MouseOut": {
+          "desc": "清除水平/垂直滚动条的悬停状态并重绘。",
+          "params": {
+            "...": "透传给父类 MouseOut"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "可滚动容器控件：由子控件范围计算内容区、按需显示横/竖滚动条，并提供平滑滚动与滚动条拖拽交互。",
+  "_orphans": {}
+}

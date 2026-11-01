@@ -1,0 +1,16 @@
+{
+  "file": "Headers/backwardcompability.lua",
+  "module": {
+    "summary": "把旧版扁平字体/颜色字段迁移到 obj.font 表的向后兼容修正（会清空旧字段）。",
+    "funcs": {
+      "BackwardCompa": {
+        "desc": "把 fontOutline/captionColor/textColor/fontSize/fontsize/fontShadow 迁移进 obj.font（已有值不覆盖），随后把旧字段置 nil。",
+        "params": {
+          "obj": "控件对象"
+        }
+      }
+    }
+  },
+  "fileDesc": "把旧版扁平字体/颜色字段迁移进 obj.font 的向后兼容修正。",
+  "_orphans": {}
+}

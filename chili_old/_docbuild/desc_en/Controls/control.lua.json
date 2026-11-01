@@ -1,0 +1,316 @@
+{
+  "file": "Controls/control.lua",
+  "classes": {
+    "Control": {
+      "summary": "Base class for all visible controls: layout, relative coordinates, drag/resize and draw event dispatch.",
+      "props": {
+        "classname": "Control class name used for InheritsFrom checks and theme/skin lookup; falls back to the class default 'control' when unset.",
+        "padding": "Inner padding {left, top, right, bottom} in pixels; determines clientArea and the client size.",
+        "borderThickness": "Border line width in pixels, default 1.5.",
+        "borderColor": "Primary border color RGBA (usually the bright top/left edge), default {1.0, 1.0, 1.0, 0.6}.",
+        "borderColor2": "Secondary border color RGBA (usually the dark bottom/right edge), default {0.0, 0.0, 0.0, 0.8}.",
+        "backgroundColor": "Background fill color RGBA, default {0.8, 0.8, 1.0, 0.4}.",
+        "focusColor": "Highlight/border color RGBA used while the control has focus, default {0.2, 0.2, 1.0, 0.6}.",
+        "autosize": "Whether the control resizes itself to fit its children, default false.",
+        "savespace": "When autosize is on, whether the control shrinks to the minimum needed space; if disabled, autosize normally only grows, default true.",
+        "resizeGripSize": "Size {width, height} of the bottom-right resize grip in pixels, default {11, 11}.",
+        "dragGripSize": "Size {width, height} of the drag grip in pixels, default {10, 10}.",
+        "dragUseGrip": "Whether dragging must grab the drag grip (false means the whole control can be dragged), default false.",
+        "draggable": "Whether the control can be dragged with the mouse, default false.",
+        "resizable": "Whether the control can be resized by dragging its resize grip, default false.",
+        "tweakDragUseGrip": "Whether Tweak (UI edit) mode must use the drag grip, default false.",
+        "tweakDraggable": "Whether the control is draggable in Tweak (UI edit) mode, default false.",
+        "tweakResizable": "Whether the control is resizable in Tweak (UI edit) mode, default false.",
+        "minWidth": "Minimum width in pixels, default 10; SetPos/Resize clamp to this value.",
+        "minHeight": "Minimum height in pixels, default 10; SetPos/Resize clamp to this value.",
+        "maxWidth": "Maximum width in pixels, default 1e9 (effectively unlimited).",
+        "maxHeight": "Maximum height in pixels, default 1e9 (effectively unlimited).",
+        "fixedRatio": "Whether resizing keeps the original width/height ratio, default false.",
+        "tooltip": "Tooltip text (plain text only); Screen walks up the parent chain from the hovered control and takes the first non-empty value.",
+        "useDList": "Whether drawing is cached in an OpenGL display list, default true.",
+        "safeOpengl": "Whether scissor clipping is enabled while drawing the client area so children cannot draw outside it, default true.",
+        "font": "Font config table (font/size/shadow/outline/color, etc.) used by New to create the Font; set to nil when noFont is true.",
+        "state": "Interaction state table {focused, hovered, checked, selected, pressed, enabled}, updated by mouse/focus events.",
+        "skin": "Reference to the skin table, filled in by SkinHandler.LoadSkin during construction.",
+        "skinName": "Skin name; SkinHandler uses it to pick the skin for this control.",
+        "OnResize": "List of resize listeners; UpdateClientArea calls them with (clientWidth, clientHeight) when the size changes.",
+        "noFont": "Whether to skip creating a Font object for this control to save memory, default true."
+      },
+      "funcs": {
+        "Control:New": {
+          "desc": "Constructs the control: loads theme defaults and skin, converts padding into client size, creates the font, detects relative constraints, aligns once, then adds the children.",
+          "params": {
+            "obj": "Attribute table (rewritten into the control instance)"
+          },
+          "returns": "The initialized control object"
+        },
+        "Control:Dispose": {
+          "desc": "Frees the _own/_children/_all display lists, detaches the font parent, then calls the inherited Dispose (internal)."
+        },
+        "Control:SetParent": {
+          "desc": "Sets the parent control and then triggers RequestRealign.",
+          "params": {
+            "obj": "Parent control (nil detaches it from the parent)"
+          }
+        },
+        "Control:AddChild": {
+          "desc": "Adds a child control and then triggers RequestRealign; skips the relayout when dontUpdate is true.",
+          "params": {
+            "obj": "Child control",
+            "dontUpdate": "Skip RequestRealign",
+            "index": "Insert position, appended at the end by default"
+          }
+        },
+        "Control:RemoveChild": {
+          "desc": "Removes a child control and triggers RequestRealign when it was found.",
+          "returns": "Whether the child was removed"
+        },
+        "Control:Invalidate": {
+          "desc": "Marks _needRedraw and calls RequestUpdate so the display list is rebuilt on the next frame."
+        },
+        "Control:_GetMaxChildConstraints": {
+          "desc": "Returns the child area constraints (0, 0, clientWidth, clientHeight) used for relative coordinate math (internal, overridable).",
+          "returns": "left, top, width, height"
+        },
+        "Control:DetectRelativeBounds": {
+          "desc": "Parses position/size constraints, stores _givenBounds/_relativeBounds and sets _isRelative."
+        },
+        "Control:GetRelativeBox": {
+          "desc": "Converts the control's relative constraints into an absolute rect using the parent size; when savespace is true, minWidth/minHeight replace the current size.",
+          "params": {
+            "savespace": "Return the minimum size instead"
+          },
+          "returns": "{left, top, width, height}"
+        },
+        "Control:UpdateClientArea": {
+          "desc": "Recomputes the client size and clientArea from padding; on change it fires OnResize and calls Invalidate."
+        },
+        "Control:AlignControl": {
+          "desc": "Takes the GetRelativeBox result and writes it back through _UpdateConstraints."
+        },
+        "Control:RequestRealign": {
+          "desc": "Requests a deferred relayout: sets _realignRequested and calls RequestUpdate; requests made during Realign are ignored.",
+          "params": {
+            "savespace": "Optional, lay out using minimum space"
+          }
+        },
+        "Control:DisableRealign": {
+          "desc": "Increments the relayout-disable counter (nestable); Realign requests are deferred while disabled."
+        },
+        "Control:EnableRealign": {
+          "desc": "Decrements the disable counter; when it reaches zero with a pending request, Realign runs immediately."
+        },
+        "Control:Realign": {
+          "desc": "Runs one layout pass: AlignControl, then UpdateLayout, then RealignChildren if the layout did not handle them; converts to RequestRealign while disabled.",
+          "params": {
+            "savespace": "Optional, lay out using minimum space"
+          }
+        },
+        "Control:UpdateLayout": {
+          "desc": "When autosize is on, recomputes the own size from the children minimum extents and the relative box, resizes, then realigns the children.",
+          "returns": "Whether autosize applied and the layout was done (nil when not autosizing)"
+        },
+        "Control:RealignChildren": {
+          "desc": "Calls Realign on every child control, passing savespace."
+        },
+        "Control:SetPos": {
+          "desc": "Sets the absolute position and size (any subset of parameters): size is clamped to min/max, clientArea treats w/h as client size and adds padding back, and UpdateClientArea runs on change.",
+          "params": {
+            "x": "Left x",
+            "y": "Top y",
+            "w": "Width",
+            "h": "Height",
+            "clientArea": "Interpret w/h as client size",
+            "dontUpdateRelative": "Do not update the stored relative constraints"
+          }
+        },
+        "Control:SetPosRelative": {
+          "desc": "Like SetPos but accepts relative coordinates: relative values are only stored in _relativeBounds and never written to the actual x/y/width/height.",
+          "params": {
+            "x": "x, may be relative",
+            "y": "y, may be relative",
+            "w": "Width, may be relative",
+            "h": "Height, may be relative",
+            "clientArea": "Interpret w/h as client size",
+            "dontUpdateRelative": "Do not update the stored relative constraints"
+          }
+        },
+        "Control:Resize": {
+          "desc": "Changes only the size; equivalent to SetPosRelative(nil, nil, w, h, clientArea, dontUpdateRelative).",
+          "params": {
+            "w": "Width",
+            "h": "Height"
+          }
+        },
+        "Control:_UpdateConstraints": {
+          "desc": "Writes the constraints back through SetPos without touching the relative constraint records (internal)."
+        },
+        "Control:GetMinimumExtents": {
+          "desc": "Returns the minimum width/height the control needs: with autosize it uses the children minimum extents, clamped to min/max.",
+          "returns": "width, height"
+        },
+        "Control:GetChildrenMinimumExtents": {
+          "desc": "Takes the maximum GetMinimumExtents over all children and adds this control's padding.",
+          "returns": "width, height"
+        },
+        "Control:GetCurrentExtents": {
+          "desc": "Returns the current bounding box including the children.",
+          "returns": "minLeft, minTop, maxRight, maxBottom"
+        },
+        "Control:GetChildrenCurrentExtents": {
+          "desc": "Merges each child's GetCurrentExtents into a bounding box.",
+          "returns": "minLeft, minTop, maxRight, maxBottom"
+        },
+        "Control:StartResizing": {
+          "desc": "Stores the initial mouse position, size and position in self.resizing so MouseMove can compute deltas.",
+          "params": {
+            "x": "Mouse x",
+            "y": "Mouse y"
+          }
+        },
+        "Control:StopResizing": {
+          "desc": "Clears self.resizing and leaves resize mode."
+        },
+        "Control:StartDragging": {
+          "desc": "Sets self.dragging to true and starts dragging."
+        },
+        "Control:StopDragging": {
+          "desc": "Clears self.dragging and stops dragging."
+        },
+        "Control:LocalToClient": {
+          "desc": "Converts local coordinates to client coordinates (subtracts the clientArea padding offset).",
+          "params": {
+            "x": "Local x",
+            "y": "Local y"
+          },
+          "returns": "client x, client y"
+        },
+        "Control:ClientToLocal": {
+          "desc": "Converts client coordinates to local coordinates (adds the clientArea padding offset).",
+          "returns": "local x, local y"
+        },
+        "Control:ParentToClient": {
+          "desc": "Converts parent coordinates to client coordinates (subtracts its own x/y and padding).",
+          "returns": "client x, client y"
+        },
+        "Control:ClientToParent": {
+          "desc": "Converts client coordinates to parent coordinates (adds its own x/y and padding).",
+          "returns": "parent x, parent y"
+        },
+        "Control:InClientArea": {
+          "desc": "Whether a local coordinate falls inside the client area rect (edges inclusive).",
+          "returns": "boolean"
+        },
+        "Control:Update": {
+          "desc": "Task handler callback: runs the pending Realign, and rebuilds the display list when a redraw is needed and the control is in view."
+        },
+        "Control:InstantUpdate": {
+          "desc": "Immediate update: when in view, rebuilds through Update if a redraw is needed, otherwise rebuilds _all_dlist directly."
+        },
+        "Control:_UpdateOwnDList": {
+          "desc": "Recursively updates the children first, then rebuilds the _own_dlist holding only this control's own drawing (internal)."
+        },
+        "Control:_UpdateChildrenDList": {
+          "desc": "Old implementation, commented out in the source; it used to build a _children_dlist holding only the children (internal)."
+        },
+        "Control:_UpdateAllDList": {
+          "desc": "Rebuilds the _all_dlist holding this control and all children, requesting an instant update from the parent when needed (internal)."
+        },
+        "Control:_DrawInClientArea": {
+          "desc": "Moves into client-area coordinates and runs fnc; with safeOpengl it clips via PushScissor/PopScissor (internal).",
+          "params": {
+            "fnc": "Draw function"
+          }
+        },
+        "Control:IsInView": {
+          "desc": "Whether this control's rect lies inside the parent's view (false when there is no parent).",
+          "returns": "boolean"
+        },
+        "Control:IsChildInView": {
+          "desc": "Whether the given child's rect lies inside this control's view.",
+          "params": {
+            "child": "Child control"
+          },
+          "returns": "boolean"
+        },
+        "Control:IsRectInView": {
+          "desc": "Recursively checks whether the given rect intersects this control's client area and the ancestor viewports.",
+          "returns": "boolean"
+        },
+        "Control:_DrawChildrenInClientArea": {
+          "desc": "Draws the visible children inside the client area in back-to-front order (internal).",
+          "params": {
+            "event": "Draw event name, 'Draw' by default"
+          }
+        },
+        "Control:DrawBackground": {
+          "desc": "Draws the background; empty here, overridden by the skin/theme."
+        },
+        "Control:DrawDragGrip": {
+          "desc": "Draws the drag grip; empty here, overridden by the skin/theme."
+        },
+        "Control:DrawResizeGrip": {
+          "desc": "Draws the resize grip; empty here, overridden by the skin/theme."
+        },
+        "Control:DrawBorder": {
+          "desc": "Draws the border; empty here, overridden by the skin/theme."
+        },
+        "Control:DrawGrips": {
+          "desc": "Decides from resizable and draggable plus dragUseGrip whether to draw the resize/drag grips."
+        },
+        "Control:DrawControl": {
+          "desc": "Draws the control itself: snaps the position to a half-integer grid when snapToGrid is set, then calls DrawBackground and DrawBorder."
+        },
+        "Control:DrawForList": {
+          "desc": "Display-list variant of drawing: calls the own dlist or draws the body, then the children, the post-children hook and the grips."
+        },
+        "Control:Draw": {
+          "desc": "Normal draw entry: uses _all_dlist when available, otherwise draws the body, the children, DrawControlPostChildren and the grips."
+        },
+        "Control:TweakDraw": {
+          "desc": "Draws in Tweak (UI edit) mode by forwarding the TweakDraw event to the children."
+        },
+        "Control:DrawChildren": {
+          "desc": "Draws the children inside the client area with the Draw event when any exist."
+        },
+        "Control:DrawChildrenForList": {
+          "desc": "Draws the children inside the client area with the DrawForList event and registers them for redraw when any exist."
+        },
+        "Control:HitTest": {
+          "desc": "Hit test: recurses into the children first, then tries NCHitTest, then returns itself or false according to noClickThrough.",
+          "returns": "The hit control, or false"
+        },
+        "Control:MouseDown": {
+          "desc": "Runs NCMouseDown, then hands the event to the children inside the client area, then falls back to NCMouseDownPostChildren."
+        },
+        "Control:MouseMove": {
+          "desc": "Mouse move: while dragging, moves by dx/dy; while resizing, changes the size by the delta (fixedRatio keeps the ratio); otherwise forwards to the children.",
+          "returns": "self while dragging/resizing"
+        },
+        "Control:MouseUp": {
+          "desc": "Mouse up: clears the resizing/dragging state, converts the coordinates to the client area, then forwards to the children."
+        },
+        "Control:MouseClick": {
+          "desc": "Mouse click: converts the coordinates to the client area and forwards to the children."
+        },
+        "Control:MouseDblClick": {
+          "desc": "Double click: converts the coordinates to the client area and forwards to the children."
+        },
+        "Control:MouseWheel": {
+          "desc": "Mouse wheel: converts the coordinates to the client area and forwards to the children."
+        },
+        "Control:FocusUpdate": {
+          "desc": "Forwards the focus update event to the inherited implementation (internal)."
+        },
+        "Control:MouseOver": {
+          "desc": "Raises MouseOver: forwards it, then sets state.hovered = true and calls Invalidate to redraw."
+        },
+        "Control:MouseOut": {
+          "desc": "Raises MouseOut: forwards it, then sets state.hovered = false and calls Invalidate to redraw."
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines Control, the base class for all visible controls (an Object subclass): padding and client area, relative coordinate constraints, autosize layout, drag and resize, cached display-list drawing, hit testing and mouse event dispatch.",
+  "_orphans": {}
+}

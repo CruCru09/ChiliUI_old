@@ -1,0 +1,169 @@
+{
+  "file": "Controls/scrollpanel.lua",
+  "classes": {
+    "ScrollPanel": {
+      "summary": "Scrollable container control: shows scrollbars when the content exceeds the client area and supports smooth scrolling. Inherits from Control.",
+      "props": {
+        "classname": "Control class name, fixed to \"scrollpanel\"; skins match styles by it",
+        "padding": "Content padding {left, top, right, bottom} in pixels; scrollbarSize is added on the right/bottom when scrollbars are shown",
+        "backgroundColor": "Background color {r,g,b,a}; default fully transparent {0,0,0,0}",
+        "scrollbarSize": "Scrollbar thickness in pixels; default 12",
+        "scrollPosX": "Horizontal scroll offset in pixels (0 = far left); maintained by SetScrollPos, the mouse wheel and scrollbar dragging",
+        "scrollPosY": "Vertical scroll offset in pixels (0 = top); clamped to the content height",
+        "verticalScrollbar": "Whether a vertical scrollbar may be shown; default true. Actual visibility depends on the content height",
+        "horizontalScrollbar": "Whether a horizontal scrollbar may be shown; default true. Actual visibility depends on the content width",
+        "verticalSmartScroll": "When true, stays pinned to the bottom if the panel was scrolled to the bottom before a layout change; default false",
+        "smoothScroll": "Whether SetScrollPos animates with smooth scrolling; default true",
+        "smoothScrollTime": "Smooth-scroll animation duration in seconds; default 0.7",
+        "ignoreMouseWheel": "When true the mouse wheel does not scroll this panel but is passed to the parent; default false"
+      },
+      "funcs": {
+        "ScrollPanel:SetScrollPos": {
+          "desc": "Sets the scroll offset in pixels, optionally centering content in the viewport and optionally skipping the smooth animation; calls Invalidate.",
+          "params": {
+            "x": "Horizontal scroll position in pixels; nil leaves it unchanged",
+            "y": "Vertical scroll position in pixels; nil leaves it unchanged",
+            "inview": "When true, x/y are content coordinates to center in the viewport",
+            "forceNotSmooth": "When true, jumps directly without animating"
+          }
+        },
+        "ScrollPanel:Update": {
+          "desc": "Advances the smooth-scroll interpolation (cubic smoothstep), clears the animation when done and calls the parent Update.",
+          "params": {
+            "...": "Arguments forwarded to the parent Update"
+          }
+        },
+        "ScrollPanel:LocalToClient": {
+          "desc": "Local to client content coordinates: subtracts the clientArea origin and adds the scroll offset.",
+          "params": {
+            "x": "Local X in pixels",
+            "y": "Local Y in pixels"
+          },
+          "returns": "client coordinates cx, cy"
+        },
+        "ScrollPanel:ClientToLocal": {
+          "desc": "Client content coordinates to local coordinates: adds the clientArea origin and subtracts the scroll offset.",
+          "params": {
+            "x": "Client X",
+            "y": "Client Y"
+          },
+          "returns": "local coordinates x, y"
+        },
+        "ScrollPanel:ParentToClient": {
+          "desc": "Parent to client content coordinates, additionally subtracting this control's x/y.",
+          "params": {
+            "x": "Parent X",
+            "y": "Parent Y"
+          },
+          "returns": "client coordinates cx, cy"
+        },
+        "ScrollPanel:ClientToParent": {
+          "desc": "Client content coordinates to parent coordinates, additionally adding this control's x/y.",
+          "params": {
+            "x": "Client X",
+            "y": "Client Y"
+          },
+          "returns": "parent coordinates px, py"
+        },
+        "ScrollPanel:GetCurrentExtents": {
+          "desc": "Returns the extents spanning this control and its children; the current implementation uses undefined globals, so it looks like dead legacy code.",
+          "returns": "minLeft, minTop, maxRight, maxBottom"
+        },
+        "ScrollPanel:_DetermineContentArea": {
+          "desc": "Computes contentArea from the children extents, adds or removes the scrollbar padding as needed and refreshes clientArea. (internal)"
+        },
+        "ScrollPanel:UpdateLayout": {
+          "desc": "Realigns children and updates the content area, realigns again when scrollbar visibility changed, then clamps the scroll offsets.",
+          "returns": "true"
+        },
+        "ScrollPanel:IsRectInView": {
+          "desc": "Tests whether a rectangle lies inside the visible area, then asks the parent recursively; returns false without a parent.",
+          "params": {
+            "x": "Rectangle X",
+            "y": "Rectangle Y",
+            "w": "Rectangle width",
+            "h": "Rectangle height"
+          },
+          "returns": "boolean"
+        },
+        "ScrollPanel:DrawControl": {
+          "desc": "Empty implementation; the actual background/scrollbar drawing is overridden by skins/themes."
+        },
+        "ScrollPanel:_DrawInClientArea": {
+          "desc": "Draws inside the client area: optionally clips with a scissor, translates by the scroll offset and calls fnc(...). (internal)",
+          "params": {
+            "fnc": "Drawing callback to run",
+            "...": "Arguments forwarded to fnc"
+          }
+        },
+        "ScrollPanel:IsAboveHScrollbars": {
+          "desc": "Whether the coordinates fall on the horizontal scrollbar strip (requires _hscrollbar to be enabled).",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y"
+          },
+          "returns": "boolean"
+        },
+        "ScrollPanel:IsAboveVScrollbars": {
+          "desc": "Whether the coordinates fall on the vertical scrollbar strip (requires _vscrollbar to be enabled).",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y"
+          },
+          "returns": "boolean"
+        },
+        "ScrollPanel:HitTest": {
+          "desc": "Hit test: returns self over a scrollbar strip, otherwise delegates to the parent HitTest.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y"
+          }
+        },
+        "ScrollPanel:MouseDown": {
+          "desc": "When pressed on a scrollbar, jumps to that scroll position and enters dragging; otherwise delegates to the parent.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y",
+            "...": "Forwarded to the parent"
+          }
+        },
+        "ScrollPanel:MouseMove": {
+          "desc": "While dragging, updates the scroll offset; otherwise refreshes the scrollbar hover highlight and invalidates when it changes.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y",
+            "dx": "X delta",
+            "dy": "Y delta",
+            "...": "Forwarded to the parent"
+          }
+        },
+        "ScrollPanel:MouseUp": {
+          "desc": "Ends scrollbar dragging and applies the final scroll position; otherwise delegates to the parent.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y",
+            "...": "Forwarded to the parent"
+          }
+        },
+        "ScrollPanel:MouseWheel": {
+          "desc": "With a vertical scrollbar, scrolls the content by value*30 and clamps; otherwise passes the wheel event to the parent.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y",
+            "up": "Wheel direction",
+            "value": "Wheel value, which determines the scroll amount",
+            "...": "Forwarded to the parent"
+          }
+        },
+        "ScrollPanel:MouseOut": {
+          "desc": "Clears the hover state of the horizontal/vertical scrollbars and invalidates.",
+          "params": {
+            "...": "Forwarded to the parent MouseOut"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "Scrollable container control: computes the content area from the children extents, shows horizontal/vertical scrollbars as needed and provides smooth scrolling plus scrollbar dragging.",
+  "_orphans": {}
+}

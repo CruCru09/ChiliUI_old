@@ -1,0 +1,311 @@
+{
+  "file": "Headers/util.lua",
+  "module": {
+    "summary": "General-purpose helpers: relative-coordinate and color conversion, rectangles and the scissor stack, type checks, plus string/table/math extensions.",
+    "funcs": {
+      "string:findlast": {
+        "desc": "Returns the start index of the last occurrence of substring str, or 0 when not found.",
+        "params": {
+          "str": "substring to search for"
+        },
+        "returns": "index (number), 0 when not found"
+      },
+      "string:GetExt": {
+        "desc": "Returns the file extension starting at the last '.' (dot included), or nil when there is none.",
+        "returns": "extension string or nil"
+      },
+      "table:clear": {
+        "desc": "Sets every key to nil via pairs, clearing the table in place."
+      },
+      "table:map": {
+        "desc": "Calls fun(key, value) for every pair and returns a new table built from the results.",
+        "params": {
+          "fun": "mapping function (key, value) -> newValue"
+        },
+        "returns": "new table"
+      },
+      "table:shallowcopy": {
+        "desc": "Copies the key/value pairs one level deep via pairs and returns the copy.",
+        "returns": "new table"
+      },
+      "table:arrayshallowcopy": {
+        "desc": "Copies elements 1..#self into a new array and returns it (the source actually returns the undefined newTable, i.e. nil).",
+        "returns": "new array (buggy in source)"
+      },
+      "table:arrayappend": {
+        "desc": "Appends every element of array t to the end of self, in order.",
+        "params": {
+          "t": "array to append"
+        }
+      },
+      "table:arraymap": {
+        "desc": "Calls fun(self[i]) for each element and writes into the undefined local newTable (buggy in source, not usable).",
+        "params": {
+          "fun": "mapping function"
+        }
+      },
+      "table:fold": {
+        "desc": "Iterates pairs and calls fun(state, key, value) for each pair; state is not returned.",
+        "params": {
+          "fun": "fold function (state, key, value)",
+          "state": "initial state"
+        }
+      },
+      "table:arrayreduce": {
+        "desc": "Reduces the array left to right starting from its first element, calling fun(state, elem), and returns the result.",
+        "params": {
+          "fun": "reducer (state, elem)"
+        },
+        "returns": "reduction result"
+      },
+      "table:arrayremovefirst": {
+        "desc": "Removes and returns the first element equal to element, or does nothing when there is none.",
+        "params": {
+          "element": "element to look for"
+        },
+        "returns": "the removed element, or nil"
+      },
+      "table:ifind": {
+        "desc": "Returns the index of element in the array, or false when not found.",
+        "params": {
+          "element": "element to look for"
+        },
+        "returns": "index or false"
+      },
+      "table:sum": {
+        "desc": "Adds up all array elements and returns the total.",
+        "returns": "numeric sum"
+      },
+      "table:merge": {
+        "desc": "Recursively merges table2 into self: subtables are merged level by level and existing non-table values in self are kept.",
+        "params": {
+          "table2": "source table"
+        }
+      },
+      "table:iequal": {
+        "desc": "Compares two arrays for equality: first by # length, then element by element (the later of the two definitions wins).",
+        "params": {
+          "table2": "other array"
+        },
+        "returns": "boolean"
+      },
+      "table:size": {
+        "desc": "Counts the keys reachable via pairs and returns the count.",
+        "returns": "count"
+      },
+      "math.round": {
+        "desc": "Rounds a number: without idp it returns an integer; with idp it formats via '%.Nf' and returns a string.",
+        "params": {
+          "num": "number",
+          "idp": "optional number of decimals"
+        },
+        "returns": "number or formatted string"
+      },
+      "math.mix": {
+        "desc": "Linear interpolation between x and y with factor a: y*a + x*(1-a).",
+        "params": {
+          "x": "start value",
+          "y": "end value",
+          "a": "interpolation factor 0..1"
+        },
+        "returns": "interpolated value"
+      },
+      "IsTweakMode": {
+        "desc": "Returns widgetHandler.tweakMode, telling whether the UI is currently in tweak (layout edit) mode.",
+        "returns": "boolean"
+      },
+      "unpack4": {
+        "desc": "Returns t[1]..t[4]; when t is nil it returns 1,2,3,4 (usually used to unpack {x,y,w,h}).",
+        "params": {
+          "t": "4-tuple table or nil"
+        },
+        "returns": "four values"
+      },
+      "clamp": {
+        "desc": "Clamps num into the [min, max] range and returns it.",
+        "params": {
+          "min": "lower bound",
+          "max": "upper bound",
+          "num": "value to clamp"
+        },
+        "returns": "clamped value"
+      },
+      "ExpandRect": {
+        "desc": "Expands rect={x,y,w,h} outwards by margin={left,top,right,bottom} and returns the new rect table.",
+        "params": {
+          "rect": "rect {x,y,w,h}",
+          "margin": "margins {left,top,right,bottom}"
+        },
+        "returns": "new rect {x,y,w,h}"
+      },
+      "InRect": {
+        "desc": "Returns whether point (x, y) lies inside the rect (borders included).",
+        "params": {
+          "rect": "rect {x,y,w,h}",
+          "x": "point X",
+          "y": "point Y"
+        },
+        "returns": "boolean"
+      },
+      "ProcessRelativeCoord": {
+        "desc": "Converts a relative coordinate to pixels: a string is a percentage (e.g. \"50%\"), a negative number is an offset from total, anything else is floored.",
+        "params": {
+          "code": "coordinate (number, percentage string or negative number)",
+          "total": "reference total length"
+        },
+        "returns": "pixel value (integer)"
+      },
+      "IsRelativeCoord": {
+        "desc": "Returns whether the coordinate is relative: true for strings and for negative numbers.",
+        "params": {
+          "code": "coordinate"
+        },
+        "returns": "boolean"
+      },
+      "IsRelativeCoordType": {
+        "desc": "Returns the coordinate type string: \"relative\" (string), \"negative\" (negative number) or \"default\".",
+        "params": {
+          "code": "coordinate"
+        },
+        "returns": "type string"
+      },
+      "IsObject": {
+        "desc": "Returns whether the value is a Chili object (metatable/userdata type carrying a classname field).",
+        "params": {
+          "v": "any value"
+        },
+        "returns": "boolean"
+      },
+      "IsNumber": {
+        "desc": "Returns whether the value is of type number.",
+        "params": {
+          "v": "any value"
+        },
+        "returns": "boolean"
+      },
+      "isnumber": {
+        "desc": "Returns whether the value is of type number (lowercase alias of IsNumber).",
+        "params": {
+          "v": "any value"
+        },
+        "returns": "boolean"
+      },
+      "istable": {
+        "desc": "Returns whether the value is of type table.",
+        "params": {
+          "v": "any value"
+        },
+        "returns": "boolean"
+      },
+      "isstring": {
+        "desc": "Returns whether the value is of type string.",
+        "params": {
+          "v": "any value"
+        },
+        "returns": "boolean"
+      },
+      "isindexable": {
+        "desc": "Returns whether the value is indexable (table, metatable or userdata).",
+        "params": {
+          "v": "any value"
+        },
+        "returns": "boolean"
+      },
+      "isfunc": {
+        "desc": "Returns whether the value is of type function.",
+        "params": {
+          "v": "any value"
+        },
+        "returns": "boolean"
+      },
+      "PushScissor": {
+        "desc": "Intersects the rect with the current scissor area, pushes it and calls gl.Scissor; returns false when the area is empty so nothing renders.",
+        "params": {
+          "x": "left",
+          "y": "top",
+          "w": "width",
+          "h": "height"
+        },
+        "returns": "true or false"
+      },
+      "PopScissor": {
+        "desc": "Pops the scissor stack and restores the previous area; when the stack is empty it calls gl.Scissor(false) to turn clipping off."
+      },
+      "AreRectsOverlapping": {
+        "desc": "Returns whether two rects overlap (touching borders count as overlapping).",
+        "params": {
+          "x1": "rect 1 left",
+          "y1": "rect 1 top",
+          "w1": "rect 1 width",
+          "h1": "rect 1 height",
+          "x2": "rect 2 left",
+          "y2": "rect 2 top",
+          "w2": "rect 2 width",
+          "h2": "rect 2 height"
+        },
+        "returns": "boolean"
+      },
+      "print": {
+        "desc": "Wraps the native print and calls io.flush() afterwards so output is flushed immediately.",
+        "params": {
+          "...": "values to print"
+        }
+      },
+      "_ParseColorArgs": {
+        "desc": "Returns r as-is when it is a table, otherwise returns {r, g, b, a}. (internal)",
+        "params": {
+          "r": "color table or red component",
+          "g": "green component",
+          "b": "blue component",
+          "a": "alpha"
+        },
+        "returns": "color table"
+      },
+      "CreateWeakTable": {
+        "desc": "Creates a weak-value table (__mode='v') whose values may be garbage collected.",
+        "returns": "weak table"
+      },
+      "InvertColor": {
+        "desc": "Inverts a color: each RGB channel becomes 1-c, alpha is kept.",
+        "params": {
+          "c": "color {r,g,b,a}"
+        },
+        "returns": "new color table"
+      },
+      "mulColor": {
+        "desc": "Multiplies the RGB channels by scalar s, keeping alpha.",
+        "params": {
+          "c": "color {r,g,b,a}",
+          "s": "scale factor"
+        },
+        "returns": "new color table"
+      },
+      "mulColors": {
+        "desc": "Multiplies two colors channel by channel (alpha included).",
+        "params": {
+          "c1": "color 1",
+          "c2": "color 2"
+        },
+        "returns": "new color table"
+      },
+      "mixColors": {
+        "desc": "Interpolates two colors channel by channel with factor a via math.mix.",
+        "params": {
+          "c1": "color 1",
+          "c2": "color 2",
+          "a": "factor"
+        },
+        "returns": "new color table"
+      },
+      "incolor2color": {
+        "desc": "Parses an engine in-color string (3 RGB bytes after the first byte) into r,g,b (0..1) and alpha=1.",
+        "params": {
+          "inColor": "in-color string"
+        },
+        "returns": "r, g, b, a"
+      }
+    }
+  },
+  "fileDesc": "General-purpose helpers: relative-coordinate and color conversion, rectangles and the scissor stack, type checks, plus string/table/math extensions.",
+  "_orphans": {}
+}

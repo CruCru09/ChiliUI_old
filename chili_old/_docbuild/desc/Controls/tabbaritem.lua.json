@@ -1,0 +1,30 @@
+{
+  "file": "Controls/tabbaritem.lua",
+  "classes": {
+    "TabBarItem": {
+      "summary": "标签栏条目按钮：点击时通知父 TabBar 选中自己，继承 Button。",
+      "props": {
+        "classname": "控件类名，固定为 \"tabbaritem\"",
+        "caption": "标签文本，默认 'tab'，父 TabBar 按它匹配选中",
+        "height": "高度，默认 \"100%\"，随父容器",
+        "noFont": "为 true 时不绘制文本，默认 false"
+      },
+      "funcs": {
+        "TabBarItem:SetCaption": {
+          "desc": "设置标签文本并在变化时重绘；当前实现不会通知父 TabBar 重新布局。",
+          "params": {
+            "caption": "新标签文本"
+          }
+        },
+        "TabBarItem:MouseDown": {
+          "desc": "按下时先调用 parent:Select(self.caption) 选中自己，再执行 Button 的按下逻辑。",
+          "params": {
+            "...": "鼠标参数，透传给父类"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "标签栏中的单个标签按钮，点击时通知父 TabBar 选中自己。",
+  "_orphans": {}
+}

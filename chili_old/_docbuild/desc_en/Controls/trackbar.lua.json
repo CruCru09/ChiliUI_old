@@ -1,0 +1,83 @@
+{
+  "file": "Controls/trackbar.lua",
+  "classes": {
+    "Trackbar": {
+      "summary": "Trackbar control: converts the mouse position into a value between min and max, rounded to step. Inherits from Control.",
+      "props": {
+        "classname": "Control class name, fixed to \"trackbar\"",
+        "value": "Current value; default 50, always aligned to step and clamped to min..max",
+        "min": "Lower bound of the range; default 0",
+        "max": "Upper bound of the range; default 100",
+        "step": "Step size; default 1, SetValue rounds to it",
+        "useValueTooltip": "When true the current value is written to the tooltip; New turns it on when no tooltip was given",
+        "defaultWidth": "Default width in pixels (90)",
+        "defaultHeight": "Default height in pixels (20)",
+        "hitpadding": "Hit-area inset {left, top, right, bottom} that affects the mouse-x-to-percentage mapping",
+        "noFont": "When true no font is used; default true",
+        "OnChange": "Event table invoked when the value changes, with arguments (newValue, oldValue)"
+      },
+      "funcs": {
+        "Trackbar:New": {
+          "desc": "Creates the instance, enables the value tooltip when no tooltip was given, and initializes min/max and value.",
+          "params": {
+            "obj": "Construction table"
+          },
+          "returns": "The new Trackbar instance"
+        },
+        "Trackbar:_Clamp": {
+          "desc": "Clamps a value to [min,max]; when min>max the reversed interval is used. (internal)",
+          "params": {
+            "v": "Value to clamp"
+          },
+          "returns": "Clamped value"
+        },
+        "Trackbar:_GetPercent": {
+          "desc": "Converts mouse x into a 0-1 fraction (taking hitpadding into account); with nil x it returns the value fraction. (internal)",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y (unused)"
+          },
+          "returns": "Fraction between 0 and 1"
+        },
+        "Trackbar:SetMinMax": {
+          "desc": "Sets min/max (invalid values fall back to 0/1) and re-clamps the current value.",
+          "params": {
+            "min": "Minimum value",
+            "max": "Maximum value"
+          }
+        },
+        "Trackbar:SetValue": {
+          "desc": "Rounds to step, clamps, stores the value, updates the tooltip, fires OnChange and invalidates.",
+          "params": {
+            "v": "New value"
+          }
+        },
+        "Trackbar:DrawControl": {
+          "desc": "Empty implementation; the actual drawing is overridden by skins/themes."
+        },
+        "Trackbar:HitTest": {
+          "desc": "Always returns self, so the whole track is draggable."
+        },
+        "Trackbar:MouseDown": {
+          "desc": "On press, immediately sets value from the click position and returns self.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y"
+          }
+        },
+        "Trackbar:MouseMove": {
+          "desc": "While dragging with the left button held, keeps updating value from x.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y",
+            "dx": "X delta (unused)",
+            "dy": "Y delta (unused)",
+            "button": "1 means dragging with the left button"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "Trackbar control: converts the mouse x position into a value between min and max, rounded to step, and fires OnChange.",
+  "_orphans": {}
+}

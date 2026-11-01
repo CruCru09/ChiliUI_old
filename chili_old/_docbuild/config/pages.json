@@ -1,0 +1,19 @@
+{
+  "_comment": "Document page list: Array order = Left column navigation order. Each item is the file name prefix of the file content/<docs|guides>/<name>.<zh|en>.md; add a page by adding a row and placing two md files; delete a page by deleting this row.",
+  "docs": [
+    "overview",
+    "howto",
+    "usage",
+    "load-order",
+    "porting"
+  ],
+  "guides": [
+    "guide-start",
+    "guide-newkeys",
+    "guide-uses",
+    "guide-examples",
+    "guide-functions",
+    "guide-faq",
+    "guide-skins"
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "file": "Controls/colorbars.lua",
+  "classes": {
+    "Colorbars": {
+      "summary": "Color bars control: four horizontal bars adjust the RGBA components and a swatch on the right previews the color. Inherits from Control.",
+      "props": {
+        "classname": "Control class name, fixed to \"colorbars\"",
+        "color": "Current color {r,g,b,a} with 0-1 components; default white {1,1,1,1}",
+        "defaultWidth": "Default width in pixels (100)",
+        "defaultHeight": "Default height in pixels (20)",
+        "OnChange": "Event table invoked when the color changes, with the new color table as argument"
+      },
+      "funcs": {
+        "Colorbars:SetColor": {
+          "desc": "Fires OnChange, stores the given color in value and invalidates (it does not modify the color field itself).",
+          "params": {
+            "c": "Color table {r,g,b,a} with 0-1 components"
+          }
+        },
+        "Colorbars:DrawControl": {
+          "desc": "Draws the four R/G/B/A component bars, the current-color swatch on the right and the border."
+        },
+        "Colorbars:HitTest": {
+          "desc": "Always returns self, so the whole control responds to clicks."
+        },
+        "Colorbars:MouseDown": {
+          "desc": "Determines which component bar was clicked, writes that color component and calls SetColor.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y"
+          }
+        },
+        "Colorbars:MouseMove": {
+          "desc": "While dragging with the left button held, reuses MouseDown for continuous color editing.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y",
+            "dx": "X delta (unused)",
+            "dy": "Y delta (unused)",
+            "button": "1 means dragging with the left button"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "Color bars control: four horizontal bars adjust the RGBA components and a swatch on the right previews the current color.",
+  "_orphans": {}
+}

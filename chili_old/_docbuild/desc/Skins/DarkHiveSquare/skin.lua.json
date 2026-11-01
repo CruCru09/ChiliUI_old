@@ -1,0 +1,4 @@
+{
+  "file": "Skins/DarkHiveSquare/skin.lua",
+  "fileDesc": "DarkHive 的方角变体：只覆盖 button / button_disabled / panel 等少数块，其余沿用 DarkHive。"
+}

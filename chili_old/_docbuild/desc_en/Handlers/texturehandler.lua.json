@@ -1,0 +1,27 @@
+{
+  "file": "Handlers/texturehandler.lua",
+  "module": {
+    "funcs": {
+      "TextureHandler.LoadTexture": {
+        "desc": "Binds the texture's display list; if the texture is not loaded yet it draws a placeholder and queues the object as a pending request.",
+        "params": {
+          "arg1": "Texture unit ID (number) or filename.",
+          "arg2": "Filename, or (when arg1 is a number) the filename.",
+          "arg3": "Object to Invalidate once the load finishes."
+        }
+      },
+      "TextureHandler.DeleteTexture": {
+        "desc": "Decrements the reference count; at zero it deletes the display list and frees the texture via gl.DeleteTexture.",
+        "params": {
+          "filename": "Texture filename."
+        }
+      },
+      "TextureHandler.Update": {
+        "desc": "Loads the requested textures one by one within the per-frame timeLimit (about 13 ms), calling Invalidate on the requesting objects when done."
+      }
+    },
+    "summary": "Async texture loader: cache one display list per texture, draw a placeholder while loading, then load queued textures inside a per-frame time slice and invalidate."
+  },
+  "fileDesc": "Asynchronous texture loader: caches texture display lists, draws a placeholder and queues requests for missing ones, then loads them within a per-frame time slice and Invalidates the requesters.",
+  "_orphans": {}
+}

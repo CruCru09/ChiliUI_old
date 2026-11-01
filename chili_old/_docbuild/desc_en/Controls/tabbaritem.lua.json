@@ -1,0 +1,30 @@
+{
+  "file": "Controls/tabbaritem.lua",
+  "classes": {
+    "TabBarItem": {
+      "summary": "Single tab button in a tab bar: notifies its parent TabBar to select it when clicked. Inherits from Button.",
+      "props": {
+        "classname": "Control class name, fixed to \"tabbaritem\"",
+        "caption": "Tab label; default 'tab'. The parent TabBar matches the selection by it",
+        "height": "Height; default \"100%\", i.e. fills the parent",
+        "noFont": "When true the text is not drawn; default false"
+      },
+      "funcs": {
+        "TabBarItem:SetCaption": {
+          "desc": "Sets the tab label and invalidates when it changed; the current implementation does not notify the parent TabBar to re-layout.",
+          "params": {
+            "caption": "New tab label"
+          }
+        },
+        "TabBarItem:MouseDown": {
+          "desc": "On press, calls parent:Select(self.caption) to select itself, then runs Button's press logic.",
+          "params": {
+            "...": "Mouse arguments, forwarded to the parent"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "A single tab button inside a tab bar; clicking it asks the parent TabBar to select it.",
+  "_orphans": {}
+}

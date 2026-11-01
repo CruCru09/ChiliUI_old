@@ -1,0 +1,17 @@
+{
+  "file": "Controls/panel.lua",
+  "classes": {
+    "Panel": {
+      "summary": "Generic empty panel container whose background is drawn by skins. Inherits from Control.",
+      "props": {
+        "classname": "Control class name, fixed to \"panel\"",
+        "defaultWidth": "Default width in pixels (100)",
+        "defaultHeight": "Default height in pixels (100)",
+        "noFont": "When true no font is used; default true"
+      },
+      "funcs": {}
+    }
+  },
+  "fileDesc": "Minimal empty panel container drawn only by skins, with no extra logic.",
+  "_orphans": {}
+}

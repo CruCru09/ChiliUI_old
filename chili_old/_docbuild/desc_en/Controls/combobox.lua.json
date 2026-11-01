@@ -1,0 +1,64 @@
+{
+  "file": "Controls/combobox.lua",
+  "classes": {
+    "ComboBox": {
+      "summary": "Drop-down selector: inherits from Button and opens an items list window on click.",
+      "props": {
+        "classname": "Control class name, fixed to \"combobox\"",
+        "caption": "Current display text; default 'combobox'. Selecting a string item updates it to that item",
+        "defaultWidth": "Default width in pixels (70)",
+        "defaultHeight": "Default height in pixels (20)",
+        "items": "Item table {\"a\",\"b\",...}; string entries become option buttons automatically, pre-built controls are also allowed",
+        "itemHeight": "Height of each item in the drop-down list in pixels (20)",
+        "selected": "Index of the currently selected item; default 1",
+        "OnOpen": "Fired when the drop-down list opens",
+        "OnClose": "Fired when the drop-down list closes",
+        "OnSelect": "Fired when an item is selected by index, with arguments (itemIdx, true)",
+        "OnSelectName": "Fired when an item is selected by name, with arguments (itemName, true)",
+        "selectionOffsetX": "Extra X offset of the drop-down window relative to its computed position, in pixels",
+        "selectionOffsetY": "Extra Y offset of the drop-down window relative to its computed position, in pixels",
+        "maxDropDownHeight": "Maximum drop-down height in pixels (200)",
+        "minDropDownHeight": "Minimum drop-down height in pixels (50)",
+        "maxDropDownWidth": "Maximum drop-down width in pixels (500)",
+        "minDropDownWidth": "Minimum drop-down width in pixels (50)",
+        "noFont": "When true the caption is not drawn; default false"
+      },
+      "funcs": {
+        "ComboBox:New": {
+          "desc": "Creates the instance and selects the item given by selected so the caption matches it.",
+          "params": {
+            "obj": "Construction table"
+          },
+          "returns": "The new ComboBox instance"
+        },
+        "ComboBox:Select": {
+          "desc": "Selects an item: numbers by index, strings by name; updates the caption and fires OnSelect/OnSelectName.",
+          "params": {
+            "itemIdx": "Item index (number) or item text (string)"
+          }
+        },
+        "ComboBox:_CloseWindow": {
+          "desc": "Disposes the drop-down window, clears labels, fires OnClose and resets the pressed state. (internal)"
+        },
+        "ComboBox:FocusUpdate": {
+          "desc": "On focus changes: closes the drop-down window when focus was lost and no item is being held down."
+        },
+        "ComboBox:MouseDown": {
+          "desc": "Toggles the drop-down: builds a Window+ScrollPanel+StackPanel listing the items when closed, or closes it when open.",
+          "params": {
+            "x": "Local X",
+            "y": "Local Y"
+          }
+        },
+        "ComboBox:MouseUp": {
+          "desc": "Only invalidates and returns self, overriding Button:MouseUp so the pressed state is not changed.",
+          "params": {
+            "...": "Mouse arguments (unused)"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "Drop-down selector control: inherits from Button and lists the items in a pop-up Window + ScrollPanel when clicked.",
+  "_orphans": {}
+}

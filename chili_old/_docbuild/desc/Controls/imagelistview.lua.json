@@ -1,0 +1,81 @@
+{
+  "file": "Controls/imagelistview.lua",
+  "classes": {
+    "ImageListView": {
+      "summary": "图片列表视图，LayoutPanel 子类：扫描 VFS 目录，以“图标 + 文件名”条目展示图片并支持目录导航和选择。",
+      "props": {
+        "classname": "类名字符串，值为 \"imagelistview\"，用于控件类型标识。",
+        "autosize": "固定为 true：按条目排版结果自动调整自身高度。",
+        "autoArrangeH": "横向剩余空间自动分配开关，默认 false。",
+        "autoArrangeV": "纵向剩余空间自动分配开关，默认 false。",
+        "centerItems": "固定为 false：子项不在 cell 内居中。",
+        "iconX": "图标条目宽度（像素），默认 64；条目控件宽度取 iconX+10。",
+        "iconY": "图标条目高度（像素），默认 64；条目控件高度取 iconY+20。",
+        "itemMargin": "子项外边距 {左, 上, 右, 下}，默认 {1, 1, 1, 1}。",
+        "selectable": "固定为 true：允许鼠标点选条目。",
+        "multiSelect": "固定为 true：允许 shift/ctrl 多选。",
+        "items": "当前目录的条目名列表：第 1 项固定为 '..'，随后是子目录，再是图片文件。",
+        "dir": "当前扫描的目录路径（VFS 路径），默认空字符串；构造时即用该值调用 SetDir。",
+        "OnDirChange": "目录切换监听器列表，回调参数为新目录路径 directory。"
+      },
+      "funcs": {
+        "ImageListView:New": {
+          "desc": "调用父类构造后立即执行 SetDir(obj.dir)，扫描并展示初始目录。",
+          "params": {
+            "obj": "初始化属性表"
+          }
+        },
+        "ImageListView:_AddFile": {
+          "desc": "为一个条目创建 rows=2/columns=1 的子 LayoutPanel（内含被动 Image 与居中 Label）并 AddChild（内部）。",
+          "params": {
+            "name": "条目显示名",
+            "imagefile": "图标文件路径"
+          }
+        },
+        "ImageListView:ScanDir": {
+          "desc": "用 VFS.DirList/VFS.SubDirs 列出当前目录，按 image_exts 过滤图片扩展名，重建 items 列表与全部子控件（首项 '..'）；期间 DisableRealign/EnableRealign 包裹。"
+        },
+        "ImageListView:SetDir": {
+          "desc": "先 DeselectAll，设置 dir 后 ScanDir，再触发 OnDirChange；有父控件时 RequestRealign，否则直接 UpdateLayout + Invalidate。",
+          "params": {
+            "directory": "要进入的 VFS 目录"
+          }
+        },
+        "ImageListView:GotoFile": {
+          "desc": "从文件路径拆出目录与文件名，切换目录并扫描后选中该文件；父控件是 scrollpanel 时还把滚动位置移到该项中心。",
+          "params": {
+            "filepath": "目标文件的完整路径"
+          }
+        },
+        "ImageListView:Select": {
+          "desc": "参数为数字时按索引调用 SelectItem；为字符串时在 items 中按文件名匹配，找不到则选第 1 项。",
+          "params": {
+            "item": "条目索引或文件名"
+          }
+        },
+        "ImageListView:DrawItemBkGnd": {
+          "desc": "按该条目是否选中，用 DrawItemBackground 以 \"selected\"/\"normal\" 状态绘制背景并扩张 itemPadding。",
+          "params": {
+            "index": "条目索引"
+          }
+        },
+        "ImageListView:HitTest": {
+          "desc": "先转发父类 HitTest 查子控件，再按 _cells 命中条目；命中条目时返回 self。",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y"
+          }
+        },
+        "ImageListView:MouseDblClick": {
+          "desc": "双击第 1 项进入上级目录，双击子目录进入该目录，双击图片文件时触发 OnDblClickItem(items[idx], idx)。",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 ImageListView：扫描 VFS 目录并以图标加文件名条目展示图片，支持目录进出、文件定位与选择。",
+  "_orphans": {}
+}

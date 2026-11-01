@@ -1,0 +1,49 @@
+{
+  "file": "Headers/unicode.lua",
+  "module": {
+    "summary": "UTF-8 辅助函数：码点转 UTF-8、字符边界前后移动、按字符退格/删除。",
+    "funcs": {
+      "UnicodeToUtf8": {
+        "desc": "把 Unicode 码点编码成 1~4 字节 UTF-8 字符串，ch==0 或超出 UTF-16 范围时返回 nil。",
+        "params": {
+          "ch": "码点数值"
+        },
+        "returns": "UTF-8 字节串或 nil"
+      },
+      "Utf8PrevChar": {
+        "desc": "返回 startPos 之前一个 UTF-8 字符的起始字节位置（至少为 1）。",
+        "params": {
+          "s": "字符串",
+          "startPos": "当前字节位置"
+        },
+        "returns": "前一字符起始位置"
+      },
+      "Utf8NextChar": {
+        "desc": "返回 pos 处字符之后的下一个字节位置（按该字符的 UTF-8 字节长度推进）。",
+        "params": {
+          "s": "字符串",
+          "pos": "当前字节位置"
+        },
+        "returns": "下一位置"
+      },
+      "Utf8BackspaceAt": {
+        "desc": "删除 pos 位置之前的一个 UTF-8 字符（pos<=1 时不改动），返回新字符串和新光标位置。",
+        "params": {
+          "s": "字符串",
+          "pos": "光标字节位置"
+        },
+        "returns": "新字符串, 新位置"
+      },
+      "Utf8DeleteAt": {
+        "desc": "删除 pos 处的一个完整 UTF-8 字符，返回新字符串。",
+        "params": {
+          "s": "字符串",
+          "pos": "字符起始字节位置"
+        },
+        "returns": "新字符串"
+      }
+    }
+  },
+  "fileDesc": "UTF-8 编解码与按字符编辑辅助函数。",
+  "_orphans": {}
+}

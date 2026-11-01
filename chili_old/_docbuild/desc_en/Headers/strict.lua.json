@@ -1,0 +1,5 @@
+{
+  "file": "Headers/strict.lua",
+  "fileDesc": "Returns MakeStrict, which installs an __index metamethod on an environment and errors out on reads of undeclared globals (only enabled for debugging in core.lua).",
+  "_orphans": {}
+}

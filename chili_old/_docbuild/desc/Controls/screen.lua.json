@@ -1,0 +1,109 @@
+{
+  "file": "Controls/screen.lua",
+  "classes": {
+    "Screen": {
+      "summary": "UI 根节点，管理屏幕尺寸、悬停/焦点/按下控件状态与输入事件分发。",
+      "props": {
+        "classname": "根节点类名，固定 'screen'",
+        "x": "根节点 x 坐标，固定 0（根节点无父级偏移）",
+        "y": "根节点 y 坐标，固定 0",
+        "width": "屏幕/画布宽度（像素）；New 时若未设置或 <=0 则取 Spring.GetViewSizes 的宽",
+        "height": "屏幕/画布高度（像素）；New 时若未设置或 <=0 则取视图高并向上取整",
+        "preserveChildrenOrder": "是否保持子控件的顺序，默认 true",
+        "activeControl": "当前按下鼠标的控件（弱引用），之后的 MouseMove/MouseUp/MouseWheel 优先发给它",
+        "focusedControl": "当前键盘焦点控件（弱引用），KeyPress/TextInput 优先转发给它",
+        "hoveredControl": "当前鼠标悬停的控件（弱引用）",
+        "currentTooltip": "当前应显示的 tooltip 文本，从悬停控件沿 parent 链向上找第一条 tooltip",
+        "_lastHoveredControl": "上一帧的悬停控件，用于检测悬停变化并补发 MouseOver/MouseOut（内部）",
+        "_lastClicked": "上次点击的时间戳（Spring.GetTimer()），用于双击判定",
+        "_lastClickedX": "上次点击的屏幕 x 坐标，用于双击判定",
+        "_lastClickedY": "上次点击的屏幕 y 坐标，用于双击判定"
+      },
+      "funcs": {
+        "Screen:New": {
+          "desc": "构造根节点：尺寸未设或 <=0 时取 Spring.GetViewSizes 填充，注册全局销毁回调并 RequestUpdate",
+          "params": {
+            "obj": "属性表"
+          },
+          "returns": "根节点对象"
+        },
+        "Screen:OnGlobalDispose": {
+          "desc": "任一控件被全局销毁时，清空指向它的 active/focused/hovered/_lastHovered 引用",
+          "params": {
+            "obj": "被销毁的控件"
+          }
+        },
+        "Screen:ParentToLocal": {
+          "desc": "根节点没有父级坐标变换，原样返回 x,y"
+        },
+        "Screen:LocalToParent": {
+          "desc": "根节点即父级，原样返回 x,y"
+        },
+        "Screen:LocalToScreen": {
+          "desc": "根节点坐标系即屏幕坐标系，原样返回 x,y"
+        },
+        "Screen:ScreenToLocal": {
+          "desc": "屏幕坐标转局部坐标，原样返回（y 轴翻转由调用方处理）"
+        },
+        "Screen:ScreenToClient": {
+          "desc": "屏幕坐标转客户区坐标，原样返回"
+        },
+        "Screen:UnscaledClientToScreen": {
+          "desc": "把未缩放的客户区坐标乘以 WG.uiScale 换算为屏幕坐标",
+          "returns": "screen x, screen y"
+        },
+        "Screen:ClientToScreen": {
+          "desc": "客户区坐标即屏幕坐标，原样返回 x,y"
+        },
+        "Screen:IsRectInView": {
+          "desc": "判断矩形是否与屏幕范围 [0,width]×[0,height] 相交",
+          "returns": "布尔值"
+        },
+        "Screen:IsVisibleOnScreen": {
+          "desc": "根节点始终可见，恒返回 true",
+          "returns": "true"
+        },
+        "Screen:Resize": {
+          "desc": "设置屏幕宽高（向上取整），并对所有子控件调用 RequestRealign",
+          "params": {
+            "w": "新宽度",
+            "h": "新高度"
+          }
+        },
+        "Screen:Update": {
+          "desc": "每帧驱动：鼠标移出窗口时清空 tooltip 并发 MouseOut，否则向悬停控件补发 MouseMove"
+        },
+        "Screen:IsAbove": {
+          "desc": "返回该位置最上层控件；悬停变化时补发 MouseOver/MouseOut 并更新 tooltip",
+          "returns": "该位置是否有控件"
+        },
+        "Screen:MouseDown": {
+          "desc": "命中后记录 activeControl；焦点变化时切换 state.focused 并调 FocusUpdate",
+          "returns": "是否命中控件"
+        },
+        "Screen:MouseUp": {
+          "desc": "抬起时按 0.45 秒 / 3 像素判双击，先发 MouseDblClick 或 MouseClick，再发 MouseUp",
+          "returns": "事件是否被处理"
+        },
+        "Screen:MouseMove": {
+          "desc": "移动事件：有 activeControl 时优先转发移动（dy 取反），子控件返回 false 则释放它；否则交给父类分发",
+          "returns": "事件是否被处理"
+        },
+        "Screen:MouseWheel": {
+          "desc": "滚轮事件：有 activeControl 时优先转发，子控件返回 false 则释放；否则交给父类分发",
+          "returns": "事件是否被处理"
+        },
+        "Screen:KeyPress": {
+          "desc": "按键事件：有 focusedControl 时转发给它，否则交给父类",
+          "returns": "事件是否被处理"
+        },
+        "Screen:TextInput": {
+          "desc": "文本输入事件：有 focusedControl 时转发给它，否则交给父类",
+          "returns": "事件是否被处理"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 UI 根节点 Screen（Object 的子类），管理屏幕尺寸与坐标换算，并负责悬停/焦点/按下控件状态、tooltip 及鼠标键盘事件的分发。",
+  "_orphans": {}
+}

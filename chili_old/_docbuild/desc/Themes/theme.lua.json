@@ -1,0 +1,23 @@
+{
+  "file": "Themes/theme.lua",
+  "module": {
+    "summary": "主题表：定义 theme.name=\"default\"、默认皮肤（Evolved）与按控件类的皮肤覆盖，并提供取默认皮肤/合并主题默认值的函数。",
+    "funcs": {
+      "theme.GetDefaultSkin": {
+        "desc": "沿 class.inherited 链查找该控件及其父类的 skinName 并用 SkinHandler.IsValidSkin 校验，找不到则回退 general.skinName，再回退 \"default\"。",
+        "params": {
+          "class": "控件类"
+        },
+        "returns": "皮肤名字符串"
+      },
+      "theme.LoadThemeDefaults": {
+        "desc": "用 table.merge 把 theme.skin[classname] 的按类默认值和 theme.skin.general 的通用默认值合并进 control。",
+        "params": {
+          "control": "控件对象"
+        }
+      }
+    }
+  },
+  "fileDesc": "主题表与默认皮肤选择：定义 theme.skin（默认 Evolved），提供 GetDefaultSkin 与 LoadThemeDefaults。",
+  "_orphans": {}
+}

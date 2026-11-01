@@ -1,0 +1,48 @@
+{
+  "file": "Headers/links.lua",
+  "module": {
+    "summary": "GC-safe parent/child reference links built on newproxy proxies: weak links (child to parent) and hard links (parent to child).",
+    "funcs": {
+      "MakeWeakLink": {
+        "desc": "Creates (or reuses wlink as) a weak proxy for obj and records it in obj._wlinks, so a child's reference to its parent does not block GC.",
+        "params": {
+          "obj": "target object",
+          "wlink": "optional old link to reuse"
+        },
+        "returns": "link proxy (userdata)"
+      },
+      "MakeHardLink": {
+        "desc": "Creates a hard-link proxy and records it in obj._hlinks; its __gc calls obj:AutoDispose() once no other hard link remains.",
+        "params": {
+          "obj": "target object",
+          "gc": "optional custom __gc callback"
+        },
+        "returns": "link proxy (userdata)"
+      },
+      "UnlinkSafe": {
+        "desc": "Calls userdata links repeatedly until the real object is reached; non-link values are returned unchanged.",
+        "params": {
+          "link": "link or object"
+        },
+        "returns": "real object"
+      },
+      "CompareLinks": {
+        "desc": "Unlinks both sides first, then tells whether two links point to the same object.",
+        "params": {
+          "link1": "link 1",
+          "link2": "link 2"
+        },
+        "returns": "boolean"
+      },
+      "CheckWeakLink": {
+        "desc": "Returns the target when link is a userdata proxy whose target is still alive, otherwise false.",
+        "params": {
+          "link": "link"
+        },
+        "returns": "target object or false"
+      }
+    }
+  },
+  "fileDesc": "Creates weak/hard proxy links between parent and child objects to break reference cycles that would block GC.",
+  "_orphans": {}
+}

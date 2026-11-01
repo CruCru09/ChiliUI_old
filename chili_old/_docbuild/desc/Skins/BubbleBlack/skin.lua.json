@@ -1,0 +1,4 @@
+{
+  "file": "Skins/BubbleBlack/skin.lua",
+  "fileDesc": "黑底气泡按钮：依赖 Carbon，只把文字改成白色并给按钮换圆角贴图。"
+}

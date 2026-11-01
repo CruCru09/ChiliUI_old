@@ -1,0 +1,17 @@
+{
+  "file": "Controls/panel.lua",
+  "classes": {
+    "Panel": {
+      "summary": "通用空白面板容器，仅由皮肤绘制背景，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 \"panel\"",
+        "defaultWidth": "默认宽度（像素 100）",
+        "defaultHeight": "默认高度（像素 100）",
+        "noFont": "为 true 时不使用字体，默认 true"
+      },
+      "funcs": {}
+    }
+  },
+  "fileDesc": "最简空白面板容器，仅由皮肤绘制背景，无额外逻辑。",
+  "_orphans": {}
+}

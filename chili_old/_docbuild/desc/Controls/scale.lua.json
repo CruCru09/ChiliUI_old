@@ -1,0 +1,32 @@
+{
+  "file": "Controls/scale.lua",
+  "classes": {
+    "Scale": {
+      "summary": "刻度尺控件：绘制水平刻度线与 min/0/+max 标签，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 \"scale\"",
+        "min": "刻度最小值，默认 -50",
+        "max": "刻度最大值，默认 50",
+        "step": "刻度间隔，默认 10",
+        "logBase": "对数刻度底数，默认 1.5；当前绘制代码未使用该字段",
+        "noFont": "为 true 时不绘制数值标签，默认 false",
+        "defaultWidth": "默认宽度（像素 90）",
+        "defaultHeight": "默认高度（像素 12）",
+        "fontsize": "字号（像素 8），同时用作刻度线高度",
+        "scaleFunction": "可选非线性映射函数（0-1 → 0-1），把刻度值映射到横向位置；nil 时线性分布",
+        "color": "刻度线与标签颜色，默认 {0,0,0,1} 黑色"
+      },
+      "funcs": {
+        "Scale:DrawControl": {
+          "desc": "绘制水平轴线与刻度线（有 scaleFunction 时以 0 为中心非线性分布），并打印 min、0、+max 标签。"
+        },
+        "Scale:HitTest": {
+          "desc": "始终返回 false，刻度尺不参与鼠标交互。",
+          "returns": "false"
+        }
+      }
+    }
+  },
+  "fileDesc": "刻度尺控件：绘制水平刻度线与数值标签，支持线性或自定义 scaleFunction 的非线性刻度。",
+  "_orphans": {}
+}

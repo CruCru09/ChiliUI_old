@@ -1,0 +1,30 @@
+{
+  "file": "Controls/textbox.lua",
+  "classes": {
+    "TextBox": {
+      "summary": "Read-only multi-line text box (inherits EditBox) that shows wrapped text, usually inside a ScrollBox",
+      "props": {
+        "classname": "Class name identifier, always \"textbox\"",
+        "padding": "Inner padding {left, top, right, bottom} in pixels, default {0,0,0,0}",
+        "text": "Text to display, default \"line1\\nline2\"",
+        "autoHeight": "Set the height from the text line count (handy inside a ScrollBox), default true",
+        "autoObeyLineHeight": "Requires autoHeight; when true the height follows lineHeight (same line count gives the same height), default true",
+        "editable": "Allow editing, default false (TextBox is read-only)",
+        "selectable": "Allow selecting text, default false",
+        "multiline": "Multi-line mode, default true; controls whether the text is wrapped",
+        "noFont": "Skip automatic creation of the default font object, default false",
+        "noHint": "Skip creation of hintFont (placeholder hint font), default true",
+        "borderColor": "Border color {r,g,b,a}, default {0,0,0,0} (transparent)",
+        "focusColor": "Focused color {r,g,b,a}, default {0,0,0,0} (transparent)",
+        "backgroundColor": "Background color {r,g,b,a}, default {0,0,0,0} (transparent)"
+      },
+      "funcs": {
+        "TextBox:DrawControl": {
+          "desc": "Draw _wrappedText at the clientArea origin (inside the padding) via font:Draw; draws a green debug border when debug is true"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines the TextBox class (inherits EditBox): read-only multi-line text display that auto-heights itself.",
+  "_orphans": {}
+}

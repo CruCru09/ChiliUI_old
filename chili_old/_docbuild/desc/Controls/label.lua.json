@@ -1,0 +1,42 @@
+{
+  "file": "Controls/label.lua",
+  "classes": {
+    "Label": {
+      "summary": "静态文本标签控件，按 autosize 自动测量文本并调整自身尺寸",
+      "props": {
+        "classname": "类名标识，固定为 \"label\"",
+        "defaultWidth": "默认宽度（像素），默认 70，未显式设置 width 时使用",
+        "defaultHeight": "默认高度（像素），默认 20，未显式设置 height 时使用",
+        "padding": "内边距 {左, 上, 右, 下}，单位像素，默认 {0,0,0,0}",
+        "autosize": "是否按文本内容自动调整控件尺寸，默认 true；false 时改为按控件宽高 WrapText 生成 _caption",
+        "autoObeyLineHeight": "自动尺寸时是否按行高计算高度（行数相同的文本高度一致），需 autosize 为 true，默认 true",
+        "align": "水平对齐 'left'/'center'/'right'，默认 \"left\"；autosize 时也决定自身 x 定位",
+        "valign": "垂直对齐 'center'/'bottom'/'top'/'linecenter'/'ascender'，默认 \"linecenter\"",
+        "caption": "显示的文本内容，默认 \"no text\"；通过 SetCaption 修改才会触发重排与重绘",
+        "noFont": "是否禁用自动创建默认 font 对象，默认 false"
+      },
+      "funcs": {
+        "Label:New": {
+          "desc": "构造 Label：调用继承的 New 后用 SetCaption 初始化 caption，完成首次布局与重绘",
+          "params": {
+            "obj": "属性表，可覆盖默认字段"
+          }
+        },
+        "Label:SetCaption": {
+          "desc": "设置文本；与当前值相同则返回，否则更新 caption 并 UpdateLayout、Invalidate",
+          "params": {
+            "newcaption": "新文本"
+          }
+        },
+        "Label:UpdateLayout": {
+          "desc": "重算布局：autosize 时按文本算尺寸并 _UpdateConstraints，否则生成换行文本"
+        },
+        "Label:DrawControl": {
+          "desc": "用 font:DrawInBox 在控件矩形内按 align/valign 绘制 _caption，debug 时画绿框"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 Label 类：可自动调整尺寸的静态文本标签，负责文本测量、换行与对齐绘制。",
+  "_orphans": {}
+}

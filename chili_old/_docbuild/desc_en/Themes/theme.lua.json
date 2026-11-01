@@ -1,0 +1,23 @@
+{
+  "file": "Themes/theme.lua",
+  "module": {
+    "summary": "Theme table: defines theme.name=\"default\", the default skin (Evolved) and per-control-class skin overrides, plus helpers to pick the default skin and merge theme defaults.",
+    "funcs": {
+      "theme.GetDefaultSkin": {
+        "desc": "Walks the class.inherited chain looking for a skinName on the control class or its ancestors and validates it with SkinHandler.IsValidSkin; falls back to general.skinName, then to \"default\".",
+        "params": {
+          "class": "control class"
+        },
+        "returns": "skin name string"
+      },
+      "theme.LoadThemeDefaults": {
+        "desc": "Merges the per-class defaults from theme.skin[classname] and the shared theme.skin.general defaults into control with table.merge.",
+        "params": {
+          "control": "control object"
+        }
+      }
+    }
+  },
+  "fileDesc": "Theme table and default-skin selection: defines theme.skin (default Evolved) and provides GetDefaultSkin and LoadThemeDefaults.",
+  "_orphans": {}
+}

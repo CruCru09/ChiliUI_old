@@ -1,0 +1,42 @@
+{
+  "file": "Controls/label.lua",
+  "classes": {
+    "Label": {
+      "summary": "Static text label that measures its text and resizes itself when autosize is enabled",
+      "props": {
+        "classname": "Class name identifier, always \"label\"",
+        "defaultWidth": "Default width in pixels, 70, used when width is not set explicitly",
+        "defaultHeight": "Default height in pixels, 20, used when height is not set explicitly",
+        "padding": "Inner padding {left, top, right, bottom} in pixels, default {0,0,0,0}",
+        "autosize": "Resize the control to fit its text, default true; when false the caption is wrapped to the control width/height instead",
+        "autoObeyLineHeight": "When autosizing, derive the height from lineHeight (same line count gives the same height); requires autosize, default true",
+        "align": "Horizontal alignment 'left'/'center'/'right', default \"left\"; also positions the label itself when autosizing",
+        "valign": "Vertical alignment 'center'/'bottom'/'top'/'linecenter'/'ascender', default \"linecenter\"",
+        "caption": "Text to display, default \"no text\"; only SetCaption triggers a re-layout and repaint",
+        "noFont": "Skip automatic creation of the default font object, default false"
+      },
+      "funcs": {
+        "Label:New": {
+          "desc": "Construct a Label: call the inherited New, then SetCaption to initialize the caption and run the first layout/repaint",
+          "params": {
+            "obj": "Property table that overrides the defaults"
+          }
+        },
+        "Label:SetCaption": {
+          "desc": "Set the text; returns immediately when unchanged, otherwise updates caption and triggers UpdateLayout and Invalidate",
+          "params": {
+            "newcaption": "New text"
+          }
+        },
+        "Label:UpdateLayout": {
+          "desc": "Re-layout: when autosizing, measure the text and call _UpdateConstraints to position itself; otherwise generate the wrapped text"
+        },
+        "Label:DrawControl": {
+          "desc": "Draw _caption inside the control rectangle via font:DrawInBox with align/valign; draws a green debug border when debug is true"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines the Label class: an auto-sizing static text label that measures, wraps and draws its text.",
+  "_orphans": {}
+}

@@ -1,0 +1,44 @@
+{
+  "file": "Controls/image.lua",
+  "classes": {
+    "Image": {
+      "summary": "Image button that draws a texture and fires OnClick when clicked, reusing Button's pressed state",
+      "props": {
+        "classname": "Class name identifier, always \"image\"",
+        "defaultWidth": "Default width in pixels, 64",
+        "defaultHeight": "Default height in pixels, 64",
+        "padding": "Inner padding {left, top, right, bottom} in pixels, default {0,0,0,0}",
+        "color": "Texture tint {r,g,b,a}, default {1,1,1,1}, multiplied in via gl.Color before drawing",
+        "file": "Foreground texture file name, nil means not drawn; drawn after file2 when both are set",
+        "file2": "Background/underlying texture file name, nil means not drawn; drawn before file",
+        "flip": "Flip the file texture vertically (flipy), default true",
+        "flip2": "Flip the file2 texture vertically, default true",
+        "keepAspect": "Keep the texture aspect ratio (scale uniformly and center), default true; false stretches it to fill the control",
+        "noFont": "Skip automatic creation of the default font object, default true (images rarely need text)",
+        "OnClick": "Click callback table (array); the control is only interactive when it is non-empty (see IsActive)"
+      },
+      "funcs": {
+        "Image:DrawControl": {
+          "desc": "Draw the file2 and file textures tinted by color; keepAspect centers them uniformly, otherwise they are stretched to fill, then texture unit 0 is unbound"
+        },
+        "Image:IsActive": {
+          "desc": "Whether the control is interactive: true when OnClick[1] exists, otherwise nil"
+        },
+        "Image:HitTest": {
+          "desc": "Hit test: returns self when IsActive, otherwise nil (the source signature takes no arguments)"
+        },
+        "Image:MouseDown": {
+          "desc": "Hand the event to Control.MouseDown first; returns self when it was not handled and IsActive"
+        },
+        "Image:MouseUp": {
+          "desc": "Hand the event to Control.MouseUp first; returns self when it was not handled and IsActive"
+        },
+        "Image:MouseClick": {
+          "desc": "Hand the event to Control.MouseClick first; returns self when it was not handled and IsActive, so OnClick fires"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines the Image class (inherits Button): draws file/file2 textures with aspect keeping, vertical flipping and OnClick support.",
+  "_orphans": {}
+}

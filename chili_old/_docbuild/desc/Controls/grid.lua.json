@@ -1,0 +1,16 @@
+{
+  "file": "Controls/grid.lua",
+  "classes": {
+    "Grid": {
+      "summary": "等分网格布局容器，LayoutPanel 子类，将所有子项拉伸为等大的行列网格。",
+      "props": {
+        "classname": "类名字符串，值为 \"grid\"，用于控件类型标识。",
+        "resizeItems": "固定为 true：子项被拉伸铺满网格，而非按自身尺寸排列。",
+        "itemPadding": "cell 内边距固定为 {0, 0, 0, 0}，即子项紧贴 cell 边缘。"
+      },
+      "funcs": {}
+    }
+  },
+  "fileDesc": "定义 Grid：LayoutPanel 子类，把子项拉伸为等大的行列网格（resizeItems=true、itemPadding 为 0）。",
+  "_orphans": {}
+}

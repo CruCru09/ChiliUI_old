@@ -1,0 +1,197 @@
+{
+  "file": "Controls/LayoutPanel.lua",
+  "classes": {
+    "LayoutPanel": {
+      "summary": "所有自动布局面板的基类（含 grid、stackpanel、表格、itemlistview 等），用 cell 统一管理子控件排布。",
+      "props": {
+        "classname": "类名字符串，值为 \"layoutpanel\"，用于控件类型标识与按类型查找。",
+        "itemMargin": "每个子项的外边距 {左, 上, 右, 下}，单位像素，作为 cell 与子项之间的间隔。",
+        "itemPadding": "每个 cell 的内边距 {左, 上, 右, 下}，单位像素，布局与命中测试时用于扩张 cell。",
+        "minItemWidth": "子项最小宽度（像素），排版时子项宽度不小于该值，默认 1。",
+        "maxItemWidth": "子项宽度上限（像素），autoArrangeH 分配剩余空间时作参考上限；0 表示不限制。",
+        "minItemHeight": "子项最小高度（像素），默认 1。",
+        "maxItemHeight": "子项高度上限（像素），autoArrangeV 分配剩余空间时作参考上限；0 表示不限制。",
+        "autosize": "为 true 时按排版结果自动调整自身高度（_LayoutChildren 末尾调用 Resize），默认 false。",
+        "rows": "强制行数；与 columns 组合决定网格划分（resizeItems 模式下使用），nil 表示自动推算。",
+        "columns": "强制列数；nil 表示自动推算（按 ceil(sqrt(子项数)) 或按 rows 反算）。",
+        "orientation": "布局方向，取值 \"horizontal\" 或 \"vertical\"，默认 \"horizontal\"。",
+        "autoArrangeH": "为 true 时把行内剩余横向空间按“先填平最短 cell”的算法分摊给各 cell（源码标注 FIXME rename）。",
+        "autoArrangeV": "为 true 时把剩余纵向空间按“先填平最短行”的算法分摊给各行（源码标注 FIXME rename）。",
+        "grid": "为 true 时要求每行列数一致（表格式布局）；源码注释标明尚未实现。",
+        "resizeItems": "为 true 时走 _LayoutChildrenResizeItems，把所有子项拉伸铺满 clientArea 网格；false 时按子项自身尺寸流式排列。",
+        "centerItems": "为 true 时（且 cell 大于子项）把子项在 cell 内居中，行内剩余空间也按居中方式分配，默认 true。",
+        "weightedResize": "为 true 时按子项 weight 的比例分配空间而非等分；weight 缺省按 1 处理。",
+        "selectable": "为 true 时允许鼠标点选子项，默认 false。",
+        "multiSelect": "为 true 时允许多选（配合 shift/ctrl 键），默认 true。",
+        "selectedItems": "已选中子项的集合，形如 { [itemIdx] = true }。",
+        "OnSelectItem": "子项选中状态变化监听器列表，回调参数为 (itemIdx, selected)。",
+        "OnDrawItem": "绘制单个子项背景的回调占位；源码标注 FIXME，未被基类直接使用。",
+        "OnDblClickItem": "子项双击监听器列表，回调参数为 (itemIdx)（ImageListView 传 items[itemIdx], itemIdx）。",
+        "_rows": "内部字段：排版时实际计算出的行数，由 _LayoutChildrenResizeItems 写入（内部）。",
+        "_columns": "内部字段：排版时实际计算出的列数（内部）。",
+        "_cells": "内部字段：每个子项的布局矩形表 {x, y, w, h}（相对 clientArea），供绘制与命中测试使用（内部）。"
+      },
+      "funcs": {
+        "LayoutPanel:New": {
+          "desc": "构造面板；selectable 为 true 时默认把第 1 个子项设为选中（selectedItems = {[1]=true}）。",
+          "params": {
+            "obj": "初始化属性表"
+          }
+        },
+        "LayoutPanel:SetOrientation": {
+          "desc": "设置布局方向，并调用 inherited.UpdateClientArea 重算客户区。",
+          "params": {
+            "orientation": "\"horizontal\" 或 \"vertical\""
+          }
+        },
+        "LayoutPanel:_JustCenterItemsH": {
+          "desc": "把 [startCell,endCell] 区间的剩余横向空间平均分给各 cell，逐个右移并加宽（内部）。",
+          "params": {
+            "startCell": "起始 cell 索引",
+            "endCell": "结束 cell 索引",
+            "freeSpace": "可分配的剩余宽度"
+          }
+        },
+        "LayoutPanel:_JustCenterItemsV": {
+          "desc": "纵向版本：把剩余高度平均分给该区间的 cell，逐个下移并增高（内部）。",
+          "params": {
+            "startCell": "起始 cell 索引",
+            "endCell": "结束 cell 索引",
+            "freeSpace": "可分配的剩余高度"
+          }
+        },
+        "LayoutPanel:_EnlargeToLineHeight": {
+          "desc": "用行高减去该 cell 上下 padding，把同一行所有 cell 的高度统一为行高（内部）。",
+          "params": {
+            "startCell": "起始 cell 索引",
+            "endCell": "结束 cell 索引",
+            "lineHeight": "该行目标高度"
+          }
+        },
+        "LayoutPanel:_AutoArrangeAbscissa": {
+          "desc": "按“先填平最短 cell 到次短”的算法把行内剩余横向空间分摊给各 cell，并同步后移后续 cell 的 x；autoArrangeH 关闭时若 centerItems 则退化为居中分配（内部）。",
+          "params": {
+            "startCell": "起始 cell 索引",
+            "endCell": "结束 cell 索引",
+            "freeSpace": "该行剩余宽度"
+          }
+        },
+        "LayoutPanel:_AutoArrangeOrdinate": {
+          "desc": "autoArrangeV 开启时按行高同理分配剩余纵向空间并下移后续行；关闭时在每行内做纵向居中分配（内部）。",
+          "params": {
+            "freeSpace": "整体剩余高度"
+          }
+        },
+        "LayoutPanel:GetMaxWeight": {
+          "desc": "按子项 weight（缺省 1）统计每行、每列的最大权重与权重总和，供 weightedResize 使用。",
+          "returns": "mweightx, mweighty, weightx, weighty"
+        },
+        "LayoutPanel:_GetMaxChildConstraints": {
+          "desc": "返回子项的约束矩形 (x, y, w, h)：布局中已算出 cell 时直接取 cell，否则按 margin/itemPadding 与 clientArea 估算（内部）。",
+          "params": {
+            "child": "目标子控件"
+          }
+        },
+        "LayoutPanel:GetMinimumExtents": {
+          "desc": "返回控件最小外延 (right, bottom)；当前实现直接返回 x+width、y+height（另有一段被注释的实验代码）。"
+        },
+        "LayoutPanel:_LayoutChildrenResizeItems": {
+          "desc": "resizeItems 模式的排版：按 rows/columns 或 ceil(sqrt(子项数)) 算出网格，等分或按 weight 分配尺寸，逐个调用 child:_UpdateConstraints 并写入 _cells（内部）。"
+        },
+        "LayoutPanel:_LayoutChildren": {
+          "desc": "默认流式排版：逐个累加子项尺寸自动换行（或按 columns 强制换行），填充 _cells/_lines/_cellPaddings，再按 centerItems/autoArrange 分摊剩余空间，autosize 时 Resize 自身高度，最后更新子项位置（内部）。"
+        },
+        "LayoutPanel:UpdateLayout": {
+          "desc": "排版入口：先 RealignChildren，再按 resizeItems 选择 _LayoutChildrenResizeItems 或 _LayoutChildren，最后再次 RealignChildren；无子项时提前返回（autosize 时会先把自身某方向置 0）。",
+          "returns": "成功时返回 true"
+        },
+        "LayoutPanel:DrawBackground": {
+          "desc": "空实现，供子类重写以绘制面板背景。"
+        },
+        "LayoutPanel:DrawItemBkGnd": {
+          "desc": "空实现，供子类重写以绘制第 index 个子项的背景。",
+          "params": {
+            "index": "子项索引"
+          }
+        },
+        "LayoutPanel:DrawControl": {
+          "desc": "绘制控件本体：调用 self:DrawBackground(self)。"
+        },
+        "LayoutPanel:DrawChildren": {
+          "desc": "平移坐标系后对每个子项调用 DrawItemBkGnd 画背景（debug 模式额外画出 _cells 红框），最后在 clientArea 内按 'Draw' 通道绘制子控件。"
+        },
+        "LayoutPanel:DrawChildrenForList": {
+          "desc": "与 DrawChildren 相同，但子控件用 'DrawForList' 通道绘制（列表式绘制）。"
+        },
+        "LayoutPanel:GetItemIndexAt": {
+          "desc": "把 cell 按 itemPadding 扩张后用 InRect 做命中测试，返回命中的子项索引。",
+          "params": {
+            "cx": "client 区 x 坐标",
+            "cy": "client 区 y 坐标"
+          },
+          "returns": "命中索引，未命中返回 -1"
+        },
+        "LayoutPanel:GetItemXY": {
+          "desc": "返回第 itemIdx 个子项的 cell 矩形。",
+          "params": {
+            "itemIdx": "子项索引"
+          },
+          "returns": "x, y, w, h；索引无效时返回 nil"
+        },
+        "LayoutPanel:MultiRectSelect": {
+          "desc": "把 item1、item2 两 cell 的凸包矩形内所有子项设为选中；append 为真则追加，否则替换并与旧集合对比触发 OnSelectItem，最后 Invalidate（不更新 _lastSelected）。",
+          "params": {
+            "item1": "第一个子项索引",
+            "item2": "第二个子项索引",
+            "append": "是否追加到现有选中集"
+          }
+        },
+        "LayoutPanel:ToggleItem": {
+          "desc": "反转某项的选中状态，更新 _lastSelected，触发 OnSelectItem 并 Invalidate 重绘。",
+          "params": {
+            "itemIdx": "子项索引"
+          }
+        },
+        "LayoutPanel:SelectItem": {
+          "desc": "选中某项：append 为真则追加，否则替换整个选中集并对被取消的项触发 OnSelectItem(false)；随后触发选中项监听、更新 _lastSelected 并 Invalidate。",
+          "params": {
+            "itemIdx": "子项索引",
+            "append": "是否追加（不清空其他选中）"
+          }
+        },
+        "LayoutPanel:DeselectItem": {
+          "desc": "取消某项的选中状态，触发 OnSelectItem(false)、更新 _lastSelected 并 Invalidate。",
+          "params": {
+            "itemIdx": "子项索引"
+          }
+        },
+        "LayoutPanel:SelectAll": {
+          "desc": "遍历所有子项调用 SelectItem(i, append)；注意这里的 append 是未定义的全局变量（实际为 nil）。"
+        },
+        "LayoutPanel:DeselectAll": {
+          "desc": "遍历 selectedItems 中的每一项调用 DeselectItem 逐个取消选中。"
+        },
+        "LayoutPanel:MouseDown": {
+          "desc": "先转发给子控件；selectable 时右键触发 DeselectAll，左键按 mods.shift/ctrl 组合分别走 MultiRectSelect、ToggleItem 或 SelectItem。",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y",
+            "button": "按键编号（3 为右键）",
+            "mods": "修饰键表，含 shift/ctrl"
+          }
+        },
+        "LayoutPanel:MouseDblClick": {
+          "desc": "先转发给子控件，命中某个子项时触发 OnDblClickItem(itemIdx) 并返回 self。",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y",
+            "button": "按键编号",
+            "mods": "修饰键表"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "实现集成所有自动布局面板的基类 LayoutPanel：用 cell 网格/流式算法排版子控件，并提供选中管理、命中测试与绘制挂钩。",
+  "_orphans": {}
+}

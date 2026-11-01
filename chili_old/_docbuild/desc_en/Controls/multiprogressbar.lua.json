@@ -1,0 +1,31 @@
+{
+  "file": "Controls/multiprogressbar.lua",
+  "classes": {
+    "Multiprogressbar": {
+      "summary": "Multi-segment progress bar: draws color/texture segments from the bars list. Inherits from Control.",
+      "props": {
+        "classname": "Control class name, fixed to \"multiprogressbar\"",
+        "defaultWidth": "Default width in pixels (90)",
+        "defaultHeight": "Default height in pixels (20)",
+        "padding": "Content padding {left, top, right, bottom} in pixels",
+        "fillPadding": "Extra inset of the fill area from the control edges {left, top, right, bottom}",
+        "drawBorder": "Whether to stroke a border along the fill area with borderColor; default false",
+        "borderColor": "Border color, used only when drawBorder is true; default {1,0,0,1}",
+        "orientation": "Orientation: \"horizontal\" (default) or \"vertical\"",
+        "reverse": "When true, draws from the far end; default false",
+        "scaleFunction": "Optional mapping function: receives the 0-1 total fraction and returns a 0-1 drawing fraction, used to compress segments non-linearly",
+        "bars": "Segment list; each {color1,color2,percent,texture,s,t,tileSize}: color1 to color2 gradient, percent share of the length, texture path, s/t texture coordinates and tileSize for tiling"
+      },
+      "funcs": {
+        "Multiprogressbar:DrawControl": {
+          "desc": "Draws each segment as a gradient quad plus optional texture and adds the outer border when needed; scaleFunction first rescales the segment shares."
+        },
+        "Multiprogressbar:HitTest": {
+          "desc": "Always returns self, so the whole control is a hit."
+        }
+      }
+    }
+  },
+  "fileDesc": "Multi-segment progress bar control: draws color/texture segments from the bars list, horizontally or vertically and optionally reversed.",
+  "_orphans": {}
+}

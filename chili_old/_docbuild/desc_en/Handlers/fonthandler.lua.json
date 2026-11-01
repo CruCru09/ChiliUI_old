@@ -1,0 +1,29 @@
+{
+  "file": "Handlers/fonthandler.lua",
+  "module": {
+    "funcs": {
+      "FontHandler.Update": {
+        "desc": "Every 100 calls, frees fonts whose reference count dropped to zero via gl.DeleteFont."
+      },
+      "FontHandler.UnloadFont": {
+        "desc": "Decrements the given font's reference count (nothing is freed immediately; Update reclaims it later).",
+        "params": {
+          "font": "gl font object."
+        }
+      },
+      "FontHandler.LoadFont": {
+        "desc": "Returns a cached font (reference count +1) matching name/size/outline, otherwise loads a new one and caches it.",
+        "params": {
+          "fontname": "Font path or filename (a fonts/ prefix is also matched).",
+          "size": "Font size.",
+          "outwidth": "Outline width.",
+          "outweight": "Outline weight."
+        },
+        "returns": "gl.LoadFont font object."
+      }
+    },
+    "summary": "Font cache: reuse gl.LoadFont handles by name/size/outline with reference counting, releasing them deferred in Update once the count reaches zero."
+  },
+  "fileDesc": "Font cache with reference counting: reuses gl.LoadFont results by name, size and outline args, releasing them lazily in Update once the reference count reaches zero.",
+  "_orphans": {}
+}

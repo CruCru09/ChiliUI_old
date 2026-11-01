@@ -1,0 +1,5 @@
+{
+  "file": "Headers/strict.lua",
+  "fileDesc": "返回 MakeStrict 函数，为环境安装 __index 元方法，读取未声明全局变量时直接 error（core.lua 中仅调试时启用）。",
+  "_orphans": {}
+}

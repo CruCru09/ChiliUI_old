@@ -1,0 +1,90 @@
+{
+  "file": "Controls/font.lua",
+  "classes": {
+    "Font": {
+      "summary": "Font resource object that wraps an engine font handle and provides measuring, word wrap, alignment math and drawing",
+      "props": {
+        "classname": "Class name identifier, always 'font' (used for theme/style matching)",
+        "font": "Font file name, default \"FreeSansBold.otf\", loaded through FontHandler.LoadFont",
+        "size": "Font size in pixels, default 12; multiplied by WG.uiScale and rounded down when loading",
+        "outlineWidth": "Outline width, default 2; multiplied by uiScale and rounded to an even number when loading",
+        "outlineWeight": "Outline thickness/blur weight, default 3, passed straight to FontHandler.LoadFont",
+        "shadow": "Draw a text shadow, default false; adds the 's' draw flag only when outline is false",
+        "outline": "Draw a text outline, default false; adds the 'o' draw flag (takes precedence over shadow)",
+        "color": "Text color {r,g,b,a} with 0-1 components, default {1,1,1,1}",
+        "outlineColor": "Outline color {r,g,b,a}, default {0,0,0,1}",
+        "autoOutlineColor": "Enable the engine's automatic outline color selection, default true"
+      },
+      "funcs": {
+        "Font:New": {
+          "desc": "Construct a Font instance: call the inherited New, then _LoadFont to load the engine font, and return the new object",
+          "params": {
+            "obj": "Property table that overrides the defaults"
+          }
+        },
+        "Font:Dispose": {
+          "desc": "Unload the engine font handle through FontHandler.UnloadFont, then run the inherited Dispose"
+        },
+        "Font:_LoadFont": {
+          "desc": "Reload the font through FontHandler.LoadFont with size/outline scaled by uiScale, and unload the old handle (internal)"
+        },
+        "Font:GetLineHeight": {
+          "desc": "Return the line height: _font.lineheight multiplied by size (defaults to self.size)",
+          "params": {
+            "size": "Scale factor, defaults to self.size"
+          },
+          "returns": "Line height in pixels"
+        },
+        "Font:GetAscenderHeight": {
+          "desc": "Return the ascender height: (lineheight + descender) * size, i.e. unaffected by descenders such as g/p",
+          "params": {
+            "size": "Scale factor, defaults to self.size"
+          },
+          "returns": "Ascender height in pixels"
+        },
+        "Font:GetTextWidth": {
+          "desc": "Measure the text width and scale it by size",
+          "params": {
+            "text": "Text to measure",
+            "size": "Scale factor, defaults to self.size"
+          },
+          "returns": "Width in pixels"
+        },
+        "Font:GetTextHeight": {
+          "desc": "Measure the text height and return the height, the descender height and the line count",
+          "params": {
+            "text": "Text to measure",
+            "size": "Scale factor, defaults to self.size"
+          },
+          "returns": "h*size, descender*size, numlines"
+        },
+        "Font:WrapText": {
+          "desc": "Word-wrap text to width/height; returns the text unchanged when too small (height < 1.5 lines or width < size) to dodge an old engine bug",
+          "params": {
+            "text": "Source text",
+            "width": "Available width",
+            "height": "Available height",
+            "size": "Scale factor"
+          },
+          "returns": "Wrapped text"
+        },
+        "Font:AdjustPosToAlignment": {
+          "desc": "Convert the top-left origin into the actual draw anchor for align/valign and return the draw-flag string",
+          "params": {
+            "align": "'left'/'center'/'right'",
+            "valign": "'center'/'top'/'bottom'/'linecenter'; anything else is treated as ascender"
+          },
+          "returns": "x, y, extra (e.g. 'vc')"
+        },
+        "Font:Draw": {
+          "desc": "Draw one line of text at (x,y) with the current font, color and outline/shadow settings (flips the Y axis internally)"
+        },
+        "Font:DrawInBox": {
+          "desc": "Draw text aligned inside a rectangle by align/valign; y gets +1 so characters like 'R' are not clipped at the top"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines the Font class: manages loading/unloading of engine font handles and provides measuring, word wrap, alignment math and drawing (plus the Print/PrintInBox aliases).",
+  "_orphans": {}
+}

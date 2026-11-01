@@ -1,0 +1,44 @@
+{
+  "file": "Controls/checkbox.lua",
+  "classes": {
+    "Checkbox": {
+      "summary": "复选框控件：点击切换 checked 并回调 OnChange，方框与文字外观由主题绘制",
+      "props": {
+        "classname": "类名标识，固定为 \"checkbox\"",
+        "checked": "是否勾选，默认 true；New 时同步到 state.checked 供主题绘制",
+        "caption": "显示的文本，默认 \"text\"",
+        "textalign": "文本对齐方式，默认 \"left\"",
+        "textoffset": "文本相对方框的偏移（像素），默认 0",
+        "boxalign": "方框对齐位置，默认 \"right\"",
+        "boxsize": "方框边长（像素），默认 10",
+        "noFont": "是否禁用自动创建默认 font 对象，默认 false",
+        "textColor": "文本颜色 {r,g,b,a}，默认 {0,0,0,1}",
+        "defaultWidth": "默认宽度（像素），默认 70",
+        "defaultHeight": "默认高度（像素），默认 18",
+        "OnChange": "勾选状态变化时的回调表；Toggle 中通过 CallListeners 以新状态调用"
+      },
+      "funcs": {
+        "Checkbox:New": {
+          "desc": "构造 Checkbox 并把初始 checked 值同步到 state.checked",
+          "params": {
+            "obj": "属性表，可覆盖默认字段"
+          }
+        },
+        "Checkbox:Toggle": {
+          "desc": "切换勾选：先以取反值调 OnChange，再更新 checked/state 并 Invalidate"
+        },
+        "Checkbox:DrawControl": {
+          "desc": "绘制复选框；此方法为空实现，实际外观由 skin/主题覆盖"
+        },
+        "Checkbox:HitTest": {
+          "desc": "命中测试，始终返回 self（整个矩形可点击）"
+        },
+        "Checkbox:MouseDown": {
+          "desc": "鼠标按下即调用 Toggle 切换状态，返回 self 表示事件已处理"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 Checkbox 类：管理 checked 状态切换并在变化时回调 OnChange，方框外观由主题绘制。",
+  "_orphans": {}
+}

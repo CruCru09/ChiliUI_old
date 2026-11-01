@@ -1,0 +1,40 @@
+{
+  "file": "Controls/button.lua",
+  "classes": {
+    "Button": {
+      "summary": "Base button control that tracks the pressed state and repaints; the visual itself is supplied by the skin/theme",
+      "props": {
+        "classname": "Class name identifier, always \"button\"",
+        "caption": "Button caption text, default 'button'",
+        "defaultWidth": "Default width in pixels, 70",
+        "defaultHeight": "Default height in pixels, 20",
+        "noFont": "Skip automatic creation of the default font object, default false",
+        "align": "Horizontal text alignment, default \"center\"",
+        "valign": "Vertical text alignment, default \"center\"",
+        "alignPadding": "Alignment padding factor (ratio, default 0.5) used by the theme to inset the text"
+      },
+      "funcs": {
+        "Button:SetCaption": {
+          "desc": "Set the caption text and trigger Invalidate when it actually changed",
+          "params": {
+            "caption": "New text"
+          }
+        },
+        "Button:DrawControl": {
+          "desc": "Draw the button; this is an empty stub, the skin/theme overrides it"
+        },
+        "Button:HitTest": {
+          "desc": "Hit test that always returns self, so the whole rectangle is clickable"
+        },
+        "Button:MouseDown": {
+          "desc": "Set state.pressed=true, call the inherited MouseDown, Invalidate and return self"
+        },
+        "Button:MouseUp": {
+          "desc": "Only when state.pressed: clear the pressed state, call the inherited MouseUp, Invalidate and return self"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines the Button base class: tracks the pressed state and repaints, while the look is supplied by the skin/theme.",
+  "_orphans": {}
+}

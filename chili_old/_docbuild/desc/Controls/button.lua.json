@@ -1,0 +1,40 @@
+{
+  "file": "Controls/button.lua",
+  "classes": {
+    "Button": {
+      "summary": "标准按钮基类：维护按下状态并触发重绘，具体外观由 skin/主题覆盖",
+      "props": {
+        "classname": "类名标识，固定为 \"button\"",
+        "caption": "按钮文字，默认 'button'",
+        "defaultWidth": "默认宽度（像素），默认 70",
+        "defaultHeight": "默认高度（像素），默认 20",
+        "noFont": "是否禁用自动创建默认 font 对象，默认 false",
+        "align": "文字水平对齐，默认 \"center\"",
+        "valign": "文字垂直对齐，默认 \"center\"",
+        "alignPadding": "对齐内缩系数（比例，默认 0.5），供主题计算文字留白"
+      },
+      "funcs": {
+        "Button:SetCaption": {
+          "desc": "设置按钮文字；与旧值不同时触发 Invalidate 重绘",
+          "params": {
+            "caption": "新文本"
+          }
+        },
+        "Button:DrawControl": {
+          "desc": "绘制按钮；此方法为空实现，实际外观由 skin/主题覆盖"
+        },
+        "Button:HitTest": {
+          "desc": "命中测试，始终返回 self（整个矩形可点击）"
+        },
+        "Button:MouseDown": {
+          "desc": "置 state.pressed=true，调用继承的 MouseDown，Invalidate 重绘并返回 self"
+        },
+        "Button:MouseUp": {
+          "desc": "仅在 state.pressed 时清空按下状态、调用继承 MouseUp、Invalidate 重绘并返回 self"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 Button 基类：维护按下状态并触发重绘，具体外观由皮肤/主题覆盖。",
+  "_orphans": {}
+}

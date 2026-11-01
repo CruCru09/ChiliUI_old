@@ -1,0 +1,31 @@
+{
+  "file": "Controls/multiprogressbar.lua",
+  "classes": {
+    "Multiprogressbar": {
+      "summary": "多段进度条：按 bars 列表依次绘制颜色/纹理分段，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 \"multiprogressbar\"",
+        "defaultWidth": "默认宽度（像素 90）",
+        "defaultHeight": "默认高度（像素 20）",
+        "padding": "内边距 {左, 上, 右, 下}（像素）",
+        "fillPadding": "填充区相对控件边缘的额外内缩 {左, 上, 右, 下}",
+        "drawBorder": "是否用 borderColor 沿填充区画线框，默认 false",
+        "borderColor": "边框颜色，仅 drawBorder 为 true 时使用，默认 {1,0,0,1}",
+        "orientation": "方向：\"horizontal\"（默认）或 \"vertical\"",
+        "reverse": "为 true 时从末端反向绘制，默认 false",
+        "scaleFunction": "可选映射函数：接收 0-1 总占比、返回 0-1 绘制占比，用于非线性压缩各段",
+        "bars": "段列表，每段 {color1,color2,percent,texture,s,t,tileSize}：color1→color2 渐变、percent 占总长比例、texture 纹理路径、s/t 纹理坐标、tileSize 平铺尺寸"
+      },
+      "funcs": {
+        "Multiprogressbar:DrawControl": {
+          "desc": "依 bars 顺序绘制各段渐变方块与可选纹理，必要时画外框；有 scaleFunction 时先缩放各段占比。"
+        },
+        "Multiprogressbar:HitTest": {
+          "desc": "始终返回自身，整个控件都算命中。"
+        }
+      }
+    }
+  },
+  "fileDesc": "多段进度条控件：按 bars 列表依次绘制多段颜色/纹理进度块，支持横竖方向与反向绘制。",
+  "_orphans": {}
+}

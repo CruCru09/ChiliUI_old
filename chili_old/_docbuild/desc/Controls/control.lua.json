@@ -1,0 +1,316 @@
+{
+  "file": "Controls/control.lua",
+  "classes": {
+    "Control": {
+      "summary": "所有可视控件的基类，负责布局、相对坐标、拖拽缩放与绘制事件分发。",
+      "props": {
+        "classname": "控件类名，用于 InheritsFrom 判断与主题/皮肤查找，构造时若未设置则取类默认 'control'",
+        "padding": "内边距 {左, 上, 右, 下}，单位像素；决定 clientArea 及客户区尺寸",
+        "borderThickness": "边框线宽，单位像素，默认 1.5",
+        "borderColor": "主边框颜色 RGBA（通常为左上亮边），默认 {1.0, 1.0, 1.0, 0.6}",
+        "borderColor2": "副边框颜色 RGBA（通常为右下暗边），默认 {0.0, 0.0, 0.0, 0.8}",
+        "backgroundColor": "背景填充颜色 RGBA，默认 {0.8, 0.8, 1.0, 0.4}",
+        "focusColor": "获得焦点时的高亮/边框颜色 RGBA，默认 {0.2, 0.2, 1.0, 0.6}",
+        "autosize": "是否根据子控件自动调整自身尺寸，默认 false",
+        "savespace": "autosize 时是否收缩到最小所需空间；关闭时 autosize 通常只放大不缩小，默认 true",
+        "resizeGripSize": "右下角缩放手柄尺寸 {宽, 高}，单位像素，默认 {11, 11}",
+        "dragGripSize": "拖动手柄尺寸 {宽, 高}，单位像素，默认 {10, 10}",
+        "dragUseGrip": "拖动时是否必须抓住拖动手柄（false 表示整个控件都可拖动），默认 false",
+        "draggable": "是否允许用鼠标拖动改变位置，默认 false",
+        "resizable": "是否允许用鼠标拖动缩放手柄改变尺寸，默认 false",
+        "tweakDragUseGrip": "Tweak（界面编辑）模式下是否必须使用拖动手柄，默认 false",
+        "tweakDraggable": "Tweak（界面编辑）模式下是否可拖动，默认 false",
+        "tweakResizable": "Tweak（界面编辑）模式下是否可缩放，默认 false",
+        "minWidth": "最小宽度，单位像素，默认 10；SetPos/Resize 会夹紧到该值",
+        "minHeight": "最小高度，单位像素，默认 10；SetPos/Resize 会夹紧到该值",
+        "maxWidth": "最大宽度，单位像素，默认 1e9（约等于无限制）",
+        "maxHeight": "最大高度，单位像素，默认 1e9（约等于无限制）",
+        "fixedRatio": "缩放时是否保持原有宽高比，默认 false",
+        "tooltip": "悬停提示文本（纯文本）；Screen 会从悬停控件沿 parent 链向上取第一条非空值",
+        "useDList": "是否使用 OpenGL display list 缓存自身绘制，默认 true",
+        "safeOpengl": "绘制客户区时是否启用 scissor 裁剪，防止子控件画到区域外，默认 true",
+        "font": "字体配置表（font/size/shadow/outline/color 等），New 时据此创建 Font；noFont 为 true 时置 nil",
+        "state": "交互状态表 {focused, hovered, checked, selected, pressed, enabled}，由鼠标/焦点事件更新",
+        "skin": "皮肤表引用，由 SkinHandler.LoadSkin 在构造时填充",
+        "skinName": "皮肤名，SkinHandler 据此为该控件选择皮肤",
+        "OnResize": "尺寸变化监听器列表，UpdateClientArea 检测到宽高改变时以 (clientWidth, clientHeight) 调用",
+        "noFont": "是否不为该控件创建 Font 对象以节省内存，默认 true"
+      },
+      "funcs": {
+        "Control:New": {
+          "desc": "构造控件：加载主题默认值与皮肤、按 padding 换算客户区尺寸、创建字体、检测相对约束并初次对齐，最后添加 children",
+          "params": {
+            "obj": "属性表（会被改写成控件实例）"
+          },
+          "returns": "初始化完成的控件对象"
+        },
+        "Control:Dispose": {
+          "desc": "释放 _own/_children/_all 三个 display list 并断开字体父链，再调用父类 Dispose（内部）"
+        },
+        "Control:SetParent": {
+          "desc": "设置父控件，随后触发 RequestRealign 重新布局",
+          "params": {
+            "obj": "父控件（nil 表示脱离父控件）"
+          }
+        },
+        "Control:AddChild": {
+          "desc": "添加子控件，随后触发 RequestRealign；dontUpdate 为真时跳过重新布局",
+          "params": {
+            "obj": "子控件",
+            "dontUpdate": "是否跳过 RequestRealign",
+            "index": "插入位置，缺省追加到末尾"
+          }
+        },
+        "Control:RemoveChild": {
+          "desc": "移除子控件，成功找到时触发 RequestRealign",
+          "returns": "是否成功移除"
+        },
+        "Control:Invalidate": {
+          "desc": "标记 _needRedraw 并 RequestUpdate，使下一帧重建 display list"
+        },
+        "Control:_GetMaxChildConstraints": {
+          "desc": "返回子控件可用区域约束 (0, 0, clientWidth, clientHeight)，供相对坐标换算使用（内部，子类可覆盖）",
+          "returns": "left, top, width, height"
+        },
+        "Control:DetectRelativeBounds": {
+          "desc": "解析位置/尺寸约束，记录 _givenBounds/_relativeBounds 并设置 _isRelative"
+        },
+        "Control:GetRelativeBox": {
+          "desc": "按父控件尺寸把自身相对约束换算成绝对矩形；savespace 为真时用 minWidth/minHeight 代替当前尺寸",
+          "params": {
+            "savespace": "是否返回最小尺寸"
+          },
+          "returns": "{left, top, width, height}"
+        },
+        "Control:UpdateClientArea": {
+          "desc": "按 padding 重算客户区尺寸与 clientArea，变化时触发 OnResize 并 Invalidate"
+        },
+        "Control:AlignControl": {
+          "desc": "取 GetRelativeBox 结果并通过 _UpdateConstraints 写回控件位置与尺寸"
+        },
+        "Control:RequestRealign": {
+          "desc": "请求延迟重布局：标记 _realignRequested 并 RequestUpdate；Realign 过程中的请求被忽略",
+          "params": {
+            "savespace": "可选，是否按最小空间布局"
+          }
+        },
+        "Control:DisableRealign": {
+          "desc": "增加重布局禁用计数（可嵌套），禁用期间 Realign 请求被挂起"
+        },
+        "Control:EnableRealign": {
+          "desc": "减少禁用计数，计数归零且存在挂起请求时立即执行 Realign"
+        },
+        "Control:Realign": {
+          "desc": "执行布局：AlignControl → UpdateLayout → RealignChildren；禁用期间转为 RequestRealign",
+          "params": {
+            "savespace": "可选，是否按最小空间布局"
+          }
+        },
+        "Control:UpdateLayout": {
+          "desc": "autosize 时按子控件最小尺寸与相对框重算自身尺寸并 Resize，再重新对齐子控件",
+          "returns": "是否为 autosize 并完成了自动布局（非 autosize 返回 nil）"
+        },
+        "Control:RealignChildren": {
+          "desc": "对所有子控件调用 Realign，传递 savespace"
+        },
+        "Control:SetPos": {
+          "desc": "设置绝对位置与尺寸并按 min/max 夹紧；clientArea 为真时加回 padding，变化后 UpdateClientArea",
+          "params": {
+            "x": "左上角 x",
+            "y": "左上角 y",
+            "w": "宽度",
+            "h": "高度",
+            "clientArea": "是否按客户区尺寸解释 w/h",
+            "dontUpdateRelative": "是否不同步更新相对约束记录"
+          }
+        },
+        "Control:SetPosRelative": {
+          "desc": "同 SetPos，但允许相对坐标：相对值只记入 _relativeBounds，不直接写入 x/y/width/height",
+          "params": {
+            "x": "x，可为相对坐标",
+            "y": "y，可为相对坐标",
+            "w": "宽度，可为相对坐标",
+            "h": "高度，可为相对坐标",
+            "clientArea": "是否按客户区尺寸解释 w/h",
+            "dontUpdateRelative": "是否不同步更新相对约束记录"
+          }
+        },
+        "Control:Resize": {
+          "desc": "只改尺寸，等价于 SetPosRelative(nil, nil, w, h, clientArea, dontUpdateRelative)",
+          "params": {
+            "w": "宽度",
+            "h": "高度"
+          }
+        },
+        "Control:_UpdateConstraints": {
+          "desc": "内部用 SetPos 写回约束，且不更新相对约束记录（内部）"
+        },
+        "Control:GetMinimumExtents": {
+          "desc": "返回控件自身所需最小宽高：autosize 时取子控件最小尺寸，并按 min/max 夹紧",
+          "returns": "width, height"
+        },
+        "Control:GetChildrenMinimumExtents": {
+          "desc": "遍历子控件取 GetMinimumExtents 的最大值，再叠加自身 padding",
+          "returns": "width, height"
+        },
+        "Control:GetCurrentExtents": {
+          "desc": "返回合并子控件后的当前包围盒",
+          "returns": "minLeft, minTop, maxRight, maxBottom"
+        },
+        "Control:GetChildrenCurrentExtents": {
+          "desc": "遍历子控件合并各自 GetCurrentExtents，得到子控件包围盒",
+          "returns": "minLeft, minTop, maxRight, maxBottom"
+        },
+        "Control:StartResizing": {
+          "desc": "记录缩放起始鼠标位置、当前尺寸与位置到 self.resizing，供 MouseMove 计算增量",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y"
+          }
+        },
+        "Control:StopResizing": {
+          "desc": "清除 self.resizing，结束缩放状态"
+        },
+        "Control:StartDragging": {
+          "desc": "置 self.dragging 为 true，开始拖动"
+        },
+        "Control:StopDragging": {
+          "desc": "清除 self.dragging，结束拖动"
+        },
+        "Control:LocalToClient": {
+          "desc": "局部坐标转客户区坐标（减去 clientArea 的 padding 偏移）",
+          "params": {
+            "x": "局部 x",
+            "y": "局部 y"
+          },
+          "returns": "client x, client y"
+        },
+        "Control:ClientToLocal": {
+          "desc": "客户区坐标转局部坐标（加上 clientArea 的 padding 偏移）",
+          "returns": "local x, local y"
+        },
+        "Control:ParentToClient": {
+          "desc": "父控件坐标转客户区坐标（减去自身 x/y 与 padding）",
+          "returns": "client x, client y"
+        },
+        "Control:ClientToParent": {
+          "desc": "客户区坐标转父控件坐标（加上自身 x/y 与 padding）",
+          "returns": "parent x, parent y"
+        },
+        "Control:InClientArea": {
+          "desc": "判断局部坐标是否落在客户区矩形内（含边界）",
+          "returns": "布尔值"
+        },
+        "Control:Update": {
+          "desc": "任务处理器回调：有挂起的 Realign 则执行布局；需要重绘且在视野内时重建 display list"
+        },
+        "Control:InstantUpdate": {
+          "desc": "立即更新：在视野内时，需要重绘则走 Update，否则直接重建 _all_dlist"
+        },
+        "Control:_UpdateOwnDList": {
+          "desc": "先递归更新子控件，再重建仅含自身绘制的 _own_dlist（内部）"
+        },
+        "Control:_UpdateChildrenDList": {
+          "desc": "已注释停用的旧实现，原用于生成只含子控件的 _children_dlist（内部）"
+        },
+        "Control:_UpdateAllDList": {
+          "desc": "重建包含自身及所有子控件的 _all_dlist，必要时请求父控件即时更新（内部）"
+        },
+        "Control:_DrawInClientArea": {
+          "desc": "移到客户区坐标后执行 fnc，safeOpengl 时用 PushScissor/PopScissor 裁剪（内部）",
+          "params": {
+            "fnc": "绘制函数"
+          }
+        },
+        "Control:IsInView": {
+          "desc": "判断自身矩形是否落在父控件视野内（无父控件时返回 false）",
+          "returns": "布尔值"
+        },
+        "Control:IsChildInView": {
+          "desc": "判断指定子控件的矩形是否落在自身视野内",
+          "params": {
+            "child": "子控件"
+          },
+          "returns": "布尔值"
+        },
+        "Control:IsRectInView": {
+          "desc": "递归判断给定矩形是否与自身客户区及祖先视口相交",
+          "returns": "布尔值"
+        },
+        "Control:_DrawChildrenInClientArea": {
+          "desc": "在客户区内按从后到前的顺序绘制可见子控件（内部）",
+          "params": {
+            "event": "绘制事件名，缺省 'Draw'"
+          }
+        },
+        "Control:DrawBackground": {
+          "desc": "绘制背景；本类为空实现，由皮肤/主题覆盖"
+        },
+        "Control:DrawDragGrip": {
+          "desc": "绘制拖动手柄；本类为空实现，由皮肤/主题覆盖"
+        },
+        "Control:DrawResizeGrip": {
+          "desc": "绘制缩放手柄；本类为空实现，由皮肤/主题覆盖"
+        },
+        "Control:DrawBorder": {
+          "desc": "绘制边框；本类为空实现，由皮肤/主题覆盖"
+        },
+        "Control:DrawGrips": {
+          "desc": "按 resizable、draggable 且 dragUseGrip 的条件决定是否绘制缩放/拖动手柄"
+        },
+        "Control:DrawControl": {
+          "desc": "绘制控件本体：snapToGrid 时先把位置对齐到半整数格点，再依次 DrawBackground、DrawBorder"
+        },
+        "Control:DrawForList": {
+          "desc": "display list 版绘制：调用自身 dlist 或直接画本体，再画子控件、post 钩子与手柄"
+        },
+        "Control:Draw": {
+          "desc": "常规绘制入口：优先调用 _all_dlist，否则依次绘制本体、子控件、DrawControlPostChildren 与手柄"
+        },
+        "Control:TweakDraw": {
+          "desc": "Tweak（界面编辑）模式下绘制：把 TweakDraw 事件转发给子控件"
+        },
+        "Control:DrawChildren": {
+          "desc": "存在子控件时，在客户区内以 Draw 事件绘制它们"
+        },
+        "Control:DrawChildrenForList": {
+          "desc": "存在子控件时，在客户区内以 DrawForList 事件绘制它们并注册重绘"
+        },
+        "Control:HitTest": {
+          "desc": "命中测试：先遍历子控件递归测试，再尝试 NCHitTest，最后按 noClickThrough 返回自身或 false",
+          "returns": "命中的控件或 false"
+        },
+        "Control:MouseDown": {
+          "desc": "先 NCMouseDown，再在客户区内交给子控件，最后 NCMouseDownPostChildren 兜底"
+        },
+        "Control:MouseMove": {
+          "desc": "鼠标移动：拖动时按 dx/dy 移动自身，缩放时按增量改尺寸（fixedRatio 保持比例），否则转发给子控件",
+          "returns": "拖动/缩放时返回 self"
+        },
+        "Control:MouseUp": {
+          "desc": "抬起事件：先清除 resizing/dragging 状态，再把坐标转到客户区后转发给子控件"
+        },
+        "Control:MouseClick": {
+          "desc": "点击事件：把坐标转到客户区后转发给子控件分发"
+        },
+        "Control:MouseDblClick": {
+          "desc": "双击事件：把坐标转到客户区后转发给子控件分发"
+        },
+        "Control:MouseWheel": {
+          "desc": "滚轮事件：把坐标转到客户区后转发给子控件分发"
+        },
+        "Control:FocusUpdate": {
+          "desc": "转发焦点更新事件给父类实现（内部）"
+        },
+        "Control:MouseOver": {
+          "desc": "产生 MouseOver 事件：转发后置 state.hovered = true 并 Invalidate 重绘"
+        },
+        "Control:MouseOut": {
+          "desc": "产生 MouseOut 事件：转发后置 state.hovered = false 并 Invalidate 重绘"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义所有可视控件的基类 Control（Object 的子类），实现 padding/客户区、相对坐标约束、autosize 布局、拖拽缩放、display list 缓存绘制、命中测试与鼠标事件分发。",
+  "_orphans": {}
+}

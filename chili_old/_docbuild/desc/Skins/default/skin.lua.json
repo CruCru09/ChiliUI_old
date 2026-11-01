@@ -1,0 +1,165 @@
+{
+  "file": "Skins/default/skin.lua",
+  "module": {
+    "summary": "default 皮肤：实现各控件的渲染/绘制函数，并定义 skin.general 与各类控件的皮肤表（默认颜色、边框、DrawControl 等），最后 return skin。",
+    "funcs": {
+      "DrawBorder": {
+        "desc": "用 borderColor/borderColor2 画 1px 斜角边框；state.pressed 为真时两种颜色互换。",
+        "params": {
+          "obj": "控件对象",
+          "state": "状态表（含 pressed）"
+        }
+      },
+      "DrawBackground": {
+        "desc": "以 TRIANGLE_STRIP 调用 _DrawBackground 用 backgroundColor 填充控件矩形。",
+        "params": {
+          "obj": "控件对象"
+        }
+      },
+      "_DrawScrollbar": {
+        "desc": "画滚动条底色，并按 type 为 'horizontal'/'vertical' 画位置和长度随 pos、visiblePercent 变化的滑块。（内部）",
+        "params": {
+          "obj": "控件对象",
+          "type": "方向",
+          "x": "左",
+          "y": "上",
+          "w": "宽",
+          "h": "高",
+          "pos": "滚动比例 0..1",
+          "visiblePercent": "可见比例 0..1",
+          "state": "状态表"
+        }
+      },
+      "_DrawBackground": {
+        "desc": "绘制 backgroundColor 矩形背景的顶点回调，供 gl.BeginEnd 使用。（内部）",
+        "params": {
+          "obj": "控件对象"
+        }
+      },
+      "_DrawTabBackground": {
+        "desc": "画 tab 背景，四边各内缩 2px。（内部）",
+        "params": {
+          "obj": "控件对象"
+        }
+      },
+      "DrawWindow": {
+        "desc": "窗口的 DrawControl：画背景和边框。",
+        "params": {
+          "obj": "窗口对象"
+        }
+      },
+      "DrawButton": {
+        "desc": "画按钮背景与边框，有 caption 时用 obj.font 在中心绘制文字。",
+        "params": {
+          "obj": "按钮对象"
+        }
+      },
+      "_DrawTriangle": {
+        "desc": "用 focusColor 在右侧画一个三角指示符（combobox 下拉箭头）。（内部）",
+        "params": {
+          "obj": "控件对象"
+        }
+      },
+      "DrawComboBox": {
+        "desc": "先按按钮样式绘制，再叠加下拉三角指示符。",
+        "params": {
+          "obj": "combobox 对象"
+        }
+      },
+      "DrawCursor": {
+        "desc": "输出文本光标矩形的四个顶点（供 gl.BeginEnd 使用）。",
+        "params": {
+          "x": "左",
+          "y": "上",
+          "w": "宽",
+          "h": "高"
+        }
+      },
+      "DrawEditBox": {
+        "desc": "画编辑框：背景、聚焦时用 focusColor 否则用 borderColor2/borderColor 画边框、按 offset/cursor 裁剪并绘制文本，聚焦时绘制随时间闪烁的光标。",
+        "params": {
+          "obj": "editbox 对象"
+        }
+      },
+      "DrawPanel": {
+        "desc": "面板的 DrawControl：画背景和边框。",
+        "params": {
+          "obj": "面板对象"
+        }
+      },
+      "DrawItemBkGnd": {
+        "desc": "画列表项背景（selected 为深蓝，否则浅蓝半透明）并叠加 1px 边框。",
+        "params": {
+          "obj": "控件对象",
+          "x": "左",
+          "y": "上",
+          "w": "宽",
+          "h": "高",
+          "state": "状态字符串，如 \"selected\""
+        }
+      },
+      "DrawScrollPanel": {
+        "desc": "在 clientArea 偏移的坐标系里，按 contentArea 尺寸画垂直/水平滚动条。",
+        "params": {
+          "obj": "scrollpanel 对象"
+        }
+      },
+      "DrawTrackbar": {
+        "desc": "画 trackbar：一条水平轨道线与按 (value-min)/(max-min) 定位的滑块。",
+        "params": {
+          "obj": "trackbar 对象"
+        }
+      },
+      "DrawCheckbox": {
+        "desc": "画 checkbox 的 caption、方框与边框，state.checked 为真时再画勾。",
+        "params": {
+          "obj": "checkbox 对象"
+        }
+      },
+      "DrawColorbars": {
+        "desc": "画 R/G/B/A 四条颜色条、右侧当前颜色预览块及边框。",
+        "params": {
+          "obj": "colorbars 对象"
+        }
+      },
+      "DrawLine": {
+        "desc": "style 以 'v' 开头画竖线，否则画横线（用 borderColor/borderColor2 的 1px 双色线）。",
+        "params": {
+          "self": "line 对象"
+        }
+      },
+      "DrawDragGrip": {
+        "desc": "用 TRIANGLES 画窗口左上角的拖拽手柄。",
+        "params": {
+          "obj": "窗口对象"
+        }
+      },
+      "DrawResizeGrip": {
+        "desc": "当 obj.resizable（tweak 模式下或 tweakResizable）为真时，用 GL.LINES 在右下角画三条缩放斜线。",
+        "params": {
+          "obj": "窗口对象"
+        }
+      },
+      "DrawTreeviewNode": {
+        "desc": "若节点是 treeview 当前选中项，则画半透明蓝色背景和深蓝边框高亮。",
+        "params": {
+          "self": "treeviewnode 对象"
+        }
+      },
+      "DrawTreeviewNodeTree": {
+        "desc": "画树节点连线（竖线加横线，父节点最后一个子节点不向下延伸）并在有子节点时画展开/折叠图标。",
+        "params": {
+          "self": "treeviewnode 对象"
+        }
+      },
+      "DrawTabBarItem": {
+        "desc": "画 tab 背景与边框，caption 居中；选中时临时用 focusColor 绘制文字后恢复原字体颜色。",
+        "params": {
+          "self": "tabbaritem 对象"
+        }
+      }
+    }
+  },
+  "fileDesc": "default 皮肤实现：各控件绘制函数与皮肤默认值表（skin.general、skin.button、skin.window 等）。",
+  "_orphans": {}
+}

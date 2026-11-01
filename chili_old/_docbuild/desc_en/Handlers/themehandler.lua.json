@@ -1,0 +1,5 @@
+{
+  "file": "Handlers/themehandler.lua",
+  "fileDesc": "Placeholder: VFS.Include's themes/theme.lua, exposing the skin config as the global theme table.",
+  "_orphans": {}
+}

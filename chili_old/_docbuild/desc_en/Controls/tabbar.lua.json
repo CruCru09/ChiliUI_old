@@ -1,0 +1,46 @@
+{
+  "file": "Controls/tabbar.lua",
+  "classes": {
+    "TabBar": {
+      "summary": "Tab bar control: creates a TabBarItem per tabs entry and manages the selection. Inherits from LayoutPanel.",
+      "props": {
+        "classname": "Control class name, fixed to \"tabbar\"",
+        "orientation": "Layout orientation; default \"horizontal\" (tabs side by side)",
+        "resizeItems": "When true the item sizes stretch with the bar; default false",
+        "centerItems": "When true the items are centered as a group; default false",
+        "padding": "Tab bar padding {left, top, right, bottom}",
+        "itemPadding": "Padding of each item {left, top, right, bottom}",
+        "itemMargin": "Margin of each item {left, top, right, bottom}",
+        "minItemWidth": "Minimum item width in pixels (70)",
+        "minItemHeight": "Minimum item height in pixels (20)",
+        "tabs": "Table of tab labels; New creates one TabBarItem per entry",
+        "selected": "Label selected initially; nil selects the first one",
+        "OnChange": "Event table invoked when the selected tab changes, with the tab label as argument"
+      },
+      "funcs": {
+        "TabBar:New": {
+          "desc": "Creates a TabBarItem for each entry of tabs, adds a \"tab\" when there is none, then selects selected.",
+          "params": {
+            "obj": "Construction table"
+          },
+          "returns": "The new TabBar instance"
+        },
+        "TabBar:SetOrientation": {
+          "desc": "Sets the layout orientation by delegating to the LayoutPanel (parent) implementation.",
+          "params": {
+            "orientation": "Layout orientation, e.g. \"horizontal\"/\"vertical\""
+          }
+        },
+        "TabBar:Select": {
+          "desc": "Selects the tab whose caption matches: updates selected_obj and state.selected and fires OnChange.",
+          "params": {
+            "tabname": "Label text (caption) of the tab to select"
+          },
+          "returns": "true when found and selected; when not found it may select the first tab and return false"
+        }
+      }
+    }
+  },
+  "fileDesc": "Tab bar control: generates TabBarItem children from tabs and handles selection changes and OnChange notifications.",
+  "_orphans": {}
+}

@@ -1,0 +1,445 @@
+{
+  "file": "Controls/object.lua",
+  "classes": {
+    "Object": {
+      "summary": "Chili UI 的对象基类，所有控件与容器的根类；提供父子层级、可见性/层号、事件监听器分发与坐标变换。",
+      "props": {
+        "classname": "类名标识字符串，用于 InheritsFrom 判断与默认实例名生成，默认 'object'",
+        "defaultWidth": "默认宽度（像素），未显式设置 width 时使用，默认 10",
+        "defaultHeight": "默认高度（像素），未显式设置 height 时使用，默认 10",
+        "visible": "是否可见，默认 true；hidden 为其反义同义字段",
+        "preserveChildrenOrder": "为 true 时移除子控件保持原有的顺序，为 false 时增删更快但 children 数组顺序不可靠，默认 false",
+        "children": "子控件数组（按层号排序），同时以子对象及其硬链接为键记录层号",
+        "children_hidden": "被 HideChild 隐藏但仍归属本控件的子对象集合，值为保存的层号与前后邻居链接",
+        "childrenByName": "弱表，子控件 name → 子对象硬链接，供 GetChildByName 快速查找",
+        "OnDispose": "对象释放时由 Dispose 调用的监听器列表",
+        "OnClick": "鼠标点击事件的监听器列表，处理函数返回真值即停止传播",
+        "OnDblClick": "鼠标双击事件的监听器列表，处理函数返回真值即停止传播",
+        "OnMouseDown": "鼠标按下事件的监听器列表，处理函数返回真值即停止传播",
+        "OnMouseUp": "鼠标抬起事件的监听器列表，处理函数返回真值即停止传播",
+        "OnMouseMove": "鼠标移动事件的监听器列表，处理函数返回真值即停止传播",
+        "OnMouseWheel": "鼠标滚轮事件的监听器列表，处理函数返回真值即停止传播",
+        "OnMouseOver": "鼠标移入事件的监听器列表，处理函数返回真值即停止传播",
+        "OnMouseOut": "鼠标移出事件的监听器列表，处理函数返回真值即停止传播",
+        "OnKeyPress": "键盘按键事件的监听器列表，处理函数返回真值即停止传播",
+        "OnTextInput": "文本输入事件的监听器列表，处理函数返回真值即停止传播",
+        "OnFocusUpdate": "焦点状态更新事件的监听器列表，处理函数返回真值即停止传播",
+        "OnHide": "对象由可见变为隐藏时调用的监听器列表，由 Hide 触发",
+        "OnShow": "对象由隐藏变为可见时调用的监听器列表，由 Show 触发",
+        "OnOrphan": "对象失去父对象（SetParent 传入 nil）时调用的监听器列表",
+        "OnParent": "对象被赋予新父对象时（父指针写入之前）调用的监听器列表",
+        "OnParentPost": "父对象设置完成后调用的监听器列表",
+        "disableChildrenHitTest": "为 true 时跳过子控件的命中测试，子控件不再响应鼠标事件，默认 false"
+      },
+      "funcs": {
+        "Object:New": {
+          "desc": "创建类实例：修正参数名大小写、自动生成 name、合并类默认表、设置 metatable 与硬链接，并接管 parent/children",
+          "params": {
+            "obj": "实例的初始字段表（可选）"
+          },
+          "returns": "新对象的硬链接（hardlink）"
+        },
+        "Object:Dispose": {
+          "desc": "释放对象持有的非托管资源，级联释放子对象并触发 OnDispose 监听器，可重复调用",
+          "params": {
+            "_internal": "内部标记，为真时检查对象是否仍被引用并在控制台告警"
+          }
+        },
+        "Object:AutoDispose": {
+          "desc": "供垃圾回收自动调用的释放入口，等价于 Dispose(true)(内部)"
+        },
+        "Object:Clone": {
+          "desc": "克隆对象，目前只是返回空表的未实现占位",
+          "returns": "空表 {}"
+        },
+        "Object:Inherit": {
+          "desc": "派生子类：设置 inherited 指针并复制父类未定义的字段（表做浅拷贝），重建 __lowerkeys",
+          "params": {
+            "class": "要初始化的子类表"
+          },
+          "returns": "传入的子类表"
+        },
+        "Object:SetParent": {
+          "desc": "设置父对象，触发 OnParent/OnParentPost 监听器、强制 visible 为 true 并 Invalidate；传入非表则置空父指针并触发 OnOrphan",
+          "params": {
+            "obj": "新的父对象，可为 nil"
+          }
+        },
+        "Object:AddChild": {
+          "desc": "把 obj 添加为子控件（登记 name、从原父摘除并 SetParent），按 index 插入层号并 Invalidate",
+          "params": {
+            "obj": "要添加的子对象",
+            "dontUpdate": "保留参数，当前实现未使用",
+            "index": "插入层号，缺省追加到末尾"
+          }
+        },
+        "Object:RemoveChild": {
+          "desc": "从子控件列表移除 child 并清空 name 登记，preserveChildrenOrder 时顺序删除，否则用末尾元素填补；从隐藏列表移除则直接返回 true",
+          "returns": "移除成功 true，非子对象 false"
+        },
+        "Object:ClearChildren": {
+          "desc": "移除全部子控件（先 ShowChild 恢复隐藏的子控件），期间临时关闭 preserveChildrenOrder 提速"
+        },
+        "Object:IsEmpty": {
+          "desc": "判断是否没有可见子控件",
+          "returns": "无可见子控件返回 true"
+        },
+        "Object:HideChild": {
+          "desc": "把子控件从可见列表移入 children_hidden，记录其层号与前后邻居以便原位恢复；非子对象或重复隐藏会打印告警"
+        },
+        "Object:ShowChild": {
+          "desc": "把 children_hidden 中的子控件按记录的邻居位置或层号重新加回可见列表",
+          "returns": "恢复成功返回 true"
+        },
+        "Object:SetVisibility": {
+          "desc": "设置可见性：通过父控件的 ShowChild/HideChild 挂接或摘除自身，并同步 visible 与 hidden 字段",
+          "params": {
+            "visible": "目标可见性"
+          }
+        },
+        "Object:Hide": {
+          "desc": "隐藏自身，若此前未隐藏则触发 OnHide 监听器"
+        },
+        "Object:Show": {
+          "desc": "显示自身，若此前不可见则触发 OnShow 监听器"
+        },
+        "Object:ToggleVisibility": {
+          "desc": "在显示与隐藏之间切换"
+        },
+        "Object:SetChildLayer": {
+          "desc": "把子控件移动到指定层号（负数从末尾倒数，超出范围钳制到末尾）并 Invalidate 重绘",
+          "params": {
+            "child": "子对象",
+            "layer": "目标层号，负数表示从末尾倒数"
+          }
+        },
+        "Object:SetLayer": {
+          "desc": "请求父控件把自身设置到指定层号，无父对象时不做任何事",
+          "params": {
+            "layer": "目标层号"
+          }
+        },
+        "Object:SendToBack": {
+          "desc": "把自身移到父控件的最底层（SetLayer(-1)）"
+        },
+        "Object:BringToFront": {
+          "desc": "把自身移到父控件的最顶层（SetLayer(1)）"
+        },
+        "Object:InheritsFrom": {
+          "desc": "判断本对象是否属于 classname 类或其子类，沿 inherited 链递归比较",
+          "params": {
+            "classname": "类名字符串"
+          },
+          "returns": "属于该类则返回 true"
+        },
+        "Object:GetChildByName": {
+          "desc": "在直接子控件（含被隐藏的子控件）中按 name 查找",
+          "params": {
+            "name": "子控件名称"
+          },
+          "returns": "找到的子对象，否则 nil"
+        },
+        "Object:GetObjectByName": {
+          "desc": "递归查找任意层级的后代（含隐藏子控件），按 name 匹配并优先查 childrenByName 缓存",
+          "params": {
+            "name": "控件名称"
+          },
+          "returns": "找到的对象，否则 nil"
+        },
+        "Object:FindParent": {
+          "desc": "沿父链向上爬，返回第一个满足谓词的父对象：传入类名时用 InheritsFrom，传入函数时以其返回值判断",
+          "params": {
+            "predicate": "类名字符串或 function(parent)->bool"
+          },
+          "returns": "匹配的父对象，否则 nil"
+        },
+        "Object:IsDescendantOf": {
+          "desc": "判断自身是否为 object 的后代，逐级向上比较",
+          "params": {
+            "object": "祖先对象",
+            "_already_unlinked": "内部标记，跳过解链接（内部）"
+          },
+          "returns": "是其后代返回 true"
+        },
+        "Object:IsAncestorOf": {
+          "desc": "递归判断 object 是否为自身的后代，并给出相对层级",
+          "params": {
+            "object": "后代对象",
+            "_level": "起始层级，默认 1（内部）",
+            "_already_unlinked": "内部标记，跳过解链接（内部）"
+          },
+          "returns": "布尔值；命中时第二个返回值为相对层级"
+        },
+        "Object:CallListeners": {
+          "desc": "按顺序调用监听器列表中的每个函数，任一返回真值即停止，并把 self 与事件参数传入",
+          "params": {
+            "listeners": "监听器函数列表",
+            "...": "传给监听器的事件参数"
+          },
+          "returns": "任一监听器返回真值时返回 true"
+        },
+        "Object:CallListenersInverse": {
+          "desc": "逆序调用监听器列表，任一返回真值即停止",
+          "params": {
+            "listeners": "监听器函数列表",
+            "...": "传给监听器的事件参数"
+          },
+          "returns": "任一监听器返回真值时返回 true"
+        },
+        "Object:CallChildren": {
+          "desc": "按顺序对每个子控件调用名为 eventname 的方法，任一返回非 nil 即停止并返回该结果",
+          "params": {
+            "eventname": "子控件方法名",
+            "...": "附加参数"
+          },
+          "returns": "第一个非 nil 的返回值"
+        },
+        "Object:CallChildrenInverse": {
+          "desc": "逆序（从最后一个子控件开始）对子控件调用 eventname 方法，任一返回非 nil 即停止",
+          "params": {
+            "eventname": "子控件方法名",
+            "...": "附加参数"
+          },
+          "returns": "第一个非 nil 的返回值"
+        },
+        "Object:CallChildrenInverseCheckFunc": {
+          "desc": "逆序对通过 checkfunc 过滤的子控件调用 eventname 方法，任一返回非 nil 即停止",
+          "params": {
+            "checkfunc": "function(parent, child)->bool 过滤器",
+            "eventname": "子控件方法名",
+            "...": "附加参数"
+          },
+          "returns": "第一个非 nil 的返回值"
+        },
+        "Object:CallChildrenHT": {
+          "desc": "逆序遍历子控件做命中测试，对命中的子控件以其局部坐标调用 eventname；disableChildrenHitTest 为真时直接返回 nil",
+          "params": {
+            "eventname": "子控件方法名",
+            "x": "父坐标系中的 x",
+            "y": "父坐标系中的 y",
+            "...": "附加参数"
+          },
+          "returns": "第一个非 nil 的返回值"
+        },
+        "Object:CallChildrenHTWeak": {
+          "desc": "与 CallChildrenHT 类似，但只判断子控件外接矩形、不调用 HitTest，用于滚轮等弱命中事件",
+          "params": {
+            "eventname": "子控件方法名",
+            "x": "父坐标系中的 x",
+            "y": "父坐标系中的 y",
+            "...": "附加参数"
+          },
+          "returns": "第一个非 nil 的返回值"
+        },
+        "Object:RequestUpdate": {
+          "desc": "把自身注册到 TaskHandler，使下一帧调用其 Update 方法"
+        },
+        "Object:Invalidate": {
+          "desc": "请求重绘的钩子，基类为空实现，由 Control 等子类覆盖"
+        },
+        "Object:Draw": {
+          "desc": "逆序让每个子控件绘制自身（调用其 Draw）"
+        },
+        "Object:TweakDraw": {
+          "desc": "逆序对每个子控件调用 TweakDraw 做绘制后处理"
+        },
+        "Object:LocalToParent": {
+          "desc": "局部坐标转父坐标，即加上自身的 x/y",
+          "params": {
+            "x": "局部 x",
+            "y": "局部 y"
+          },
+          "returns": "父坐标系中的 x, y"
+        },
+        "Object:ParentToLocal": {
+          "desc": "父坐标转局部坐标，即减去自身的 x/y",
+          "params": {
+            "x": "父坐标 x",
+            "y": "父坐标 y"
+          },
+          "returns": "局部坐标系中的 x, y"
+        },
+        "Object:LocalToClient": {
+          "desc": "局部坐标转客户端坐标，基类直接原样返回（子类覆盖）",
+          "params": {
+            "x": "局部 x",
+            "y": "局部 y"
+          },
+          "returns": "x, y"
+        },
+        "Object:CorrectlyImplementedLocalToScreen": {
+          "desc": "正确实现的局部坐标转屏幕坐标（直接经父控件 ClientToScreen）；旧版 LocalToScreen 语义有误但被大量代码依赖，故另设此函数",
+          "params": {
+            "x": "局部 x",
+            "y": "局部 y"
+          },
+          "returns": "屏幕坐标 x, y"
+        },
+        "Object:LocalToScreen": {
+          "desc": "局部坐标转屏幕坐标：先 LocalToParent 再经父控件 ClientToScreen，因历史原因坐标可能被重复累加",
+          "params": {
+            "x": "局部 x",
+            "y": "局部 y"
+          },
+          "returns": "屏幕坐标 x, y"
+        },
+        "Object:UnscaledLocalToScreen": {
+          "desc": "局部坐标转未缩放的屏幕坐标（LocalToParent 后经父控件 UnscaledClientToScreen）",
+          "params": {
+            "x": "局部 x",
+            "y": "局部 y"
+          },
+          "returns": "屏幕坐标 x, y"
+        },
+        "Object:ClientToScreen": {
+          "desc": "客户端坐标转屏幕坐标，逐级上溯父控件的 ClientToParent/ClientToScreen",
+          "params": {
+            "x": "客户端 x",
+            "y": "客户端 y"
+          },
+          "returns": "屏幕坐标 x, y"
+        },
+        "Object:UnscaledClientToScreen": {
+          "desc": "客户端坐标转未缩放的屏幕坐标，逐级上溯父控件",
+          "params": {
+            "x": "客户端 x",
+            "y": "客户端 y"
+          },
+          "returns": "屏幕坐标 x, y"
+        },
+        "Object:ScreenToLocal": {
+          "desc": "屏幕坐标转局部坐标：先经父控件 ScreenToClient 再减自身偏移",
+          "params": {
+            "x": "屏幕 x",
+            "y": "屏幕 y"
+          },
+          "returns": "局部坐标 x, y"
+        },
+        "Object:ScreenToClient": {
+          "desc": "屏幕坐标转客户端坐标，逐级上溯父控件的 ParentToClient",
+          "params": {
+            "x": "屏幕 x",
+            "y": "屏幕 y"
+          },
+          "returns": "客户端坐标 x, y"
+        },
+        "Object:LocalToObject": {
+          "desc": "把局部坐标换算到 obj 所在对象的坐标系，逐级向上直到找到共同祖先；无父对象时返回 -1,-1",
+          "params": {
+            "x": "局部 x",
+            "y": "局部 y",
+            "obj": "目标对象"
+          },
+          "returns": "目标坐标系中的 x, y；不可达时 -1, -1"
+        },
+        "Object:IsVisibleOnScreen": {
+          "desc": "判断自身及所有祖先都可见，根对象无父时返回 false",
+          "returns": "可见返回 true"
+        },
+        "Object:_GetMaxChildConstraints": {
+          "desc": "返回子控件的最大可用约束范围，基类为 0,0,width,height，由子类覆盖(内部)",
+          "params": {
+            "child": "子对象"
+          },
+          "returns": "x0, y0, x1, y1"
+        },
+        "Object:HitTest": {
+          "desc": "递归对子控件做矩形与 HitTest 命中判断，返回第一个命中的对象；disableChildrenHitTest 为真时跳过子树",
+          "params": {
+            "x": "局部 x",
+            "y": "局部 y"
+          },
+          "returns": "命中的子对象，未命中返回 false"
+        },
+        "Object:IsAbove": {
+          "desc": "判断给定点是否位于自身之上，等价于调用 HitTest",
+          "params": {
+            "x": "x",
+            "y": "y",
+            "...": "保留参数"
+          },
+          "returns": "命中的对象或 false"
+        },
+        "Object:MouseMove": {
+          "desc": "先派发 OnMouseMove 监听器，未处理则把事件转给命中的子控件",
+          "params": {
+            "...": "鼠标事件参数"
+          },
+          "returns": "监听器处理时返回 self"
+        },
+        "Object:MouseDown": {
+          "desc": "先派发 OnMouseDown 监听器，未处理则转给命中的子控件",
+          "params": {
+            "...": "鼠标事件参数"
+          },
+          "returns": "监听器处理时返回 self"
+        },
+        "Object:MouseUp": {
+          "desc": "先派发 OnMouseUp 监听器，未处理则转给命中的子控件",
+          "params": {
+            "...": "鼠标事件参数"
+          },
+          "returns": "监听器处理时返回 self"
+        },
+        "Object:MouseClick": {
+          "desc": "先派发 OnClick 监听器，未处理则转给命中的子控件",
+          "params": {
+            "...": "鼠标事件参数"
+          },
+          "returns": "监听器处理时返回 self"
+        },
+        "Object:MouseDblClick": {
+          "desc": "先派发 OnDblClick 监听器，未处理则转给命中的子控件",
+          "params": {
+            "...": "鼠标事件参数"
+          },
+          "returns": "监听器处理时返回 self"
+        },
+        "Object:MouseWheel": {
+          "desc": "先派发 OnMouseWheel 监听器，未处理则按弱命中（仅外接矩形）转给子控件",
+          "params": {
+            "...": "鼠标事件参数"
+          },
+          "returns": "监听器处理时返回 self"
+        },
+        "Object:MouseOver": {
+          "desc": "派发 OnMouseOver 监听器，不向子控件传播",
+          "params": {
+            "...": "鼠标事件参数"
+          },
+          "returns": "监听器处理时返回 self"
+        },
+        "Object:MouseOut": {
+          "desc": "派发 OnMouseOut 监听器，不向子控件传播",
+          "params": {
+            "...": "鼠标事件参数"
+          },
+          "returns": "监听器处理时返回 self"
+        },
+        "Object:KeyPress": {
+          "desc": "派发 OnKeyPress 监听器，不向子控件传播",
+          "params": {
+            "...": "按键事件参数"
+          },
+          "returns": "监听器处理时返回 self，否则 false"
+        },
+        "Object:TextInput": {
+          "desc": "派发 OnTextInput 监听器，不向子控件传播",
+          "params": {
+            "...": "文本输入参数"
+          },
+          "returns": "监听器处理时返回 self，否则 false"
+        },
+        "Object:FocusUpdate": {
+          "desc": "派发 OnFocusUpdate 监听器，不向子控件传播",
+          "params": {
+            "...": "焦点事件参数"
+          },
+          "returns": "监听器处理时返回 self，否则 false"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 Chili UI 的对象基类 Object：父子层级管理、可见性与层号、监听器与子控件事件分发、坐标变换、鼠标/键盘事件入口。",
+  "_orphans": {}
+}

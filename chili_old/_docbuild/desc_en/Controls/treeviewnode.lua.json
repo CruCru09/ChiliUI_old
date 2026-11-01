@@ -1,0 +1,144 @@
+{
+  "file": "Controls/treeviewnode.lua",
+  "classes": {
+    "TreeViewNode": {
+      "summary": "Tree node control, a Control subclass handling child add/remove, expand/collapse, recursive lookup, collapse-button clicks and per-row drawing.",
+      "props": {
+        "classname": "Class name string, \"treeviewnode\", used to identify the control type.",
+        "padding": "Left padding {16,0,0,0}: the width in pixels reserved for the collapse triangle button; set to {0,0,0,0} when the node is root.",
+        "autosize": "Fixed to true: UpdateLayout resizes the node to the total height of its children.",
+        "caption": "Caption text of the node. Default \"node\".",
+        "expanded": "Whether the node is expanded. Default true; when collapsed the children move into _nodes_hidden and take no part in layout.",
+        "root": "Whether this is the root node. Default false; a root node has no collapse button, does not draw itself and ignores expand/collapse.",
+        "nodes": "List of child nodes stored as weak links; whether a child enters it is controlled by AddChild's isNode argument.",
+        "treeview": "The owning TreeView (a weak link; New asserts that it is supplied).",
+        "_nodes_hidden": "Internal field: child controls moved out of children while collapsed, moved back on expand (internal).",
+        "OnSelectChange": "Event table fired when the selection state changes; callback receives (selected) (triggered by TreeView:Select).",
+        "OnCollapse": "Event table fired first thing when the node is collapsed.",
+        "OnExpand": "Event table fired first thing when the node is expanded.",
+        "OnDraw": "Custom drawing callback; when a listener returns true, the default DrawNode is skipped."
+      },
+      "funcs": {
+        "TreeViewNode:New": {
+          "desc": "For a root node padding is zeroed first; then it asserts that treeview is provided, converts it to a weak link and calls the parent constructor.",
+          "params": {
+            "obj": "initialization property table"
+          }
+        },
+        "TreeViewNode:SetParent": {
+          "desc": "Clears treeview when the parent is not a table, then calls inherited.SetParent.",
+          "params": {
+            "obj": "parent control"
+          }
+        },
+        "TreeViewNode:AddChild": {
+          "desc": "Unless isNode is false it records the child in nodes as a weak link, then asks the parent for RequestRealign and calls inherited.AddChild.",
+          "params": {
+            "obj": "child control",
+            "isNode": "whether to record it as a tree node (false means a plain child control)"
+          }
+        },
+        "TreeViewNode:RemoveChild": {
+          "desc": "Calls inherited.RemoveChild and then removes the matching entry from nodes.",
+          "params": {
+            "obj": "child control to remove"
+          }
+        },
+        "TreeViewNode:ClearChildren": {
+          "desc": "Clears the child controls but keeps the first caption child and the current expanded state (it calls Expand, clears, then Collapse again to restore); aliased as TreeViewNode.Clear."
+        },
+        "TreeViewNode:Add": {
+          "desc": "A string creates a TextBox plus a matching child node, an Object is wrapped in a node with an empty caption; the new node is AddChild'ed and returned.",
+          "params": {
+            "item": "caption string or an existing control object"
+          },
+          "returns": "the new TreeViewNode"
+        },
+        "TreeViewNode:Select": {
+          "desc": "When the node is not root and not already selected, calls treeview:Select(self); the selection callbacks are fired by TreeView."
+        },
+        "TreeViewNode:Toggle": {
+          "desc": "Flips the expand state: Collapse when expanded, Expand otherwise."
+        },
+        "TreeViewNode:Expand": {
+          "desc": "Fires OnExpand, sets expanded=true, calls treeview:RequestRealign and moves the children in _nodes_hidden back into children."
+        },
+        "TreeViewNode:Collapse": {
+          "desc": "Fires OnCollapse, sets expanded=false, calls treeview:RequestRealign and moves children[2..] into _nodes_hidden."
+        },
+        "TreeViewNode:GetNodeByCaption": {
+          "desc": "Recursively (depth-first) searches nodes for a child node with a matching caption.",
+          "params": {
+            "caption": "node caption"
+          },
+          "returns": "the node found, or nil"
+        },
+        "TreeViewNode:GetNodeByIndex": {
+          "desc": "Counting depth-first search that returns node number index; returning a number from the recursion signals the running count (propagated upward when not found).",
+          "params": {
+            "index": "target ordinal",
+            "_i": "running count, pass 0 at the root call"
+          },
+          "returns": "the node object, or the running count number"
+        },
+        "TreeViewNode:UpdateLayout": {
+          "desc": "When collapsed (and not root) it applies a (0,0,clientWidth) constraint only to the first caption child and resizes to its height (height 10 when there is no child); when expanded it stacks children vertically and resizes to the total height.",
+          "returns": "true"
+        },
+        "TreeViewNode:_InNodeButton": {
+          "desc": "Tells whether the click point falls on the collapse triangle button on the left (x < padding[1] and vertically inside a centered band the height of the first child) (internal).",
+          "params": {
+            "x": "x inside the node",
+            "y": "y inside the node"
+          },
+          "returns": "boolean"
+        },
+        "TreeViewNode:HitTest": {
+          "desc": "Forwards to the inherited HitTest to find a child; when nothing is hit it returns self so the whole node row is clickable.",
+          "params": {
+            "x": "mouse x",
+            "y": "mouse y"
+          }
+        },
+        "TreeViewNode:MouseDown": {
+          "desc": "A root node simply forwards to the parent; hitting the collapse button returns self; in the text area within the first row it calls Select() before forwarding to the parent.",
+          "params": {
+            "x": "mouse x",
+            "y": "mouse y"
+          }
+        },
+        "TreeViewNode:MouseClick": {
+          "desc": "Calls Toggle and returns self when the collapse button is hit, otherwise forwards to the parent MouseClick.",
+          "params": {
+            "x": "mouse x",
+            "y": "mouse y"
+          }
+        },
+        "TreeViewNode:MouseDblClick": {
+          "desc": "Forwards to the parent first; when no child is hit it calls Toggle on itself and returns self.",
+          "params": {
+            "x": "mouse x",
+            "y": "mouse y"
+          }
+        },
+        "TreeViewNode:DrawNode": {
+          "desc": "Calls treeview.DrawNode(self) to draw the node content when the node has an owning treeview."
+        },
+        "TreeViewNode:DrawNodeTree": {
+          "desc": "Calls treeview.DrawNodeTree(self) so the treeview side can draw the tree decoration."
+        },
+        "TreeViewNode:DrawControl": {
+          "desc": "A root node draws nothing; otherwise it fires the OnDraw listeners (returning true skips DrawNode) and then calls DrawNodeTree."
+        },
+        "TreeViewNode:DrawChildren": {
+          "desc": "When collapsed and not root only the first (caption) child is drawn; otherwise all children are drawn in the clientArea through the 'Draw' channel."
+        },
+        "TreeViewNode:DrawChildrenForList": {
+          "desc": "Same as DrawChildren, but children are drawn through the 'DrawForList' channel."
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines TreeViewNode, covering child management, expand/collapse, recursive lookup, collapse-button interaction and drawing for tree nodes.",
+  "_orphans": {}
+}

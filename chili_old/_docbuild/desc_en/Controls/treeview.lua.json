@@ -1,0 +1,54 @@
+{
+  "file": "Controls/treeview.lua",
+  "classes": {
+    "TreeView": {
+      "summary": "Tree control, a Control subclass that owns and manages a TreeViewNode root, including initial tree parsing, node selection and height fitting.",
+      "props": {
+        "classname": "Class name string, \"treeview\", used to identify the control type.",
+        "autosize": "Fixed to true: UpdateLayout resizes the control to the root node's height.",
+        "minItemHeight": "Minimum height of each node row in pixels. Default 16, passed to the root node as minHeight.",
+        "defaultWidth": "Default width used when width is not set explicitly. Default \"100%\".",
+        "defaultHeight": "Default height used when height is not set explicitly. Default \"100%\".",
+        "selected": "Index of the initially selected node. Default 1; applied via Select(sel) at construction, values <= 0 select nothing.",
+        "root": "The root TreeViewNode, created by New with root=true and expanded=defaultExpanded.",
+        "nodes": "Initial tree data table: entries are strings (node captions) or nested tables (child lists), parsed recursively by ParseInitTable at construction.",
+        "defaultExpanded": "Whether new and root nodes start expanded. Default false, passed to every new node.",
+        "OnSelectNode": "Event table fired when the selected node changes; callback receives (newSelected, oldSelected)."
+      },
+      "funcs": {
+        "TreeView:New": {
+          "desc": "Creates the root node, parses nodes into the initial tree, AddChild's it, calls UpdateLayout, then selects the initial node by the selected index.",
+          "params": {
+            "obj": "initialization property table"
+          }
+        },
+        "TreeView:GetNodeByCaption": {
+          "desc": "Forwards to root:GetNodeByCaption for a depth-first search of the first node with a matching caption.",
+          "params": {
+            "caption": "node caption"
+          },
+          "returns": "the node found, or nil"
+        },
+        "TreeView:GetNodeByIndex": {
+          "desc": "Forwards to root:GetNodeByIndex(index, 0), a counting depth-first search for node number index.",
+          "params": {
+            "index": "node ordinal"
+          },
+          "returns": "the node object, or nil when not found"
+        },
+        "TreeView:Select": {
+          "desc": "Accepts a node object or an index, stores the selection as a weak link, invalidates both the old and new nodes, then fires the nodes' OnSelectChange(true/false) and TreeView.OnSelectNode(new, old).",
+          "params": {
+            "item": "node object or index"
+          }
+        },
+        "TreeView:UpdateLayout": {
+          "desc": "Applies a (0, 0, clientWidth) constraint to the root node and Realigns it; with autosize it also resizes itself to the root height.",
+          "returns": "true"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines TreeView, which creates the root node, parses the initial node table, manages node selection and fits its height to the tree contents.",
+  "_orphans": {}
+}

@@ -1,0 +1,197 @@
+{
+  "file": "Controls/LayoutPanel.lua",
+  "classes": {
+    "LayoutPanel": {
+      "summary": "Base class for all auto-layout panels (grid, stackpanel, tables, itemlistview and friends); it lays out children through a shared cell table.",
+      "props": {
+        "classname": "Class name string, \"layoutpanel\", used to identify the control type and look controls up by type.",
+        "itemMargin": "Outer margin per child {left, top, right, bottom} in pixels, i.e. the gap between a cell and its child.",
+        "itemPadding": "Inner padding per cell {left, top, right, bottom} in pixels, used to expand cells during layout and hit testing.",
+        "minItemWidth": "Minimum child width in pixels; layout never makes a child narrower. Default 1.",
+        "maxItemWidth": "Upper bound for child width in pixels, used as a reference limit when autoArrangeH distributes free space; 0 means unlimited.",
+        "minItemHeight": "Minimum child height in pixels. Default 1.",
+        "maxItemHeight": "Upper bound for child height in pixels, used as a reference limit when autoArrangeV distributes free space; 0 means unlimited.",
+        "autosize": "When true, the panel resizes its own height to the layout result (Resize is called at the end of _LayoutChildren). Default false.",
+        "rows": "Forced row count; together with columns it determines the grid split (only used in resizeItems mode). nil means derive automatically.",
+        "columns": "Forced column count; nil means derive automatically (from ceil(sqrt(child count)) or back-computed from rows).",
+        "orientation": "Layout direction, either \"horizontal\" or \"vertical\". Default \"horizontal\".",
+        "autoArrangeH": "When true, leftover horizontal space in a line is shared among cells by the \"level the shortest cells first\" algorithm (source marks this FIXME rename).",
+        "autoArrangeV": "When true, leftover vertical space is shared among lines by the same \"level the shortest lines first\" algorithm (source marks this FIXME rename).",
+        "grid": "When true every row must hold the same number of columns (table layout); a source comment notes this is not implemented yet.",
+        "resizeItems": "When true, _LayoutChildrenResizeItems is used and all children are stretched to fill the clientArea grid; when false, children are flowed at their own sizes.",
+        "centerItems": "When true (and the cell is larger than the child), the child is centered inside its cell and leftover line space is distributed centered. Default true.",
+        "weightedResize": "When true, space is distributed in proportion to each child's weight instead of equally; a missing weight counts as 1.",
+        "selectable": "When true, children can be selected with the mouse. Default false.",
+        "multiSelect": "When true, multi-selection is allowed (with the shift/ctrl keys). Default true.",
+        "selectedItems": "Set of selected children, shaped like { [itemIdx] = true }.",
+        "OnSelectItem": "Event table (list of listeners) fired when a child's selection state changes; callback receives (itemIdx, selected).",
+        "OnDrawItem": "Placeholder callback for drawing a single child's background; the source marks it FIXME and the base class never calls it.",
+        "OnDblClickItem": "Event table fired when a child is double-clicked; callback receives (itemIdx) (ImageListView passes items[itemIdx], itemIdx).",
+        "_rows": "Internal field: the row count actually computed during layout, written by _LayoutChildrenResizeItems (internal).",
+        "_columns": "Internal field: the column count actually computed during layout (internal).",
+        "_cells": "Internal field: layout rectangle table {x, y, w, h} per child, relative to clientArea, used for drawing and hit testing (internal)."
+      },
+      "funcs": {
+        "LayoutPanel:New": {
+          "desc": "Constructs the panel; when selectable is true the first child is selected by default (selectedItems = {[1]=true}).",
+          "params": {
+            "obj": "initialization property table"
+          }
+        },
+        "LayoutPanel:SetOrientation": {
+          "desc": "Sets the layout direction and calls inherited.UpdateClientArea to recompute the client area.",
+          "params": {
+            "orientation": "\"horizontal\" or \"vertical\""
+          }
+        },
+        "LayoutPanel:_JustCenterItemsH": {
+          "desc": "Splits the leftover horizontal space of cells [startCell,endCell] equally, shifting each cell right and widening it (internal).",
+          "params": {
+            "startCell": "first cell index",
+            "endCell": "last cell index",
+            "freeSpace": "leftover width to distribute"
+          }
+        },
+        "LayoutPanel:_JustCenterItemsV": {
+          "desc": "Vertical variant: splits the leftover height equally among those cells, moving each down and increasing its height (internal).",
+          "params": {
+            "startCell": "first cell index",
+            "endCell": "last cell index",
+            "freeSpace": "leftover height to distribute"
+          }
+        },
+        "LayoutPanel:_EnlargeToLineHeight": {
+          "desc": "Sets every cell in the line to the line height minus that cell's top and bottom padding (internal).",
+          "params": {
+            "startCell": "first cell index",
+            "endCell": "last cell index",
+            "lineHeight": "target height of the line"
+          }
+        },
+        "LayoutPanel:_AutoArrangeAbscissa": {
+          "desc": "Distributes the line's leftover horizontal space by levelling the shortest cells up to the next shortest size and shifts the x of following cells; with autoArrangeH off it falls back to centered distribution when centerItems is set (internal).",
+          "params": {
+            "startCell": "first cell index",
+            "endCell": "last cell index",
+            "freeSpace": "leftover width of the line"
+          }
+        },
+        "LayoutPanel:_AutoArrangeOrdinate": {
+          "desc": "With autoArrangeV on, distributes leftover vertical space among lines the same way and moves following lines down; otherwise vertically centers items within each line (internal).",
+          "params": {
+            "freeSpace": "overall leftover height"
+          }
+        },
+        "LayoutPanel:GetMaxWeight": {
+          "desc": "Collects the maximum weight per row and per column (weight defaults to 1) plus the weight sums, for weightedResize.",
+          "returns": "mweightx, mweighty, weightx, weighty"
+        },
+        "LayoutPanel:_GetMaxChildConstraints": {
+          "desc": "Returns a child's constraint rectangle (x, y, w, h): the cell when it is already known during layout, otherwise an estimate from margin/itemPadding and the clientArea (internal).",
+          "params": {
+            "child": "target child control"
+          }
+        },
+        "LayoutPanel:GetMinimumExtents": {
+          "desc": "Returns the minimum extents (right, bottom); the current implementation simply returns x+width and y+height (an earlier experiment is commented out)."
+        },
+        "LayoutPanel:_LayoutChildrenResizeItems": {
+          "desc": "Layout in resizeItems mode: derives the grid from rows/columns or ceil(sqrt(child count)), sizes cells equally or by weight, calls child:_UpdateConstraints for each and stores the boxes in _cells (internal)."
+        },
+        "LayoutPanel:_LayoutChildren": {
+          "desc": "Default flow layout: accumulates child sizes and wraps automatically (or at columns), fills _cells/_lines/_cellPaddings, shares leftover space via centerItems/autoArrange, resizes itself when autosize is set, then updates child positions (internal)."
+        },
+        "LayoutPanel:UpdateLayout": {
+          "desc": "Layout entry point: calls RealignChildren, picks _LayoutChildrenResizeItems or _LayoutChildren by resizeItems, then calls RealignChildren again; returns early when there are no children (after zeroing one dimension when autosize is set).",
+          "returns": "true on success"
+        },
+        "LayoutPanel:DrawBackground": {
+          "desc": "Empty implementation, intended for subclasses to override and paint the panel background."
+        },
+        "LayoutPanel:DrawItemBkGnd": {
+          "desc": "Empty implementation, intended for subclasses to override and paint the background of child number index.",
+          "params": {
+            "index": "child index"
+          }
+        },
+        "LayoutPanel:DrawControl": {
+          "desc": "Draws the control body by calling self:DrawBackground(self)."
+        },
+        "LayoutPanel:DrawChildren": {
+          "desc": "Translates the coordinate system, calls DrawItemBkGnd for every child to paint backgrounds (debug mode also outlines _cells in red), then draws children in the clientArea through the 'Draw' channel."
+        },
+        "LayoutPanel:DrawChildrenForList": {
+          "desc": "Same as DrawChildren, but children are drawn through the 'DrawForList' channel."
+        },
+        "LayoutPanel:GetItemIndexAt": {
+          "desc": "Expands each cell by itemPadding and hit-tests it with InRect, returning the index of the matching child.",
+          "params": {
+            "cx": "x in client coordinates",
+            "cy": "y in client coordinates"
+          },
+          "returns": "matching index, or -1 when nothing matches"
+        },
+        "LayoutPanel:GetItemXY": {
+          "desc": "Returns the cell rectangle of child itemIdx.",
+          "params": {
+            "itemIdx": "child index"
+          },
+          "returns": "x, y, w, h; nil when the index is invalid"
+        },
+        "LayoutPanel:MultiRectSelect": {
+          "desc": "Selects every child inside the convex hull of the two cells item1 and item2; append adds to the current selection, otherwise the set is replaced and OnSelectItem fires for removed and added items, then Invalidate is called (does not update _lastSelected).",
+          "params": {
+            "item1": "first child index",
+            "item2": "second child index",
+            "append": "whether to append to the current selection"
+          }
+        },
+        "LayoutPanel:ToggleItem": {
+          "desc": "Flips the selection state of one child, updates _lastSelected, fires OnSelectItem and calls Invalidate to repaint.",
+          "params": {
+            "itemIdx": "child index"
+          }
+        },
+        "LayoutPanel:SelectItem": {
+          "desc": "Selects one child: append adds it, otherwise the whole selection set is replaced and OnSelectItem(false) fires for dropped items; then the listener for the selected item fires, _lastSelected is updated and Invalidate is called.",
+          "params": {
+            "itemIdx": "child index",
+            "append": "whether to append without clearing other selections"
+          }
+        },
+        "LayoutPanel:DeselectItem": {
+          "desc": "Clears one child's selection, fires OnSelectItem(false), updates _lastSelected and calls Invalidate.",
+          "params": {
+            "itemIdx": "child index"
+          }
+        },
+        "LayoutPanel:SelectAll": {
+          "desc": "Calls SelectItem(i, append) for every child; note that append here is an undefined global variable (effectively nil)."
+        },
+        "LayoutPanel:DeselectAll": {
+          "desc": "Calls DeselectItem for every entry in selectedItems to clear the selection one by one."
+        },
+        "LayoutPanel:MouseDown": {
+          "desc": "Forwards the event to children first; when selectable, the right button triggers DeselectAll while the left button dispatches to MultiRectSelect, ToggleItem or SelectItem depending on mods.shift/ctrl.",
+          "params": {
+            "x": "mouse x",
+            "y": "mouse y",
+            "button": "button number (3 is the right button)",
+            "mods": "modifier table with shift/ctrl"
+          }
+        },
+        "LayoutPanel:MouseDblClick": {
+          "desc": "Forwards the event to children first, then fires OnDblClickItem(itemIdx) and returns self when a child is hit.",
+          "params": {
+            "x": "mouse x",
+            "y": "mouse y",
+            "button": "button number",
+            "mods": "modifier table"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "Implements the LayoutPanel base class for every auto-layout panel: lays out children with cell grids or flow algorithms and provides selection handling, hit testing and drawing hooks.",
+  "_orphans": {}
+}

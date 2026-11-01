@@ -1,0 +1,445 @@
+{
+  "file": "Controls/object.lua",
+  "classes": {
+    "Object": {
+      "summary": "Base class of all Chili UI objects and the root of every control and container; provides parent-child hierarchy, visibility and layer ordering, listener dispatch and coordinate conversion.",
+      "props": {
+        "classname": "Class identifier string, used by InheritsFrom and for default instance names; defaults to 'object'.",
+        "defaultWidth": "Default width in pixels, used when width is not set explicitly; defaults to 10.",
+        "defaultHeight": "Default height in pixels, used when height is not set explicitly; defaults to 10.",
+        "visible": "Whether the object is visible; defaults to true. hidden is its negated synonym field.",
+        "preserveChildrenOrder": "When true, removing a child keeps the remaining order; when false, adding/removing children is faster but the children array order becomes unreliable; defaults to false.",
+        "children": "Array of child controls ordered by layer; child objects and their hardlinks are also used as keys to store layer indices.",
+        "children_hidden": "Children detached by HideChild that still belong to this control; each value stores the saved layer index plus links to the preceding/following neighbour.",
+        "childrenByName": "Weak table mapping child name -> child hardlink, used by GetChildByName for fast lookup.",
+        "OnDispose": "Listener list invoked by Dispose when the object is released.",
+        "OnClick": "Listener list for mouse click events; a truthy return value from a handler stops propagation.",
+        "OnDblClick": "Listener list for mouse double-click events; a truthy return value stops propagation.",
+        "OnMouseDown": "Listener list for mouse down events; a truthy return value stops propagation.",
+        "OnMouseUp": "Listener list for mouse up events; a truthy return value stops propagation.",
+        "OnMouseMove": "Listener list for mouse move events; a truthy return value stops propagation.",
+        "OnMouseWheel": "Listener list for mouse wheel events; a truthy return value stops propagation.",
+        "OnMouseOver": "Listener list for mouse enter events; a truthy return value stops propagation.",
+        "OnMouseOut": "Listener list for mouse leave events; a truthy return value stops propagation.",
+        "OnKeyPress": "Listener list for key press events; a truthy return value stops propagation.",
+        "OnTextInput": "Listener list for text input events; a truthy return value stops propagation.",
+        "OnFocusUpdate": "Listener list for focus update events; a truthy return value stops propagation.",
+        "OnHide": "Listener list invoked when the object goes from visible to hidden (triggered by Hide).",
+        "OnShow": "Listener list invoked when the object goes from hidden to visible (triggered by Show).",
+        "OnOrphan": "Listener list invoked when the object loses its parent (SetParent called with nil).",
+        "OnParent": "Listener list invoked when a new parent is assigned, before the parent pointer is written.",
+        "OnParentPost": "Listener list invoked after the parent has been set.",
+        "disableChildrenHitTest": "When true, hit testing of children is skipped so children no longer respond to mouse events; defaults to false."
+      },
+      "funcs": {
+        "Object:New": {
+          "desc": "Create a class instance: fixes parameter-name casing, auto-generates name, merges class default tables, sets the metatable and hardlink, and adopts parent/children.",
+          "params": {
+            "obj": "initial field table for the instance (optional)"
+          },
+          "returns": "hardlink of the new object"
+        },
+        "Object:Dispose": {
+          "desc": "Release the object's unmanaged resources, dispose children recursively and invoke OnDispose listeners; safe to call repeatedly.",
+          "params": {
+            "_internal": "internal flag; when true, checks whether the object is still referenced and warns on the console"
+          }
+        },
+        "Object:AutoDispose": {
+          "desc": "Entry point called by the garbage collector; equivalent to Dispose(true). (internal)"
+        },
+        "Object:Clone": {
+          "desc": "Clone the object; currently an unimplemented stub that returns an empty table.",
+          "returns": "empty table {}"
+        },
+        "Object:Inherit": {
+          "desc": "Derive a subclass: sets the inherited pointer, copies fields the parent has that the class lacks (tables are shallow-copied) and rebuilds __lowerkeys.",
+          "params": {
+            "class": "subclass table to initialize"
+          },
+          "returns": "the passed subclass table"
+        },
+        "Object:SetParent": {
+          "desc": "Set the parent object, invoking OnParent/OnParentPost listeners, forcing visible to true and calling Invalidate; a non-table argument clears the parent pointer and fires OnOrphan.",
+          "params": {
+            "obj": "new parent object, may be nil"
+          }
+        },
+        "Object:AddChild": {
+          "desc": "Add obj as a child control (registers its name, detaches it from any previous parent and calls SetParent), inserts it at the given layer index and calls Invalidate.",
+          "params": {
+            "obj": "child object to add",
+            "dontUpdate": "reserved parameter, unused by the current implementation",
+            "index": "layer index to insert at; appended to the end when omitted"
+          }
+        },
+        "Object:RemoveChild": {
+          "desc": "Remove child from the child list and clear its name registration; deletes in order when preserveChildrenOrder is set, otherwise fills the gap with the last element. Removing from the hidden list just returns true.",
+          "returns": "true on success, false if not a child"
+        },
+        "Object:ClearChildren": {
+          "desc": "Remove all children (first calling ShowChild to restore hidden ones), temporarily disabling preserveChildrenOrder for speed."
+        },
+        "Object:IsEmpty": {
+          "desc": "Return whether the control has no visible children.",
+          "returns": "true when there are no visible children"
+        },
+        "Object:HideChild": {
+          "desc": "Move a child from the visible list into children_hidden, recording its layer index and neighbours so it can be restored in place; non-children or repeated hides print a warning."
+        },
+        "Object:ShowChild": {
+          "desc": "Re-attach a child from children_hidden at its recorded neighbour position or layer index.",
+          "returns": "true on success"
+        },
+        "Object:SetVisibility": {
+          "desc": "Set visibility: attaches or detaches self through the parent's ShowChild/HideChild and keeps the visible and hidden fields in sync.",
+          "params": {
+            "visible": "target visibility"
+          }
+        },
+        "Object:Hide": {
+          "desc": "Hide the object; invokes OnHide listeners if it was not already hidden."
+        },
+        "Object:Show": {
+          "desc": "Show the object; invokes OnShow listeners if it was not already visible."
+        },
+        "Object:ToggleVisibility": {
+          "desc": "Toggle between shown and hidden."
+        },
+        "Object:SetChildLayer": {
+          "desc": "Move a child to the given layer index (negative counts from the end, out-of-range values are clamped) and call Invalidate to redraw.",
+          "params": {
+            "child": "child object",
+            "layer": "target layer index; negative means counting from the end"
+          }
+        },
+        "Object:SetLayer": {
+          "desc": "Ask the parent to move self to the given layer index; does nothing when there is no parent.",
+          "params": {
+            "layer": "target layer index"
+          }
+        },
+        "Object:SendToBack": {
+          "desc": "Move self to the bottom of the parent's child stack (SetLayer(-1))."
+        },
+        "Object:BringToFront": {
+          "desc": "Move self to the top of the parent's child stack (SetLayer(1))."
+        },
+        "Object:InheritsFrom": {
+          "desc": "Return whether this object is of class classname or a subclass of it, walking the inherited chain recursively.",
+          "params": {
+            "classname": "class name string"
+          },
+          "returns": "true when the object inherits from that class"
+        },
+        "Object:GetChildByName": {
+          "desc": "Look up a direct child (including hidden ones) by name.",
+          "params": {
+            "name": "child control name"
+          },
+          "returns": "the child object, or nil"
+        },
+        "Object:GetObjectByName": {
+          "desc": "Recursively find a descendant at any depth (including hidden children) by name, consulting the childrenByName cache first.",
+          "params": {
+            "name": "control name"
+          },
+          "returns": "the found object, or nil"
+        },
+        "Object:FindParent": {
+          "desc": "Walk up the parent chain and return the first parent matching the predicate: a class name is checked with InheritsFrom, a function with its return value.",
+          "params": {
+            "predicate": "class name string or function(parent)->bool"
+          },
+          "returns": "the matching parent object, or nil"
+        },
+        "Object:IsDescendantOf": {
+          "desc": "Return whether self is a descendant of object by comparing ancestors level by level.",
+          "params": {
+            "object": "ancestor object",
+            "_already_unlinked": "internal flag to skip unlinking (internal)"
+          },
+          "returns": "true when self is a descendant"
+        },
+        "Object:IsAncestorOf": {
+          "desc": "Recursively determine whether object is a descendant of self and report the relative depth.",
+          "params": {
+            "object": "descendant object",
+            "_level": "starting level, defaults to 1 (internal)",
+            "_already_unlinked": "internal flag to skip unlinking (internal)"
+          },
+          "returns": "boolean; when true, the second return value is the relative depth"
+        },
+        "Object:CallListeners": {
+          "desc": "Call each listener in order with self and the event arguments; stops and returns true as soon as one returns a truthy value.",
+          "params": {
+            "listeners": "list of listener functions",
+            "...": "event arguments passed to the listeners"
+          },
+          "returns": "true when a listener returned truthy"
+        },
+        "Object:CallListenersInverse": {
+          "desc": "Call the listeners in reverse order; stops as soon as one returns a truthy value.",
+          "params": {
+            "listeners": "list of listener functions",
+            "...": "event arguments passed to the listeners"
+          },
+          "returns": "true when a listener returned truthy"
+        },
+        "Object:CallChildren": {
+          "desc": "Call the method named eventname on each child in order; stops and returns the result as soon as one returns non-nil.",
+          "params": {
+            "eventname": "child method name",
+            "...": "extra arguments"
+          },
+          "returns": "the first non-nil result"
+        },
+        "Object:CallChildrenInverse": {
+          "desc": "Call eventname on the children in reverse order (last child first); stops as soon as one returns non-nil.",
+          "params": {
+            "eventname": "child method name",
+            "...": "extra arguments"
+          },
+          "returns": "the first non-nil result"
+        },
+        "Object:CallChildrenInverseCheckFunc": {
+          "desc": "Call eventname in reverse order on children accepted by checkfunc; stops as soon as one returns non-nil.",
+          "params": {
+            "checkfunc": "function(parent, child)->bool filter",
+            "eventname": "child method name",
+            "...": "extra arguments"
+          },
+          "returns": "the first non-nil result"
+        },
+        "Object:CallChildrenHT": {
+          "desc": "Walk children in reverse order doing hit tests, calling eventname on hit children with coordinates in their local space; returns nil when disableChildrenHitTest is true.",
+          "params": {
+            "eventname": "child method name",
+            "x": "x in parent space",
+            "y": "y in parent space",
+            "...": "extra arguments"
+          },
+          "returns": "the first non-nil result"
+        },
+        "Object:CallChildrenHTWeak": {
+          "desc": "Like CallChildrenHT, but only checks the child's bounding rectangle without calling HitTest; used for weak hits such as the mouse wheel.",
+          "params": {
+            "eventname": "child method name",
+            "x": "x in parent space",
+            "y": "y in parent space",
+            "...": "extra arguments"
+          },
+          "returns": "the first non-nil result"
+        },
+        "Object:RequestUpdate": {
+          "desc": "Register self with the TaskHandler so its Update method runs on the next frame."
+        },
+        "Object:Invalidate": {
+          "desc": "Hook for requesting a redraw; empty in the base class and overridden by subclasses such as Control."
+        },
+        "Object:Draw": {
+          "desc": "Let every child draw itself in reverse order (calls their Draw)."
+        },
+        "Object:TweakDraw": {
+          "desc": "Call TweakDraw on every child in reverse order for post-draw processing."
+        },
+        "Object:LocalToParent": {
+          "desc": "Convert local coordinates to parent coordinates by adding the object's own x/y.",
+          "params": {
+            "x": "local x",
+            "y": "local y"
+          },
+          "returns": "x, y in parent space"
+        },
+        "Object:ParentToLocal": {
+          "desc": "Convert parent coordinates to local coordinates by subtracting the object's own x/y.",
+          "params": {
+            "x": "parent-space x",
+            "y": "parent-space y"
+          },
+          "returns": "x, y in local space"
+        },
+        "Object:LocalToClient": {
+          "desc": "Convert local coordinates to client coordinates; the base class returns them unchanged (overridden by subclasses).",
+          "params": {
+            "x": "local x",
+            "y": "local y"
+          },
+          "returns": "x, y"
+        },
+        "Object:CorrectlyImplementedLocalToScreen": {
+          "desc": "Correctly implemented local-to-screen conversion (delegates straight to the parent's ClientToScreen); the legacy LocalToScreen semantics are wrong but widely relied upon, hence this extra function.",
+          "params": {
+            "x": "local x",
+            "y": "local y"
+          },
+          "returns": "screen x, y"
+        },
+        "Object:LocalToScreen": {
+          "desc": "Convert local coordinates to screen coordinates: LocalToParent then the parent's ClientToScreen; for historical reasons the offset may be applied more than once.",
+          "params": {
+            "x": "local x",
+            "y": "local y"
+          },
+          "returns": "screen x, y"
+        },
+        "Object:UnscaledLocalToScreen": {
+          "desc": "Convert local coordinates to unscaled screen coordinates (LocalToParent then the parent's UnscaledClientToScreen).",
+          "params": {
+            "x": "local x",
+            "y": "local y"
+          },
+          "returns": "screen x, y"
+        },
+        "Object:ClientToScreen": {
+          "desc": "Convert client coordinates to screen coordinates by walking up the parent chain via ClientToParent/ClientToScreen.",
+          "params": {
+            "x": "client x",
+            "y": "client y"
+          },
+          "returns": "screen x, y"
+        },
+        "Object:UnscaledClientToScreen": {
+          "desc": "Convert client coordinates to unscaled screen coordinates by walking up the parent chain.",
+          "params": {
+            "x": "client x",
+            "y": "client y"
+          },
+          "returns": "screen x, y"
+        },
+        "Object:ScreenToLocal": {
+          "desc": "Convert screen coordinates to local coordinates: the parent's ScreenToClient, then subtract the object's own offset.",
+          "params": {
+            "x": "screen x",
+            "y": "screen y"
+          },
+          "returns": "local x, y"
+        },
+        "Object:ScreenToClient": {
+          "desc": "Convert screen coordinates to client coordinates by walking up the parent chain via ParentToClient.",
+          "params": {
+            "x": "screen x",
+            "y": "screen y"
+          },
+          "returns": "client x, y"
+        },
+        "Object:LocalToObject": {
+          "desc": "Convert local coordinates into the coordinate system of obj, walking up until a common ancestor is found; returns -1,-1 when there is no parent.",
+          "params": {
+            "x": "local x",
+            "y": "local y",
+            "obj": "target object"
+          },
+          "returns": "x, y in the target object's space; -1, -1 when unreachable"
+        },
+        "Object:IsVisibleOnScreen": {
+          "desc": "Return whether self and all of its ancestors are visible; a root object without a parent returns false.",
+          "returns": "true when visible"
+        },
+        "Object:_GetMaxChildConstraints": {
+          "desc": "Return the maximum constraint rectangle available to children; the base class returns 0,0,width,height and subclasses override it. (internal)",
+          "params": {
+            "child": "child object"
+          },
+          "returns": "x0, y0, x1, y1"
+        },
+        "Object:HitTest": {
+          "desc": "Recursively hit-test children by rectangle and HitTest, returning the first hit object; the subtree is skipped when disableChildrenHitTest is true.",
+          "params": {
+            "x": "local x",
+            "y": "local y"
+          },
+          "returns": "the hit child object, or false"
+        },
+        "Object:IsAbove": {
+          "desc": "Return whether the given point lies above self; equivalent to calling HitTest.",
+          "params": {
+            "x": "x",
+            "y": "y",
+            "...": "reserved arguments"
+          },
+          "returns": "the hit object or false"
+        },
+        "Object:MouseMove": {
+          "desc": "Dispatch OnMouseMove listeners first, then forward the event to the hit child when unhandled.",
+          "params": {
+            "...": "mouse event arguments"
+          },
+          "returns": "self when a listener handled it"
+        },
+        "Object:MouseDown": {
+          "desc": "Dispatch OnMouseDown listeners first, then forward the event to the hit child when unhandled.",
+          "params": {
+            "...": "mouse event arguments"
+          },
+          "returns": "self when a listener handled it"
+        },
+        "Object:MouseUp": {
+          "desc": "Dispatch OnMouseUp listeners first, then forward the event to the hit child when unhandled.",
+          "params": {
+            "...": "mouse event arguments"
+          },
+          "returns": "self when a listener handled it"
+        },
+        "Object:MouseClick": {
+          "desc": "Dispatch OnClick listeners first, then forward the event to the hit child when unhandled.",
+          "params": {
+            "...": "mouse event arguments"
+          },
+          "returns": "self when a listener handled it"
+        },
+        "Object:MouseDblClick": {
+          "desc": "Dispatch OnDblClick listeners first, then forward the event to the hit child when unhandled.",
+          "params": {
+            "...": "mouse event arguments"
+          },
+          "returns": "self when a listener handled it"
+        },
+        "Object:MouseWheel": {
+          "desc": "Dispatch OnMouseWheel listeners first, then forward via weak hit testing (bounding rectangle only) when unhandled.",
+          "params": {
+            "...": "mouse event arguments"
+          },
+          "returns": "self when a listener handled it"
+        },
+        "Object:MouseOver": {
+          "desc": "Dispatch OnMouseOver listeners; not propagated to children.",
+          "params": {
+            "...": "mouse event arguments"
+          },
+          "returns": "self when a listener handled it"
+        },
+        "Object:MouseOut": {
+          "desc": "Dispatch OnMouseOut listeners; not propagated to children.",
+          "params": {
+            "...": "mouse event arguments"
+          },
+          "returns": "self when a listener handled it"
+        },
+        "Object:KeyPress": {
+          "desc": "Dispatch OnKeyPress listeners; not propagated to children.",
+          "params": {
+            "...": "key event arguments"
+          },
+          "returns": "self when a listener handled it, otherwise false"
+        },
+        "Object:TextInput": {
+          "desc": "Dispatch OnTextInput listeners; not propagated to children.",
+          "params": {
+            "...": "text input arguments"
+          },
+          "returns": "self when a listener handled it, otherwise false"
+        },
+        "Object:FocusUpdate": {
+          "desc": "Dispatch OnFocusUpdate listeners; not propagated to children.",
+          "params": {
+            "...": "focus event arguments"
+          },
+          "returns": "self when a listener handled it, otherwise false"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines Object, the object base class of Chili UI: parent-child hierarchy, visibility and layering, listener and child event dispatch, coordinate conversion, and the mouse/keyboard event entry points.",
+  "_orphans": {}
+}

@@ -1,0 +1,44 @@
+{
+  "file": "Controls/checkbox.lua",
+  "classes": {
+    "Checkbox": {
+      "summary": "Checkbox control that toggles checked on click and fires OnChange; box and text visuals come from the theme",
+      "props": {
+        "classname": "Class name identifier, always \"checkbox\"",
+        "checked": "Whether the box is checked, default true; copied into state.checked by New for the theme to draw",
+        "caption": "Text to display, default \"text\"",
+        "textalign": "Text alignment, default \"left\"",
+        "textoffset": "Offset of the text relative to the box, in pixels, default 0",
+        "boxalign": "Box alignment, default \"right\"",
+        "boxsize": "Box edge length in pixels, default 10",
+        "noFont": "Skip automatic creation of the default font object, default false",
+        "textColor": "Text color {r,g,b,a}, default {0,0,0,1}",
+        "defaultWidth": "Default width in pixels, 70",
+        "defaultHeight": "Default height in pixels, 18",
+        "OnChange": "Callback table invoked by Toggle through CallListeners with the new checked state"
+      },
+      "funcs": {
+        "Checkbox:New": {
+          "desc": "Construct a Checkbox and copy the initial checked value into state.checked",
+          "params": {
+            "obj": "Property table that overrides the defaults"
+          }
+        },
+        "Checkbox:Toggle": {
+          "desc": "Toggle the check state: first call OnChange with the negated value, then update checked/state.checked and Invalidate"
+        },
+        "Checkbox:DrawControl": {
+          "desc": "Draw the checkbox; this is an empty stub, the skin/theme overrides it"
+        },
+        "Checkbox:HitTest": {
+          "desc": "Hit test that always returns self, so the whole rectangle is clickable"
+        },
+        "Checkbox:MouseDown": {
+          "desc": "Toggle the state as soon as the mouse goes down, and return self to mark the event handled"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines the Checkbox class: toggles checked, fires OnChange on change, and leaves the box look to the theme.",
+  "_orphans": {}
+}

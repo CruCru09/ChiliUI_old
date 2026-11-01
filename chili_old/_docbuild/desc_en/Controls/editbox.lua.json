@@ -1,0 +1,184 @@
+{
+  "file": "Controls/editbox.lua",
+  "classes": {
+    "EditBox": {
+      "summary": "Text edit box base class: cursor, selection, copy/paste, IME input and inline text coloring",
+      "props": {
+        "classname": "Class name identifier, always \"editbox\"",
+        "defaultWidth": "Default width in pixels, 70",
+        "defaultHeight": "Default height in pixels, 20",
+        "padding": "Inner padding {left, top, right, bottom} in pixels, default {3,3,3,3}",
+        "cursorColor": "Cursor color {r,g,b,a}, default {0,0,1,0.7}",
+        "selectionColor": "Selection highlight color {r,g,b,a}, default {0,1,1,0.3}",
+        "align": "Horizontal text alignment, default \"left\"",
+        "valign": "Vertical text alignment, default \"linecenter\"",
+        "hintFont": "Font property table used for the hint text; defaults to Control.font with color overridden to {1,1,1,0.7}",
+        "text": "Plain text content (the source says not to use it directly); read/write it through SetText/GetText, the layout lives in lines/physicalLines",
+        "hint": "Hint text shown when there is no text and the box is not focused, default \"\"",
+        "cursor": "Logical cursor position (1-based UTF-8 byte index), default 1",
+        "offset": "Horizontal scroll offset (index of the first visible character), default 1",
+        "lineSpacing": "Extra line spacing in pixels, added to lineHeight, default 0",
+        "selStart": "Selection start (logical character position), nil when nothing is selected",
+        "selEnd": "Selection end (logical character position), nil when nothing is selected",
+        "editable": "Allow editing, default true",
+        "selectable": "Allow selecting and hit-testing, default true; HitTest returns false when it is false",
+        "multiline": "Multi-line mode, default false; when true, logical lines are distinguished from physical (wrapped) lines",
+        "subTooltips": "Enable per-span tooltips (MouseMove looks up line.tooltips at the cursor), default false",
+        "useIME": "Enable IME text input, default true (source note: currently broken, so every text box enables it)",
+        "passwordInput": "Password mode (characters shown as '*', cursor hit-testing uses an equal-length mask), default false",
+        "lines": "Array of logical lines, each {text, tooltips, OnTextClick, pls}; pls holds the matching physical line indices",
+        "physicalLines": "Array of physical (wrapped) lines holding text/th/td/lh/tw/y/lineID/colorPrefix/logLineX/extraSpace",
+        "cursorX": "Logical column of the cursor, default 1",
+        "cursorY": "Logical line number of the cursor, default 1",
+        "inedibleInput": "Set of key codes (keys from Spring.GetKeyCode) that the edit box will not swallow, e.g. enter, esc, F1-F12",
+        "noFont": "Skip automatic creation of the default font and hintFont, default false"
+      },
+      "funcs": {
+        "EditBox:New": {
+          "desc": "Construct an EditBox: create hintFont if needed, initialize the text and physical lines via SetText, then RequestUpdate",
+          "params": {
+            "obj": "Property table that overrides the defaults"
+          }
+        },
+        "EditBox:Dispose": {
+          "desc": "Clear hintFont's parent (when noHint is false) and run Control.Dispose for cleanup"
+        },
+        "EditBox:HitTest": {
+          "desc": "Hit test: returns self when selectable is true, otherwise false",
+          "params": {
+            "x": "Screen x",
+            "y": "Screen y"
+          }
+        },
+        "EditBox:SetText": {
+          "desc": "Set the whole text: reset cursor/selection/line caches, split on newlines, AddLine each piece, then UpdateLayout and Invalidate",
+          "params": {
+            "newtext": "Text to set"
+          }
+        },
+        "EditBox:_LineLog2Phys": {
+          "desc": "Convert a position inside a logical line into physical-line coordinates (px, py); passes through when not multiline (internal)",
+          "params": {
+            "logicalLine": "Logical line object",
+            "pos": "Position within the line"
+          },
+          "returns": "px, py"
+        },
+        "EditBox:_SetSelection": {
+          "desc": "Set the selection and convert it to physical coordinates (selStartPhysical/selEndPhysical); fields passed as nil keep their old value (internal)",
+          "params": {
+            "selStart": "Start",
+            "selStartY": "Start logical line number",
+            "selEnd": "End",
+            "selEndY": "End logical line number"
+          }
+        },
+        "EditBox:GetPhysicalLinePosition": {
+          "desc": "Return the y of the physical line that starts the logical line distanceFromBottom lines from the bottom, or 0 when out of range",
+          "params": {
+            "distanceFromBottom": "Number of logical lines from the bottom"
+          },
+          "returns": "y coordinate in pixels"
+        },
+        "EditBox:_GeneratePhysicalLines": {
+          "desc": "Wrap the given logical line with font:WrapText, parse \\255 color prefixes, accumulate y and Resize when autoHeight is set (internal)",
+          "params": {
+            "logicalLineID": "Logical line index"
+          }
+        },
+        "EditBox:AddLine": {
+          "desc": "Append a logical line (long text wraps automatically), store tooltips/OnTextClick, then RequestUpdate and Invalidate",
+          "params": {
+            "text": "Line text",
+            "tooltips": "Per-span tooltip table",
+            "OnTextClick": "Per-span click table"
+          }
+        },
+        "EditBox:GetText": {
+          "desc": "Return the current text: the raw text when not multiline, otherwise the logical lines joined with newlines",
+          "returns": "Text string"
+        },
+        "EditBox:UpdateLayout": {
+          "desc": "Rebuild all physical lines and re-resolve the selection; when autoHeight or autosize is set, recompute the size and Resize the control"
+        },
+        "EditBox:Update": {
+          "desc": "Per-frame update: call the inherited Update; while focused and editable keep calling RequestUpdate and Invalidate every 0.1 s to blink the cursor"
+        },
+        "EditBox:FocusUpdate": {
+          "desc": "Start/stop SDL text input on focus change (SDLStartTextInput/SDLStopTextInput) and set the candidate rect, then run the inherited FocusUpdate"
+        },
+        "EditBox:_GetCursorByMousePos": {
+          "desc": "Compute the cursor position from the mouse position and the physical lines without changing any state (internal)",
+          "params": {
+            "x": "Screen x",
+            "y": "Screen y"
+          },
+          "returns": "{offset, cursor, cursorY, physicalCursor, physicalCursorY, outOfBounds}"
+        },
+        "EditBox:_SetCursorByMousePos": {
+          "desc": "Call _GetCursorByMousePos and write the result back to offset/cursor/cursorY and friends (internal)",
+          "params": {
+            "x": "Screen x",
+            "y": "Screen y"
+          }
+        },
+        "EditBox:MouseDown": {
+          "desc": "Click handling: fire span OnTextClick callbacks when hit, otherwise extend the selection with shift or clear it and move the cursor, then Invalidate",
+          "params": {
+            "x": "Screen x",
+            "y": "Screen y"
+          }
+        },
+        "EditBox:MouseMove": {
+          "desc": "Move handling: set the span tooltip under the cursor when subTooltips is on; extend the selection and Invalidate while dragging with the left button",
+          "params": {
+            "button": "Button id, 1 means left-drag"
+          }
+        },
+        "EditBox:MouseUp": {
+          "desc": "Call the inherited MouseUp, Invalidate and return self"
+        },
+        "EditBox:Select": {
+          "desc": "Select the range startIndex to endIndex on line 1 and Invalidate",
+          "params": {
+            "startIndex": "Start",
+            "endIndex": "End"
+          }
+        },
+        "EditBox:ClearSelected": {
+          "desc": "Delete the selected text character by character with Utf8BackspaceAt, clear the selection markers and Invalidate"
+        },
+        "EditBox:UpdateLine": {
+          "desc": "Replace the text of one logical line and rebuild all physical lines; falls back to AddLine when the line is missing and lineID is 1 (source note: only tested without multiline)",
+          "params": {
+            "lineID": "Logical line index",
+            "text": "New line text"
+          }
+        },
+        "EditBox:GetSelectionText": {
+          "desc": "Return the selected plain text (strips \\255 color prefixes and \\b), or nil when there is no selection",
+          "returns": "Selected text or nil"
+        },
+        "EditBox:KeyPress": {
+          "desc": "Handle keys: backspace/delete, arrows and Home/End, Ctrl+C/X/V/A clipboard and select-all, shift selection extension; returns whether the input was swallowed"
+        },
+        "EditBox:TextInput": {
+          "desc": "Insert the typed character at the cursor (deleting the selection first), update text and cursor, UpdateLayout + Invalidate; returns false when not editable",
+          "params": {
+            "utf8char": "UTF-8 string that was typed"
+          }
+        },
+        "EditBox:TextEditing": {
+          "desc": "IME pre-edit handling: store the composing text in textEditing; returns false when not editable",
+          "params": {
+            "utf8": "Composing text",
+            "start": "Start",
+            "length": "Length"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines the EditBox class: the full text editing control, including logical/physical line layout, cursor and selection, mouse/keyboard handling, clipboard and IME input.",
+  "_orphans": {}
+}

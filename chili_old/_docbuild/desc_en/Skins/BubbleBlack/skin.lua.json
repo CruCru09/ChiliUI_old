@@ -1,0 +1,4 @@
+{
+  "file": "Skins/BubbleBlack/skin.lua",
+  "fileDesc": "Black bubble buttons: depends on Carbon, only turns text white and swaps the button texture for rounded bubbles."
+}

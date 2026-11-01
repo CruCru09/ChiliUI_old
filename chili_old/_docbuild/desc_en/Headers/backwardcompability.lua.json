@@ -1,0 +1,16 @@
+{
+  "file": "Headers/backwardcompability.lua",
+  "module": {
+    "summary": "Backward-compatibility fixup that migrates legacy flat font/color fields into the obj.font table (legacy fields are cleared afterwards).",
+    "funcs": {
+      "BackwardCompa": {
+        "desc": "Migrates fontOutline/captionColor/textColor/fontSize/fontsize/fontShadow into obj.font (existing values win), then sets the legacy fields to nil.",
+        "params": {
+          "obj": "control object"
+        }
+      }
+    }
+  },
+  "fileDesc": "Backward-compatibility fixup that migrates legacy flat font/color fields into obj.font.",
+  "_orphans": {}
+}

@@ -1,0 +1,144 @@
+{
+  "file": "Controls/treeviewnode.lua",
+  "classes": {
+    "TreeViewNode": {
+      "summary": "树节点控件，Control 子类：负责子节点增删、展开/折叠、递归查找、折叠按钮点击与逐行绘制。",
+      "props": {
+        "classname": "类名字符串，值为 \"treeviewnode\"，用于控件类型标识。",
+        "padding": "左内边距 {16,0,0,0}：为左侧折叠三角按钮留出的宽度（像素）；root 节点构造时置为 {0,0,0,0}。",
+        "autosize": "固定为 true：UpdateLayout 时按子控件总高度调整自身高度。",
+        "caption": "节点标题文本，默认 \"node\"。",
+        "expanded": "是否展开，默认 true；折叠时子控件被移入 _nodes_hidden 且不参与排版。",
+        "root": "是否为根节点，默认 false；根节点无折叠按钮、不绘制自身、不响应展开/折叠。",
+        "nodes": "子节点列表（以 weak link 保存），仅由 AddChild 的 isNode 参数控制是否加入。",
+        "treeview": "所属 TreeView（weak link，由 New 断言必须提供）。",
+        "_nodes_hidden": "内部字段：折叠时被移出 children 的子控件表，展开时移回（内部）。",
+        "OnSelectChange": "选中状态变化监听器列表，回调参数为 (selected)（由 TreeView:Select 触发）。",
+        "OnCollapse": "折叠监听器列表，Collapse 时首先触发。",
+        "OnExpand": "展开监听器列表，Expand 时首先触发。",
+        "OnDraw": "自定义绘制回调；CallListeners 返回真值时跳过默认的 DrawNode。"
+      },
+      "funcs": {
+        "TreeViewNode:New": {
+          "desc": "root 节点先把 padding 置 0；断言必须提供 treeview 并转为 weak link 后调用父类构造。",
+          "params": {
+            "obj": "初始化属性表"
+          }
+        },
+        "TreeViewNode:SetParent": {
+          "desc": "父级不是 table 时清空 treeview，然后调用 inherited.SetParent。",
+          "params": {
+            "obj": "父控件"
+          }
+        },
+        "TreeViewNode:AddChild": {
+          "desc": "isNode 不为 false 时把子控件记入 nodes（weak link），再请求父级 RequestRealign 并调用 inherited.AddChild。",
+          "params": {
+            "obj": "子控件",
+            "isNode": "是否作为树节点记录（false 表示仅作普通子控件）"
+          }
+        },
+        "TreeViewNode:RemoveChild": {
+          "desc": "调用 inherited.RemoveChild，并从 nodes 中移除与该子控件匹配的项。",
+          "params": {
+            "obj": "要移除的子控件"
+          }
+        },
+        "TreeViewNode:ClearChildren": {
+          "desc": "清空子控件，但会保留首个 caption 子控件与当前展开/折叠状态（先 Expand、清空后再 Collapse 复原）；别名 TreeViewNode.Clear。"
+        },
+        "TreeViewNode:Add": {
+          "desc": "字符串则创建 TextBox 与对应子节点，Object 则包一层空 caption 节点；把新节点 AddChild 后返回。",
+          "params": {
+            "item": "字符串标题或已存在控件对象"
+          },
+          "returns": "新建的 TreeViewNode"
+        },
+        "TreeViewNode:Select": {
+          "desc": "非 root 且不是当前选中项时，调用 treeview:Select(self)；选中回调由 TreeView 负责触发。"
+        },
+        "TreeViewNode:Toggle": {
+          "desc": "展开/折叠状态取反：已展开则 Collapse，否则 Expand。"
+        },
+        "TreeViewNode:Expand": {
+          "desc": "触发 OnExpand，置 expanded=true，请求 treeview:RequestRealign，并把 _nodes_hidden 中的子控件移回 children。"
+        },
+        "TreeViewNode:Collapse": {
+          "desc": "触发 OnCollapse，置 expanded=false，请求 treeview:RequestRealign，并把 children[2..] 移入 _nodes_hidden。"
+        },
+        "TreeViewNode:GetNodeByCaption": {
+          "desc": "在 nodes 中递归（深度优先）查找 caption 相同的子节点。",
+          "params": {
+            "caption": "节点标题"
+          },
+          "returns": "找到的节点；未找到返回 nil"
+        },
+        "TreeViewNode:GetNodeByIndex": {
+          "desc": "深度优先递归计数，返回第 index 个节点；递归中返回数字表示累计计数（未找到时向上返回计数）。",
+          "params": {
+            "index": "目标序号",
+            "_i": "递归累计计数，根调用传 0"
+          },
+          "returns": "节点对象，或累计计数数字"
+        },
+        "TreeViewNode:UpdateLayout": {
+          "desc": "折叠（且非 root）时只给首个 caption 子控件施加 (0,0,clientWidth) 约束并按高度 Resize（无子控件则高 10）；展开时逐个纵向下排子控件，最后 Resize 到总高。",
+          "returns": "返回 true"
+        },
+        "TreeViewNode:_InNodeButton": {
+          "desc": "判断点击点是否落在左侧折叠三角按钮区域（x < padding[1] 且纵向命中首个子控件高度的居中区域）（内部）。",
+          "params": {
+            "x": "节点内 x",
+            "y": "节点内 y"
+          },
+          "returns": "布尔值"
+        },
+        "TreeViewNode:HitTest": {
+          "desc": "先转发继承的 HitTest 查子控件，未命中时返回 self，使整行节点都可点击。",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y"
+          }
+        },
+        "TreeViewNode:MouseDown": {
+          "desc": "root 直接转发父类；命中折叠按钮则返回 self；在文字区且位于首行内先调用 Select() 再转发父类。",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y"
+          }
+        },
+        "TreeViewNode:MouseClick": {
+          "desc": "命中折叠按钮时调用 Toggle 并返回 self，否则转发父类 MouseClick。",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y"
+          }
+        },
+        "TreeViewNode:MouseDblClick": {
+          "desc": "先转发父类，未命中子控件时对自身调用 Toggle 展开/折叠并返回 self。",
+          "params": {
+            "x": "鼠标 x",
+            "y": "鼠标 y"
+          }
+        },
+        "TreeViewNode:DrawNode": {
+          "desc": "若有所属 treeview，则调用 treeview.DrawNode(self) 绘制节点内容。"
+        },
+        "TreeViewNode:DrawNodeTree": {
+          "desc": "调用 treeview.DrawNodeTree(self)，由 treeview 侧绘制树形装饰。"
+        },
+        "TreeViewNode:DrawControl": {
+          "desc": "root 不绘制；否则先触发 OnDraw 监听（返回真则跳过 DrawNode），再调用 DrawNodeTree。"
+        },
+        "TreeViewNode:DrawChildren": {
+          "desc": "折叠且非 root 时只绘制首个（caption）子控件，否则在 clientArea 内按 'Draw' 通道绘制全部子控件。"
+        },
+        "TreeViewNode:DrawChildrenForList": {
+          "desc": "与 DrawChildren 相同，但子控件用 'DrawForList' 通道绘制。"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 TreeViewNode：树节点的子节点管理、展开折叠、递归查找、折叠按钮交互与绘制逻辑。",
+  "_orphans": {}
+}

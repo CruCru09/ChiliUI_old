@@ -1,0 +1,34 @@
+{
+  "file": "Handlers/debughandler.lua",
+  "module": {
+    "funcs": {
+      "DebugHandler.Stacktrace": {
+        "desc": "生成当前调用栈的可读字符串，过滤 debughandler/SafeCall 等噪音帧，超过 maxStackLength（7）时省略中间帧",
+        "returns": "带缩进的 stacktrace 文本"
+      },
+      "DebugHandler.SafeWrap": {
+        "desc": "用包装表/代理闭包包裹目标表，使其函数调用自动走 Chili 错误处理（不包装返回值）",
+        "params": {
+          "t_orig": "被包装的表（link 表则改为改写其元表 __index）"
+        },
+        "returns": "包装后的表；非表入参原样返回"
+      },
+      "DebugHandler.GetWidgetOrigin": {
+        "desc": "沿调用栈向上查局部变量与函数环境，找出创建此 chili 对象的用户 widget",
+        "params": {
+          "_i": "起始栈层，默认 4"
+        },
+        "returns": "widget 对象（找不到则 nil）"
+      },
+      "DebugHandler:RegisterObject": {
+        "desc": "登记新建的 chili 对象：写入 obj._widget 并加入所属 widget 列表与 allObjects（弱表）",
+        "params": {
+          "obj": "新建的 chili 对象"
+        }
+      }
+    },
+    "summary": "调试与容错：维护对象注册表、生成精简堆栈（Stacktrace）、把事件回调包进 xpcall（SafeWrap），并在 widget 卸载时 Dispose 它拥有的对象。"
+  },
+  "fileDesc": "Chili 调试支持：注册所有 chili 对象、生成截断的堆栈追踪、以 xpcall 包装的 SafeCall 捕获错误，并在 widget 卸载时 Dispose 其拥有的对象。",
+  "_orphans": {}
+}

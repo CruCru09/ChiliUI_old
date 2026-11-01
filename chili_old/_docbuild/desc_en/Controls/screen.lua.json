@@ -1,0 +1,109 @@
+{
+  "file": "Controls/screen.lua",
+  "classes": {
+    "Screen": {
+      "summary": "UI root node that manages screen size, hovered/focused/active control state and input event dispatch.",
+      "props": {
+        "classname": "Root node class name, fixed to 'screen'.",
+        "x": "Root node x coordinate, fixed to 0 (the root has no parent offset).",
+        "y": "Root node y coordinate, fixed to 0.",
+        "width": "Screen/canvas width in pixels; New uses the Spring.GetViewSizes width when unset or <=0.",
+        "height": "Screen/canvas height in pixels; New uses the view height rounded up when unset or <=0.",
+        "preserveChildrenOrder": "Whether the children order is preserved, default true.",
+        "activeControl": "Control that currently holds the mouse button (weak reference); later MouseMove/MouseUp/MouseWheel events go to it first.",
+        "focusedControl": "Control with the keyboard focus (weak reference); KeyPress/TextInput are forwarded to it first.",
+        "hoveredControl": "Control currently under the mouse (weak reference).",
+        "currentTooltip": "Tooltip text to display, taken from the hovered control or the first ancestor that has a tooltip.",
+        "_lastHoveredControl": "Control hovered on the previous frame, used to detect hover changes and send MouseOver/MouseOut (internal).",
+        "_lastClicked": "Timestamp of the last click (Spring.GetTimer()), used for double-click detection.",
+        "_lastClickedX": "Screen x of the last click, used for double-click detection.",
+        "_lastClickedY": "Screen y of the last click, used for double-click detection."
+      },
+      "funcs": {
+        "Screen:New": {
+          "desc": "Constructs the root node: fills in the size from Spring.GetViewSizes when unset or <=0, registers the global dispose callback and calls RequestUpdate.",
+          "params": {
+            "obj": "Attribute table"
+          },
+          "returns": "The root node object"
+        },
+        "Screen:OnGlobalDispose": {
+          "desc": "Clears the active/focused/hovered/_lastHovered references that point at a control being globally disposed.",
+          "params": {
+            "obj": "The disposed control"
+          }
+        },
+        "Screen:ParentToLocal": {
+          "desc": "The root has no parent transform, so x,y are returned unchanged."
+        },
+        "Screen:LocalToParent": {
+          "desc": "The root is its own parent, so x,y are returned unchanged."
+        },
+        "Screen:LocalToScreen": {
+          "desc": "The root frame is the screen frame, so x,y are returned unchanged."
+        },
+        "Screen:ScreenToLocal": {
+          "desc": "Converts screen to local coordinates; returns them unchanged (the y flip is done by the caller)."
+        },
+        "Screen:ScreenToClient": {
+          "desc": "Converts screen to client coordinates; returns them unchanged."
+        },
+        "Screen:UnscaledClientToScreen": {
+          "desc": "Multiplies unscaled client coordinates by WG.uiScale to get screen coordinates.",
+          "returns": "screen x, screen y"
+        },
+        "Screen:ClientToScreen": {
+          "desc": "Client coordinates are screen coordinates here, so x,y are returned unchanged."
+        },
+        "Screen:IsRectInView": {
+          "desc": "Whether the rect intersects the screen extent [0,width] x [0,height].",
+          "returns": "boolean"
+        },
+        "Screen:IsVisibleOnScreen": {
+          "desc": "The root node is always visible, so this always returns true.",
+          "returns": "true"
+        },
+        "Screen:Resize": {
+          "desc": "Sets the screen width/height (rounded up) and calls RequestRealign on all children.",
+          "params": {
+            "w": "New width",
+            "h": "New height"
+          }
+        },
+        "Screen:Update": {
+          "desc": "Per-frame driver: clears the tooltip and sends MouseOut when the mouse left the window, otherwise replays MouseMove to the hovered control."
+        },
+        "Screen:IsAbove": {
+          "desc": "Returns the topmost control at that position and refreshes hoveredControl/currentTooltip, sending MouseOver/MouseOut when the hovered control changes.",
+          "returns": "Whether a control is at that position"
+        },
+        "Screen:MouseDown": {
+          "desc": "After a hit, records activeControl; on focus change it switches state.focused and calls FocusUpdate.",
+          "returns": "Whether a control was hit"
+        },
+        "Screen:MouseUp": {
+          "desc": "Treats a press within 0.45 s and 3 pixels as a double click, sends MouseDblClick or MouseClick, then MouseUp.",
+          "returns": "Whether the event was handled"
+        },
+        "Screen:MouseMove": {
+          "desc": "Mouse move: forwards to activeControl first (dy negated) and releases it when the child returns false; otherwise dispatches through the parent class.",
+          "returns": "Whether the event was handled"
+        },
+        "Screen:MouseWheel": {
+          "desc": "Mouse wheel: forwards to activeControl first and releases it when the child returns false; otherwise dispatches through the parent class.",
+          "returns": "Whether the event was handled"
+        },
+        "Screen:KeyPress": {
+          "desc": "Key press: forwards to focusedControl when present, otherwise through the parent class.",
+          "returns": "Whether the event was handled"
+        },
+        "Screen:TextInput": {
+          "desc": "Text input: forwards to focusedControl when present, otherwise through the parent class.",
+          "returns": "Whether the event was handled"
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines Screen, the UI root node (an Object subclass): screen size and coordinate conversion, plus hovered/focused/active control state, tooltips and mouse/keyboard event dispatch.",
+  "_orphans": {}
+}

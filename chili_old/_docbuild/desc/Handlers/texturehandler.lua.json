@@ -1,0 +1,27 @@
+{
+  "file": "Handlers/texturehandler.lua",
+  "module": {
+    "funcs": {
+      "TextureHandler.LoadTexture": {
+        "desc": "绑定纹理显示列表；纹理尚未加载时先画占位图并把对象加入待加载请求",
+        "params": {
+          "arg1": "纹理单元 ID（数字）或文件名",
+          "arg2": "文件名，或（arg1 为数字时）文件名",
+          "arg3": "请求加载完成后需 Invalidate 的对象"
+        }
+      },
+      "TextureHandler.DeleteTexture": {
+        "desc": "引用计数减 1，归零时删除显示列表并 gl.DeleteTexture 释放",
+        "params": {
+          "filename": "纹理文件名"
+        }
+      },
+      "TextureHandler.Update": {
+        "desc": "在每帧 timeLimit（约 13ms）时间片内逐个加载请求的纹理，完成后对请求对象调用 Invalidate"
+      }
+    },
+    "summary": "纹理异步加载：缓存每个纹理的显示列表，未加载时先画占位图并入队，在每帧限定的时间片里逐个加载后触发重绘。"
+  },
+  "fileDesc": "纹理异步加载器：缓存纹理显示列表，未加载时先画占位图并入队，在每帧限定时间片内逐个加载后触发 Invalidate。",
+  "_orphans": {}
+}

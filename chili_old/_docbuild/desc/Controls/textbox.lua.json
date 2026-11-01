@@ -1,0 +1,30 @@
+{
+  "file": "Controls/textbox.lua",
+  "classes": {
+    "TextBox": {
+      "summary": "只读多行文本框（继承 EditBox）：展示自动换行文本，常嵌入 ScrollBox",
+      "props": {
+        "classname": "类名标识，固定为 \"textbox\"",
+        "padding": "内边距 {左, 上, 右, 下}，单位像素，默认 {0,0,0,0}",
+        "text": "显示的文本内容，默认 \"line1\\nline2\"",
+        "autoHeight": "是否按文本行数自动设置高度（便于嵌入 ScrollBox），默认 true",
+        "autoObeyLineHeight": "需 autoHeight；为 true 时高度按 lineHeight 计算（行数相同则同高），默认 true",
+        "editable": "是否可编辑，默认 false（TextBox 为只读）",
+        "selectable": "是否可选中文本，默认 false",
+        "multiline": "是否多行模式，默认 true；决定文本是否换行排版",
+        "noFont": "是否禁用自动创建默认 font 对象，默认 false",
+        "noHint": "是否禁用创建 hintFont（占位提示字体），默认 true",
+        "borderColor": "边框颜色 {r,g,b,a}，默认 {0,0,0,0}（透明）",
+        "focusColor": "聚焦时的颜色 {r,g,b,a}，默认 {0,0,0,0}（透明）",
+        "backgroundColor": "背景色 {r,g,b,a}，默认 {0,0,0,0}（透明）"
+      },
+      "funcs": {
+        "TextBox:DrawControl": {
+          "desc": "在 clientArea 原点用 font:Draw 绘制 _wrappedText，debug 时画绿框"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 TextBox 类（继承 EditBox）：只读多行文本显示，按 autoHeight 自动调整高度。",
+  "_orphans": {}
+}

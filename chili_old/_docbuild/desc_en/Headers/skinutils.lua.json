@@ -1,0 +1,182 @@
+{
+  "file": "Headers/skinutils.lua",
+  "module": {
+    "funcs": {
+      "_DrawTextureAspect": {
+        "desc": "Draws the texture centered in the given box preserving its aspect ratio (coordinates rounded, internal).",
+        "params": {
+          "x,y,w,h": "Target rectangle.",
+          "tw,th": "Texture size in pixels."
+        }
+      },
+      "_DrawTiledTexture": {
+        "desc": "Draws a stretchable texture nine-patch style: corners keep their size, edges and center stretch by texture coordinates, and corner sizes shrink when space is tight.",
+        "params": {
+          "x,y,w,h": "Target rectangle.",
+          "skLeft,skTop,skRight,skBottom": "Corner slice sizes.",
+          "texw,texh": "Texture size in pixels.",
+          "texIndex": "Texture unit index, default 0."
+        }
+      },
+      "_DrawTiledBorder": {
+        "desc": "Draws a texture border nine-patch style; unlike _DrawTiledTexture the center area is not filled.",
+        "params": {
+          "x,y,w,h": "Target rectangle.",
+          "skLeft,skTop,skRight,skBottom": "Corner slice sizes.",
+          "texw,texh": "Texture size in pixels.",
+          "texIndex": "Texture unit index, default 0."
+        }
+      },
+      "DrawWindow": {
+        "desc": "Draws a window: tiles TileImage as the background using color, then prints the caption with the centered font.",
+        "params": {
+          "obj": "window control."
+        }
+      },
+      "DrawButton": {
+        "desc": "Draws the button's BK/FG tile layers, recoloring for the pressed/hovered state, then prints the caption centered or per align.",
+        "params": {
+          "obj": "button control."
+        }
+      },
+      "DrawComboBox": {
+        "desc": "Calls DrawButton for the body, then draws the drop-down arrow at the right, aspect-fit inside padding width.",
+        "params": {
+          "self": "combobox control (which also acts as a button)."
+        }
+      },
+      "DrawEditBox": {
+        "desc": "Draws the edit box background and border, the text (hint, password mask, overflow clipping), the blinking cursor and the selection highlight.",
+        "params": {
+          "obj": "editbox control."
+        }
+      },
+      "DrawPanel": {
+        "desc": "Draws the panel background as two tiled layers, TileImageBK (backgroundColor) and TileImageFG (borderColor).",
+        "params": {
+          "obj": "panel control."
+        }
+      },
+      "DrawItemBkGnd": {
+        "desc": "Tiles the BK/FG item background images, choosing colors according to state.",
+        "params": {
+          "obj": "item control.",
+          "x,y,w,h": "Rectangle to draw into.",
+          "state": "Item state; 'selected' uses the selected colors."
+        }
+      },
+      "DrawScrollPanelBorder": {
+        "desc": "Draws the scroll panel border with _DrawTiledBorder, reducing the size by the visible scrollbars.",
+        "params": {
+          "self": "scrollpanel control."
+        }
+      },
+      "DrawScrollPanel": {
+        "desc": "Draws the scroll panel background tiles plus the vertical/horizontal scrollbar tracks and the knobs positioned from scrollPos.",
+        "params": {
+          "obj": "scrollpanel control."
+        }
+      },
+      "DrawCheckbox": {
+        "desc": "Draws the checkbox box (optionally the round image, honoring boxalign) and the check mark, then prints the caption.",
+        "params": {
+          "obj": "checkbox control."
+        }
+      },
+      "DrawProgressbar": {
+        "desc": "Draws the background and the filled bar computed from value/min/max (supports fillPadding, vertical orientation and caption).",
+        "params": {
+          "obj": "progressbar control."
+        }
+      },
+      "DrawTrackbar": {
+        "desc": "Draws the trackbar rail, the step tick marks at the step interval, and the thumb positioned by _GetPercent().",
+        "params": {
+          "self": "trackbar control."
+        }
+      },
+      "DrawTreeviewNode": {
+        "desc": "When the node is the treeview's selected item, tiles ImageNodeSelected as its selection background.",
+        "params": {
+          "self": "treeview node."
+        }
+      },
+      "DrawTreeviewNodeTree": {
+        "desc": "Draws the node's hierarchy connector lines (_DrawLineV + _DrawLineH) and, if it has children, the expanded/collapsed icon.",
+        "params": {
+          "self": "treeview node."
+        }
+      },
+      "DrawLine": {
+        "desc": "Draws a 4-pixel tiled line, vertical or horizontal depending on whether style starts with 'v'.",
+        "params": {
+          "self": "line control."
+        }
+      },
+      "DrawTabBarItem": {
+        "desc": "Draws a tab's background and border with colors chosen from the pressed/hovered/selected state, then centers the caption via DrawInBox.",
+        "params": {
+          "obj": "tabbar item."
+        }
+      },
+      "DrawDragGrip": {
+        "desc": "Draws the gray/dark drag-grip arrow triangle at the window's top-left corner using TRIANGLES.",
+        "params": {
+          "obj": "draggable window."
+        }
+      },
+      "DrawResizeGrip": {
+        "desc": "When obj.resizable is true, draws three diagonal lines as the resize handle inside boxes.resize using LINES.",
+        "params": {
+          "obj": "resizable window."
+        }
+      },
+      "_ProcessRelative": {
+        "desc": "Converts a relative coordinate code to pixels: 'NN%' is a percentage of the total clamped to 0-100, and negative values count from the end.",
+        "params": {
+          "code": "Relative coordinate code: percentage string or number.",
+          "total": "Reference total length."
+        },
+        "returns": "Rounded pixel value."
+      },
+      "GetRelativeObjBox": {
+        "desc": "Resolves the {x,y,w,h} relative box against obj.width/height via _ProcessRelative into an absolute pixel box.",
+        "params": {
+          "obj": "Reference control.",
+          "boxrelative": "Relative box {left, top, right, bottom}."
+        },
+        "returns": "Absolute pixel box {left, top, right, bottom}."
+      },
+      "NCHitTestWithPadding": {
+        "desc": "Non-client hit test: after insetting by hitpadding, checks the resize/drag boxes and the draggable/click-through area; returns obj on a hit.",
+        "params": {
+          "obj": "window control.",
+          "mx": "Mouse x.",
+          "my": "Mouse y."
+        },
+        "returns": "obj on a hit, otherwise false/nil (internal)."
+      },
+      "WindowNCMouseDown": {
+        "desc": "Non-client mouse down: calls StartResizing inside the resize box and StartDragging inside the drag box.",
+        "params": {
+          "obj": "window control.",
+          "x": "Mouse x.",
+          "y": "Mouse y."
+        },
+        "returns": "obj when handled."
+      },
+      "WindowNCMouseDownPostChildren": {
+        "desc": "Runs when the children did not consume the press: StartDragging if draggable without a grip, otherwise returns obj for noClickThrough.",
+        "params": {
+          "obj": "window control.",
+          "x": "Mouse x.",
+          "y": "Mouse y."
+        },
+        "returns": "obj when handled."
+      }
+    },
+    "summary": "Skin drawing helpers: per-control GL draw functions, tiled nine-patch and border drawing, non-client hit testing, and relative-coordinate (right/bottom/percent) conversion."
+  },
+  "fileDesc": "Skin drawing toolkit: GL draw functions for each control, nine-patch tiled and border drawing, non-client hit testing and relative-coordinate helpers.",
+  "_orphans": {}
+}

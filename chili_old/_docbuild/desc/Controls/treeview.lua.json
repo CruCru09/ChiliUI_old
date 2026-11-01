@@ -1,0 +1,54 @@
+{
+  "file": "Controls/treeview.lua",
+  "classes": {
+    "TreeView": {
+      "summary": "树形控件，Control 子类：创建并管理 TreeViewNode 根节点，负责初始节点树解析、节点选中与高度自适应。",
+      "props": {
+        "classname": "类名字符串，值为 \"treeview\"，用于控件类型标识。",
+        "autosize": "固定为 true：UpdateLayout 时按根节点高度调整自身高度。",
+        "minItemHeight": "每个节点行的最小高度（像素），默认 16，构造根节点时作为 minHeight 传入。",
+        "defaultWidth": "默认宽度，未显式设置 width 时使用，默认 \"100%\"。",
+        "defaultHeight": "默认高度，未显式设置 height 时使用，默认 \"100%\"。",
+        "selected": "初始选中节点的序号，默认 1；构造时用 Select(sel) 应用，≤0 表示不选中。",
+        "root": "根 TreeViewNode，由 New 创建（root=true、expanded=defaultExpanded）。",
+        "nodes": "初始化节点树数据表：元素为字符串（节点标题）或嵌套 table（子节点列表），构造时由 ParseInitTable 递归解析。",
+        "defaultExpanded": "新建/根节点是否默认展开，默认 false，会传给每个新节点。",
+        "OnSelectNode": "选中节点变化监听器列表，回调参数为 (newSelected, oldSelected)。"
+      },
+      "funcs": {
+        "TreeView:New": {
+          "desc": "创建根节点并解析 nodes 初始化树、AddChild 后 UpdateLayout，最后按 selected 序号选中初始节点。",
+          "params": {
+            "obj": "初始化属性表"
+          }
+        },
+        "TreeView:GetNodeByCaption": {
+          "desc": "转发 root:GetNodeByCaption，深度优先查找 caption 相同的第一个节点。",
+          "params": {
+            "caption": "节点标题"
+          },
+          "returns": "找到的节点；未找到返回 nil"
+        },
+        "TreeView:GetNodeByIndex": {
+          "desc": "转发 root:GetNodeByIndex(index, 0) 做深度优先计数查找第 index 个节点。",
+          "params": {
+            "index": "节点序号"
+          },
+          "returns": "节点对象；未找到返回 nil"
+        },
+        "TreeView:Select": {
+          "desc": "接受节点对象或序号，把选中项记为 weak link、对先后选中节点各触发 Invalidate，并依次触发节点 OnSelectChange(true/false) 与 TreeView.OnSelectNode(new, old)。",
+          "params": {
+            "item": "节点对象或序号"
+          }
+        },
+        "TreeView:UpdateLayout": {
+          "desc": "给根节点施加 (0, 0, clientWidth) 约束并 Realign；autosize 时把自身高度调整为根节点高度。",
+          "returns": "返回 true"
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 TreeView：创建根节点、解析初始化节点表、管理节点选中并让自身高度随树内容自适应。",
+  "_orphans": {}
+}

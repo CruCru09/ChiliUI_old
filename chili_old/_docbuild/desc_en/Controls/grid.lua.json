@@ -1,0 +1,16 @@
+{
+  "file": "Controls/grid.lua",
+  "classes": {
+    "Grid": {
+      "summary": "Equal-cell grid container, a LayoutPanel subclass that stretches all children into an evenly sized row/column grid.",
+      "props": {
+        "classname": "Class name string, \"grid\", used to identify the control type.",
+        "resizeItems": "Fixed to true: children are stretched to fill the grid instead of keeping their own size.",
+        "itemPadding": "Cell padding fixed to {0, 0, 0, 0}, so children sit flush against the cell edges."
+      },
+      "funcs": {}
+    }
+  },
+  "fileDesc": "Defines Grid, a LayoutPanel subclass that stretches children into an evenly sized row/column grid (resizeItems=true, itemPadding 0).",
+  "_orphans": {}
+}

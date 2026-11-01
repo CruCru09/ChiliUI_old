@@ -1,0 +1,5 @@
+{
+  "file": "core.lua",
+  "fileDesc": "框架入口：设置 CHILI_DIRNAME/SKIN_DIRNAME，按顺序 VFS.Include 各 headers 与 controls，最后 return Chili。",
+  "_orphans": {}
+}

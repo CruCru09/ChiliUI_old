@@ -1,0 +1,34 @@
+{
+  "file": "Handlers/debughandler.lua",
+  "module": {
+    "funcs": {
+      "DebugHandler.Stacktrace": {
+        "desc": "Builds a readable stack trace string, filtering out debughandler/SafeCall noise frames and eliding the middle when it exceeds maxStackLength (7).",
+        "returns": "Indented stack trace text."
+      },
+      "DebugHandler.SafeWrap": {
+        "desc": "Wraps a table in a proxy table/closure so that calls into its functions automatically go through the Chili error handler (return values are not wrapped).",
+        "params": {
+          "t_orig": "Table to wrap (a link table instead gets its metatable __index rewritten)."
+        },
+        "returns": "Wrapped table; non-table input is returned as-is."
+      },
+      "DebugHandler.GetWidgetOrigin": {
+        "desc": "Walks up the call stack inspecting locals and function environments to find the user widget that created this chili object.",
+        "params": {
+          "_i": "Start stack level, default 4."
+        },
+        "returns": "The widget object, or nil if none is found."
+      },
+      "DebugHandler:RegisterObject": {
+        "desc": "Registers a newly created chili object: stores obj._widget and appends it to the owning widget's list and allObjects (weak tables).",
+        "params": {
+          "obj": "The new chili object."
+        }
+      }
+    },
+    "summary": "Debugging and error containment: object registry, trimmed stack traces, SafeCall/xpcall wrapping of callbacks, and disposing widget-owned objects on unload."
+  },
+  "fileDesc": "Chili debugging support: registers every chili object, produces truncated stack traces, catches errors through the xpcall-based SafeCall, and disposes a widget's owned objects when it is removed.",
+  "_orphans": {}
+}

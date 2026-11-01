@@ -1,0 +1,64 @@
+{
+  "file": "Controls/combobox.lua",
+  "classes": {
+    "ComboBox": {
+      "summary": "下拉选择框：继承 Button，点击弹出 items 列表窗口进行选择。",
+      "props": {
+        "classname": "控件类名，固定为 \"combobox\"",
+        "caption": "当前显示文本，默认 'combobox'；选中字符串项时自动改为该项",
+        "defaultWidth": "默认宽度（像素 70）",
+        "defaultHeight": "默认高度（像素 20）",
+        "items": "选项表 {\"a\",\"b\",...}；字符串元素自动生成选项按钮，也允许直接放入已构造的控件",
+        "itemHeight": "下拉列表中每个选项的高度（像素 20）",
+        "selected": "当前选中项索引，默认 1",
+        "OnOpen": "下拉列表打开时触发",
+        "OnClose": "下拉列表关闭时触发",
+        "OnSelect": "按索引选中时触发，参数 (itemIdx, true)",
+        "OnSelectName": "按名称选中时触发，参数 (itemName, true)",
+        "selectionOffsetX": "下拉窗口相对计算位置的额外 X 偏移（像素）",
+        "selectionOffsetY": "下拉窗口相对计算位置的额外 Y 偏移（像素）",
+        "maxDropDownHeight": "下拉列表最大高度（像素 200）",
+        "minDropDownHeight": "下拉列表最小高度（像素 50）",
+        "maxDropDownWidth": "下拉列表最大宽度（像素 500）",
+        "minDropDownWidth": "下拉列表最小宽度（像素 50）",
+        "noFont": "为 true 时不绘制 caption，默认 false"
+      },
+      "funcs": {
+        "ComboBox:New": {
+          "desc": "创建实例并选中 selected 指定的项，使 caption 与选中项同步。",
+          "params": {
+            "obj": "构造表"
+          },
+          "returns": "新建的 ComboBox 实例"
+        },
+        "ComboBox:Select": {
+          "desc": "选中指定项：数字按索引、字符串按名称；同步 caption 并触发 OnSelect/OnSelectName。",
+          "params": {
+            "itemIdx": "选项索引（number）或选项文本（string）"
+          }
+        },
+        "ComboBox:_CloseWindow": {
+          "desc": "销毁下拉窗口、清空 labels，触发 OnClose 并复位 pressed 状态。(内部)"
+        },
+        "ComboBox:FocusUpdate": {
+          "desc": "焦点变化时：若已失去焦点且没有选项被按住，则关闭下拉窗口。"
+        },
+        "ComboBox:MouseDown": {
+          "desc": "切换下拉列表：未打开则构建 Window+ScrollPanel+StackPanel 列出 items，已打开则关闭。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y"
+          }
+        },
+        "ComboBox:MouseUp": {
+          "desc": "仅重绘并返回 self，覆盖 Button:MouseUp 以免改动 pressed 状态。",
+          "params": {
+            "...": "鼠标参数（未使用）"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "下拉选择框控件：继承 Button，点击后在弹出 Window + ScrollPanel 中列出 items 供选择。",
+  "_orphans": {}
+}

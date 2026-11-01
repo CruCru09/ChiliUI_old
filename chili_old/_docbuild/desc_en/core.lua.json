@@ -1,0 +1,5 @@
+{
+  "file": "core.lua",
+  "fileDesc": "Framework entry point: sets CHILI_DIRNAME/SKIN_DIRNAME, VFS.Includes the headers and controls in order, and returns Chili.",
+  "_orphans": {}
+}

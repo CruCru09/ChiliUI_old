@@ -1,0 +1,35 @@
+{
+  "file": "Headers/autolocalizer.lua",
+  "module": {
+    "summary": "加载期自动本地化：覆盖 VFS.Include/VFS.LoadFile，把 Spring/Script/gl/math 等全局命名空间访问改写为局部变量（受 AutoLocalizeLua 配置控制，默认开启）。",
+    "funcs": {
+      "VFS.Include": {
+        "desc": "覆盖 VFS.Include：读文件、自动本地化改写后 loadstring，在 enviroment（未给则取调用者环境）中执行并返回结果；读不到文件返回 nil。",
+        "params": {
+          "filename": "文件路径",
+          "enviroment": "可选执行环境",
+          "mode": "可选 VFS 模式"
+        },
+        "returns": "chunk 的返回值"
+      },
+      "VFS.LoadFile": {
+        "desc": "覆盖 VFS.LoadFile：读取文件，若文件名含 '.lua' 则返回自动本地化改写后的源码字符串，否则返回原始内容。",
+        "params": {
+          "filename": "文件路径",
+          "mode": "可选 VFS 模式"
+        },
+        "returns": "源码字符串"
+      },
+      "LoadFileSafe": {
+        "desc": "直接调用预先保存的原始 VFS.LoadFile（绕过覆盖版），避免递归。",
+        "params": {
+          "filename": "文件路径",
+          "mode": "可选 VFS 模式"
+        },
+        "returns": "文件内容"
+      }
+    }
+  },
+  "fileDesc": "覆盖 VFS.Include/VFS.LoadFile，在加载时把全局命名空间访问自动改写为局部变量以提速。",
+  "_orphans": {}
+}

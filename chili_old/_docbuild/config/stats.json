@@ -1,0 +1,13 @@
+{
+  "_comment": "The statistics card numbers on the first page of the document are maintained manually. After the source code is modified, running node _docbuild/build-all.cjs --update-stats will recalculate and write the results back here.",
+  "generated": "2026-11-1",
+  "values": {
+    "files": 55,
+    "lines": 13580,
+    "classes": 28,
+    "props": 351,
+    "methods": 333,
+    "moduleFuncs": 127,
+    "skins": 11
+  }
+}

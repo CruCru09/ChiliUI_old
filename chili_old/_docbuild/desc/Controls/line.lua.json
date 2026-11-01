@@ -1,0 +1,19 @@
+{
+  "file": "Controls/line.lua",
+  "classes": {
+    "Line": {
+      "summary": "分隔线控件：绘制 1 像素细线用于区域分隔，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 \"line\"",
+        "caption": "线条文本（占位，实际绘制由皮肤处理），默认 'line'",
+        "defaultWidth": "默认宽度（像素 100）",
+        "defaultHeight": "默认高度（像素 1），即线宽",
+        "style": "线条方向：\"horizontal\"（默认）或 \"vertical\"，由皮肤解释",
+        "noFont": "为 true 时不使用字体，默认 true"
+      },
+      "funcs": {}
+    }
+  },
+  "fileDesc": "分隔线控件：默认 100x1 像素的细线，用于布局分隔。",
+  "_orphans": {}
+}

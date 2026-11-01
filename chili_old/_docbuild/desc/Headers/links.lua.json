@@ -1,0 +1,48 @@
+{
+  "file": "Headers/links.lua",
+  "module": {
+    "summary": "用 newproxy 代理对象实现弱链接（子→父）与硬链接（父→子）的 GC 安全引用机制。",
+    "funcs": {
+      "MakeWeakLink": {
+        "desc": "为 obj 创建（或复用 wlink）弱引用代理并记录到 obj._wlinks，使子对象指向父对象的引用不阻止 GC。",
+        "params": {
+          "obj": "目标对象",
+          "wlink": "可选，复用的旧链接"
+        },
+        "returns": "链接代理（userdata）"
+      },
+      "MakeHardLink": {
+        "desc": "创建硬链接代理并记录到 obj._hlinks，其 __gc 在没有其它硬链接时调用 obj:AutoDispose() 自动释放对象。",
+        "params": {
+          "obj": "目标对象",
+          "gc": "可选，自定义 __gc 回调"
+        },
+        "returns": "链接代理（userdata）"
+      },
+      "UnlinkSafe": {
+        "desc": "循环调用 userdata 链接直到取到真实对象；非链接值原样返回。",
+        "params": {
+          "link": "链接或对象"
+        },
+        "returns": "真实对象"
+      },
+      "CompareLinks": {
+        "desc": "先 UnlinkSafe 解链再比较，判断两个链接是否指向同一对象。",
+        "params": {
+          "link1": "链接1",
+          "link2": "链接2"
+        },
+        "returns": "boolean"
+      },
+      "CheckWeakLink": {
+        "desc": "若 link 是 userdata 代理且目标仍存活则返回目标对象，否则返回 false。",
+        "params": {
+          "link": "链接"
+        },
+        "returns": "目标对象或 false"
+      }
+    }
+  },
+  "fileDesc": "用 newproxy 代理实现父子对象间的弱/硬链接，解决引用环导致 GC 无法回收的问题。",
+  "_orphans": {}
+}

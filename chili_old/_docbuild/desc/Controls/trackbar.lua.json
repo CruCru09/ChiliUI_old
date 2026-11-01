@@ -1,0 +1,83 @@
+{
+  "file": "Controls/trackbar.lua",
+  "classes": {
+    "Trackbar": {
+      "summary": "滑块条控件：把鼠标位置换算为 min..max 数值并按 step 取整，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 \"trackbar\"",
+        "value": "当前值，默认 50，始终按 step 对齐并夹紧到 min..max",
+        "min": "取值范围下限，默认 0",
+        "max": "取值范围上限，默认 100",
+        "step": "步长，默认 1；SetValue 时按它取整",
+        "useValueTooltip": "为 true 时把当前数值写入 tooltip；New 中未提供 tooltip 时自动置 true",
+        "defaultWidth": "默认宽度（像素 90）",
+        "defaultHeight": "默认高度（像素 20）",
+        "hitpadding": "命中区域内缩 {左, 上, 右, 下}，影响鼠标 x 到百分比的换算",
+        "noFont": "为 true 时不使用字体，默认 true",
+        "OnChange": "值变化监听表，调用参数 (newValue, oldValue)"
+      },
+      "funcs": {
+        "Trackbar:New": {
+          "desc": "创建实例；未提供 tooltip 时自动启用数值 tooltip，并初始化 min/max 与 value。",
+          "params": {
+            "obj": "构造表"
+          },
+          "returns": "新建的 Trackbar 实例"
+        },
+        "Trackbar:_Clamp": {
+          "desc": "把数值夹到 [min,max]；min>max 时按反向区间夹紧。(内部)",
+          "params": {
+            "v": "待夹紧的数值"
+          },
+          "returns": "夹紧后的值"
+        },
+        "Trackbar:_GetPercent": {
+          "desc": "把鼠标 x 换算成 0-1 比例（考虑 hitpadding）；x 为 nil 时返回 value 的占比。(内部)",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y（未使用）"
+          },
+          "returns": "0-1 之间的比例"
+        },
+        "Trackbar:SetMinMax": {
+          "desc": "设置 min/max（非法值回退 0/1）并重新夹紧当前 value。",
+          "params": {
+            "min": "最小值",
+            "max": "最大值"
+          }
+        },
+        "Trackbar:SetValue": {
+          "desc": "按 step 取整并夹紧后写入 value，更新 tooltip、触发 OnChange 并重绘。",
+          "params": {
+            "v": "新值"
+          }
+        },
+        "Trackbar:DrawControl": {
+          "desc": "空实现，实际绘制由皮肤/主题覆盖。"
+        },
+        "Trackbar:HitTest": {
+          "desc": "始终返回自身，整条轨道都可拖动。"
+        },
+        "Trackbar:MouseDown": {
+          "desc": "按下时按点击位置立即把 value 设到对应数值，返回 self。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y"
+          }
+        },
+        "Trackbar:MouseMove": {
+          "desc": "按住左键拖动时按 x 位置持续更新 value。",
+          "params": {
+            "x": "本地 X",
+            "y": "本地 Y",
+            "dx": "X 位移（未使用）",
+            "dy": "Y 位移（未使用）",
+            "button": "为 1 时表示左键拖动"
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "滑块/拖动条控件：把鼠标 x 位置换算为 min..max 的数值（按 step 取整）并触发 OnChange。",
+  "_orphans": {}
+}

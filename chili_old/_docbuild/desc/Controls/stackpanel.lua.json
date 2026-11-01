@@ -1,0 +1,32 @@
+{
+  "file": "Controls/stackpanel.lua",
+  "classes": {
+    "StackPanel": {
+      "summary": "单列（或单行）堆叠容器，LayoutPanel 子类，按 orientation 依次排列子项。",
+      "props": {
+        "classname": "类名字符串，值为 \"stackpanel\"，用于控件类型标识。",
+        "orientation": "堆叠方向，默认 \"vertical\"（竖向依次排列），可设为 \"horizontal\"。",
+        "resizeItems": "固定为 true：子项沿堆叠方向被拉伸铺满可用空间。",
+        "itemPadding": "cell 内边距固定为 {0, 0, 0, 0}。",
+        "itemMargin": "子项外边距 {左, 上, 右, 下}，单位像素，默认 {5, 5, 5, 5}。",
+        "noFont": "继承自 Control：为 true 时不创建字体对象（纯布局容器，不渲染文本），默认为 true。"
+      },
+      "funcs": {
+        "StackPanel:New": {
+          "desc": "构造前按 obj.orientation 设好 rows/columns（横向时 rows=1、columns=nil，否则 rows=nil、columns=1），再调用父类构造。",
+          "params": {
+            "obj": "初始化属性表"
+          }
+        },
+        "StackPanel:SetOrientation": {
+          "desc": "先按新方向同步 rows/columns，再调用 inherited.SetOrientation 真正切换方向。",
+          "params": {
+            "orientation": "\"horizontal\" 或 \"vertical\""
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "定义 StackPanel：按 orientation 单行或单列堆叠子项的 LayoutPanel 子类，用 rows/columns 锁定堆叠方向。",
+  "_orphans": {}
+}

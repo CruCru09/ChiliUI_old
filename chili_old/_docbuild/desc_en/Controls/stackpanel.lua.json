@@ -1,0 +1,32 @@
+{
+  "file": "Controls/stackpanel.lua",
+  "classes": {
+    "StackPanel": {
+      "summary": "Single-column (or single-row) stacking container, a LayoutPanel subclass that arranges children along orientation.",
+      "props": {
+        "classname": "Class name string, \"stackpanel\", used to identify the control type.",
+        "orientation": "Stacking direction; default \"vertical\" (stacked top to bottom), can be set to \"horizontal\".",
+        "resizeItems": "Fixed to true: children are stretched along the stacking direction to fill the available space.",
+        "itemPadding": "Cell padding fixed to {0, 0, 0, 0}.",
+        "itemMargin": "Outer margin per child {left, top, right, bottom} in pixels. Default {5, 5, 5, 5}.",
+        "noFont": "Inherited from Control: when true no font object is created (pure layout container that renders no text). Defaults to true."
+      },
+      "funcs": {
+        "StackPanel:New": {
+          "desc": "Before construction sets rows/columns from obj.orientation (horizontal gives rows=1, columns=nil; otherwise rows=nil, columns=1), then calls the parent constructor.",
+          "params": {
+            "obj": "initialization property table"
+          }
+        },
+        "StackPanel:SetOrientation": {
+          "desc": "Synchronizes rows/columns to the new direction first, then calls inherited.SetOrientation to actually switch it.",
+          "params": {
+            "orientation": "\"horizontal\" or \"vertical\""
+          }
+        }
+      }
+    }
+  },
+  "fileDesc": "Defines StackPanel, a LayoutPanel subclass that stacks children in a single row or column, pinning the direction through rows/columns.",
+  "_orphans": {}
+}

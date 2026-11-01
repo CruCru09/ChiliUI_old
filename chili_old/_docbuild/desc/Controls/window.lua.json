@@ -1,0 +1,45 @@
+{
+  "file": "Controls/window.lua",
+  "classes": {
+    "Window": {
+      "summary": "窗口控件：可拖动、缩放、点击置顶的顶层容器，外观由皮肤绘制，继承 Control。",
+      "props": {
+        "classname": "控件类名，固定为 'window'",
+        "resizable": "为 true 时允许拖动边框调整窗口大小，默认 true",
+        "draggable": "为 true 时允许按住窗口拖动移动，默认 true",
+        "bringToFrontOnClick": "为 true 时鼠标按下自动置顶，默认 true",
+        "noFont": "为 true 时不使用字体，默认 true",
+        "minWidth": "缩放时的最小宽度（像素 50）",
+        "minHeight": "缩放时的最小高度（像素 50）",
+        "defaultWidth": "默认宽度（像素 400）",
+        "defaultHeight": "默认高度（像素 300）"
+      },
+      "funcs": {
+        "Window:UpdateClientArea": {
+          "desc": "为窗口注册/更新模糊矩形；整段实现当前被注释掉，实际不会执行。"
+        },
+        "Window:New": {
+          "desc": "创建实例：有 caption 且未显式 noFont 时允许字体，随后 BringToFront 置顶。",
+          "params": {
+            "obj": "构造表"
+          },
+          "returns": "新建的 Window 实例"
+        },
+        "Window:DrawControl": {
+          "desc": "空实现，窗口背景/标题栏/边框由皮肤覆盖绘制。"
+        },
+        "Window:MouseDown": {
+          "desc": "bringToFrontOnClick 为 true 时先 BringToFront，再交由父类处理按下。",
+          "params": {
+            "...": "鼠标参数，透传给父类"
+          }
+        },
+        "Window:TweakDraw": {
+          "desc": "布局调试（tweak）模式下绘制半透明绿色遮罩与平铺纹理，可缩放窗口使用 resizable 版贴图。"
+        }
+      }
+    }
+  },
+  "fileDesc": "窗口控件：可拖动/缩放/点击置顶的顶层容器，标题栏与边框由皮肤绘制，TweakDraw 用于布局调试。",
+  "_orphans": {}
+}

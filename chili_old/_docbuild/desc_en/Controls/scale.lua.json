@@ -1,0 +1,32 @@
+{
+  "file": "Controls/scale.lua",
+  "classes": {
+    "Scale": {
+      "summary": "Ruler control: draws horizontal tick lines with min/0/+max labels. Inherits from Control.",
+      "props": {
+        "classname": "Control class name, fixed to \"scale\"",
+        "min": "Minimum tick value; default -50",
+        "max": "Maximum tick value; default 50",
+        "step": "Tick interval; default 10",
+        "logBase": "Logarithmic scale base; default 1.5. The current drawing code does not use this field",
+        "noFont": "When true the numeric labels are not drawn; default false",
+        "defaultWidth": "Default width in pixels (90)",
+        "defaultHeight": "Default height in pixels (12)",
+        "fontsize": "Font size in pixels (8), also used as the tick line height",
+        "scaleFunction": "Optional non-linear mapping function (0-1 to 0-1) that maps tick values to horizontal positions; nil means even spacing",
+        "color": "Tick line and label color; default {0,0,0,1} black"
+      },
+      "funcs": {
+        "Scale:DrawControl": {
+          "desc": "Draws the horizontal axis and tick lines (centered on 0 and mapped non-linearly when scaleFunction is set) and prints the min, 0 and +max labels."
+        },
+        "Scale:HitTest": {
+          "desc": "Always returns false; the ruler is not interactive.",
+          "returns": "false"
+        }
+      }
+    }
+  },
+  "fileDesc": "Ruler control: draws horizontal tick lines and numeric labels, either linear or non-linear via a custom scaleFunction.",
+  "_orphans": {}
+}

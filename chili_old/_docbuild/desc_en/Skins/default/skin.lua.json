@@ -1,0 +1,165 @@
+{
+  "file": "Skins/default/skin.lua",
+  "module": {
+    "summary": "default skin: a drawing function for every control plus the skin tables (skin.general, per-control colors/borders/DrawControl etc.); finally returns skin.",
+    "funcs": {
+      "DrawBorder": {
+        "desc": "Draws the 1px beveled border with borderColor/borderColor2; when state.pressed is true the two colors swap.",
+        "params": {
+          "obj": "control object",
+          "state": "state table (with pressed)"
+        }
+      },
+      "DrawBackground": {
+        "desc": "Fills the control rect with backgroundColor via TRIANGLE_STRIP and _DrawBackground.",
+        "params": {
+          "obj": "control object"
+        }
+      },
+      "_DrawScrollbar": {
+        "desc": "Draws the scrollbar track and, depending on type 'horizontal'/'vertical', the grip positioned by pos and sized by visiblePercent. (internal)",
+        "params": {
+          "obj": "control object",
+          "type": "orientation",
+          "x": "left",
+          "y": "top",
+          "w": "width",
+          "h": "height",
+          "pos": "scroll ratio 0..1",
+          "visiblePercent": "visible ratio 0..1",
+          "state": "state table"
+        }
+      },
+      "_DrawBackground": {
+        "desc": "Vertex callback that draws a backgroundColor rect for gl.BeginEnd. (internal)",
+        "params": {
+          "obj": "control object"
+        }
+      },
+      "_DrawTabBackground": {
+        "desc": "Draws the tab background inset by 2px on every side. (internal)",
+        "params": {
+          "obj": "control object"
+        }
+      },
+      "DrawWindow": {
+        "desc": "DrawControl for windows: draws the background and the border.",
+        "params": {
+          "obj": "window object"
+        }
+      },
+      "DrawButton": {
+        "desc": "Draws the button background and border, and centers the caption with obj.font when one is set.",
+        "params": {
+          "obj": "button object"
+        }
+      },
+      "_DrawTriangle": {
+        "desc": "Draws a small focusColor triangle on the right side as the dropdown indicator. (internal)",
+        "params": {
+          "obj": "control object"
+        }
+      },
+      "DrawComboBox": {
+        "desc": "Draws the button look first, then overlays the dropdown triangle.",
+        "params": {
+          "obj": "combobox object"
+        }
+      },
+      "DrawCursor": {
+        "desc": "Emits the four vertices of the text cursor rect (for gl.BeginEnd).",
+        "params": {
+          "x": "left",
+          "y": "top",
+          "w": "width",
+          "h": "height"
+        }
+      },
+      "DrawEditBox": {
+        "desc": "Draws the editbox: background, a border colored with focusColor when focused (otherwise borderColor2/borderColor), text clipped by offset/cursor, and a time-based blinking cursor while focused.",
+        "params": {
+          "obj": "editbox object"
+        }
+      },
+      "DrawPanel": {
+        "desc": "DrawControl for panels: draws the background and the border.",
+        "params": {
+          "obj": "panel object"
+        }
+      },
+      "DrawItemBkGnd": {
+        "desc": "Draws a list item background (dark blue when selected, otherwise light translucent blue) with a 1px border on top.",
+        "params": {
+          "obj": "control object",
+          "x": "left",
+          "y": "top",
+          "w": "width",
+          "h": "height",
+          "state": "state string such as \"selected\""
+        }
+      },
+      "DrawScrollPanel": {
+        "desc": "Draws the vertical/horizontal scrollbars inside the coordinate frame offset by clientArea, sized from contentArea.",
+        "params": {
+          "obj": "scrollpanel object"
+        }
+      },
+      "DrawTrackbar": {
+        "desc": "Draws the trackbar: a horizontal track line and a grip positioned by (value-min)/(max-min).",
+        "params": {
+          "obj": "trackbar object"
+        }
+      },
+      "DrawCheckbox": {
+        "desc": "Draws the checkbox caption, box and border, plus a check mark when state.checked is true.",
+        "params": {
+          "obj": "checkbox object"
+        }
+      },
+      "DrawColorbars": {
+        "desc": "Draws the R/G/B/A color bars, the current-color preview block on the right and the border.",
+        "params": {
+          "obj": "colorbars object"
+        }
+      },
+      "DrawLine": {
+        "desc": "Draws a vertical line when style starts with 'v', otherwise a horizontal one (1px two-color line using borderColor/borderColor2).",
+        "params": {
+          "self": "line object"
+        }
+      },
+      "DrawDragGrip": {
+        "desc": "Draws the drag grip in the top-left corner of a window using TRIANGLES.",
+        "params": {
+          "obj": "window object"
+        }
+      },
+      "DrawResizeGrip": {
+        "desc": "When obj.resizable is true (or tweakResizable in tweak mode), draws three resize lines in the bottom-right corner with GL.LINES.",
+        "params": {
+          "obj": "window object"
+        }
+      },
+      "DrawTreeviewNode": {
+        "desc": "When the node is the treeview's selected node, draws a translucent blue background and a dark blue border highlight.",
+        "params": {
+          "self": "treeviewnode object"
+        }
+      },
+      "DrawTreeviewNodeTree": {
+        "desc": "Draws the tree node connector lines (a vertical plus a horizontal line, without the downward part for a parent's last child) and the expand/collapse icon when the node has children.",
+        "params": {
+          "self": "treeviewnode object"
+        }
+      },
+      "DrawTabBarItem": {
+        "desc": "Draws the tab background and border with the caption centered; when selected it temporarily uses focusColor for the text and restores the font color afterwards.",
+        "params": {
+          "self": "tabbaritem object"
+        }
+      }
+    }
+  },
+  "fileDesc": "default skin implementation: drawing functions for every control plus the skin default tables (skin.general, skin.button, skin.window, ...).",
+  "_orphans": {}
+}

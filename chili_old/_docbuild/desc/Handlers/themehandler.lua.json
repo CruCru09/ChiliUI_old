@@ -1,0 +1,5 @@
+{
+  "file": "Handlers/themehandler.lua",
+  "fileDesc": "占位实现：通过 VFS.Include 载入 themes/theme.lua，把皮肤配置暴露为全局 theme 表。",
+  "_orphans": {}
+}

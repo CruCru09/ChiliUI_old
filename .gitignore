@@ -1,0 +1,13 @@
+# 构建中间产物 / build intermediate
+# parse.cjs 每次构建都会重新生成 raw.json；它不进仓库
+chili_old/_docbuild/raw.json
+
+# desc 写入前的自动备份 / 回滚目录 Pre-write automatic backup / rollback directory
+chili_old/_docbuild/_attic/
+
+# 校验脚本的临时输出 Temporary output of the verification script
+chili_old/_docbuild/_cjk*.txt
+
+# Windows
+Thumbs.db
+desktop.ini

@@ -1,0 +1,9 @@
+{
+  "file": "Headers/zkcompat.lua",
+  "module": {
+    "summary": "兼容垫片（本项目新增）：普通 Spring/Recoil 引擎没有 Zero-K 的 LuaRules/Utilities 工具层，本文件在框架加载最开始补齐 Spring.Utilities.CopyTable、Spring.ScaledGetMouseState、Spring.GetViewSizes、Spring.Orig 等缺失项；已存在同名函数时不覆盖，因此整个目录拷到 ZK 里也不会冲突。",
+    "funcs": {}
+  },
+  "fileDesc": "新增的兼容层：给非 ZK 引擎补 Spring.Utilities.CopyTable / Spring.ScaledGetMouseState / Spring.GetViewSizes / Spring.Orig，保证 chili 在任意 Recoil 游戏里都能加载。",
+  "_orphans": {}
+}

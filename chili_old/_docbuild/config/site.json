@@ -1,0 +1,13 @@
+{
+  "_comment": "Site-level editable configuration: page title, top bar brand name (in both Chinese and English), slogan template, default theme, output directory. There is no need to touch build.cjs here.",
+  "titleZh": "ChiliUI 控件库 API参考",
+  "titleEn": "ChiliUI Controls API Reference",
+  "brandZh": "Chili UI 参考文档",
+  "brandEn": "Chili UI Reference",
+  "taglineZh": "{dir} - {classes} 个类 / {lines} 行 Lua",
+  "taglineEn": "{dir} - {classes} classes / {lines} lines of Lua",
+  "repoUrl": "https://github.com/gajop/chiliui",
+  "repoUrl_comment": "GitHub repository URL shown as the round button in the top bar (empty = hidden). This default points at the upstream Chili UI project; change it to your own fork/repository when you publish one.",
+  "defaultTheme": "light",
+  "outputDir": "./html"
+}
